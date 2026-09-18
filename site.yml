@@ -1,5 +1,5 @@
 # --------------------------------------
-# 杜康 · 作品集 · 站点配置（site.yml）
+# 砚山（INKSTONE PEAK）· 作品集 · 站点配置（site.yml）
 #
 # 组织体例参考 Butterfly _config.yml（https://butterfly.js.org/）：
 #   · 按「能力」分节（Navigation / Index / Portfolio / Blog / Post / Footer…），不按页面分节；
@@ -17,11 +17,11 @@
 # Site（站点元信息）
 # --------------------------------------
 site:
-  title: 杜康
-  author: 杜康
+  title: 砚山           # 站名（中文）；英文名 INKSTONE PEAK（= 仓库名 inkstone-peak，仓库/文档层用，不进界面）
+  author: 杜康          # 作者笔名：站叫砚山，人仍署名杜康（页脚简介、版权行、首题词「唯有杜康」同一出处）
   lang: zh-CN
   description: 何以解忧？唯有杜康
-  url: https://dukang.vercel.app       # 站点绝对 URL：预渲染逐路由 canonical 的唯一来源（绑域名只改这一行）
+  url: https://inkstone-peak.vercel.app  # 站点绝对 URL：预渲染逐路由 canonical 的唯一来源（绑域名只改这一行）
 
 # --------------------------------------
 # Navigation（双导航唯一事实源）
