@@ -30,10 +30,9 @@ function safeRelPath(pathname: string): string | null {
   return rel
 }
 
-/** source/site = publicDir：Vite 会原样整份拷进 dist/，这里按后缀 + 显式文件名白名单把关（B2）。
- *  文件名白名单只收 Cloudflare 约定件；**不要**放宽成「_ 开头的都放行」——那等于给任意笔记开后门。 */
+/** source/site = publicDir：Vite 会原样整份拷进 dist/，这里按后缀把关（B2）。
+ *  **不要**放宽成「_ 开头的都放行」——那等于给任意笔记开后门。 */
 const PUBLISHABLE_EXT = new Set(['.png', '.jpg', '.jpeg', '.webp', '.avif', '.gif', '.svg', '.ico', '.pdf', '.woff', '.woff2', '.txt', '.xml', '.json'])
-const PUBLISHABLE_NAMES = new Set(['_headers', '_redirects'])
 function assertPublishableSource(root: string): void {
   const dir = path.resolve(root, 'source', 'site')
   if (!existsSync(dir)) return
@@ -42,7 +41,7 @@ function assertPublishableSource(root: string): void {
     for (const e of readdirSync(cur, { withFileTypes: true })) {
       const p = path.join(cur, e.name)
       if (e.isDirectory()) walk(p)
-      else if (!PUBLISHABLE_EXT.has(path.extname(e.name).toLowerCase()) && !PUBLISHABLE_NAMES.has(e.name)) bad.push(path.relative(dir, p).split(path.sep).join('/'))
+      else if (!PUBLISHABLE_EXT.has(path.extname(e.name).toLowerCase())) bad.push(path.relative(dir, p).split(path.sep).join('/'))
     }
   }
   walk(dir)

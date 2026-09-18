@@ -1,6 +1,6 @@
-# 部署方式（Cloudflare Pages · 纯静态）
+# 部署方式（Vercel · 纯静态）
 
-> 规格依据：10-开发计划书 §7（托管）/ §3.2（预渲染）。国内不稳预案：COS+CDN 平移零成本（10 §7），步骤同理换供应商。
+> 规格依据：10-开发计划书 §7（托管）/ §3.2（预渲染）。
 
 ## 〇. 纯本地打开（完全不上传网络，也能看整站）
 
@@ -20,7 +20,7 @@ npm run preview    # 起本地服务 → 浏览器打开 http://127.0.0.1:4173
 
 > 注：微信分享卡片、手机流量访问这类"公网验证"只在真上线后才能做；本地阶段用不上也不影响任何功能。
 
-## 1. 构建（本地或 CI 均可；Cloudflare 端零服务端二进制纪律已满足——sharp 只在本脚本链里跑）
+## 1. 构建（本地或 CI 均可；sharp 只在本脚本链里跑）
 
 ```bash
 cd <仓库目录>
@@ -32,49 +32,45 @@ npm run checklist # 上线检查表：🔴 必须为 0
 产物在 `dist/`：21 份路由 HTML（6 固定 + 5 案例 + 10 博文；每页独立 title/description/canonical/keywords **且内嵌预渲染正文**）+ 哈希资源 + `sitemap.xml` `rss.xml` `robots.txt`（三份构建期生成，域名唯一源 = `site.yml` 的 `site.url`）+ 站点根静态件（`hero-base.png`、`mist-a/b.png`、`noise.webp`、`favicon.svg`、`apple-touch-icon.png`，源在 `source/site/`）。★2026-09-13：旧地址重定向桩 ×11 已整层删除。
 > ★2026-09-11 用户令：OG 全套（og:title/description/url/image 及 og 图）已移除——微信/QQ 分享不再出卡片，故 `source/site/` 下不再有 `og-default.png` 与 `og/*.png`。
 
-## 2. 部署（二选一）
+## 2. 部署（Vercel）
 
-### 方式 A · 连 Git 仓库（推荐，push 即发布）
-
-1. 把本工程推到 GitHub 私有仓：
+1. 把本工程推到 GitHub 仓库（公开或私有均可）：
    ```bash
    git remote add origin <你的仓库地址>
-   git push -u origin main   # 本仓库默认分支是 main（不是 master）
+   git push -u origin main   # 本仓库默认分支是 main
    ```
-2. Cloudflare Dashboard → **Workers & Pages → Create → Pages → Connect to Git** → 选仓库。
-3. 构建设置照抄：
+2. Vercel Dashboard → **Add New → Project → Import Git Repository** → 选仓库。
+3. 构建设置照抄（**Framework Preset 选 Other**——选 Vite 会把构建命令覆盖成 `vite build`，跳过内容校验与预渲染）：
    | 项 | 值 |
    |---|---|
-   | Build command | `npm run build` |
-   | Build output directory | `dist` |
-   | Node version（环境变量 `NODE_VERSION`） | `24` |
+   | Framework Preset | `Other` |
+   | Build Command | `npm run build` |
+   | Output Directory | `dist` |
+   | Install Command | `npm ci` |
+   | Node.js Version | `24`（默认） |
 
-   > ⚠ 托管方必须支持**目录索引**（请求 `/portfolio` 直出 `dist/portfolio/index.html`）——Cloudflare Pages 支持。若换成 SPA 回退式托管（任何路径都回 `index.html`），非首页的**首帧会看到首页内容**，21 份预渲染正文等于白做（爬虫与无 JS 用户尤其受影响）。
-4. Save and Deploy。以后 `git push` 自动重新构建发布。
-   - ⚠ Cloudflare 环境跑不了 sharp 的场合（极少见）：只把 `assets`（唯一吃 sharp 的一步）拆出去——本地 `npm run assets` 后提交 `source/site/*`，云端 Build command 改 `npm run content && npm run media && npm run gate && tsc --noEmit && vite build && npm run ssr && npm run prerender && npm run feeds`。
+   > ⚠ 托管方必须支持**目录索引**（请求 `/portfolio` 直出 `dist/portfolio/index.html`）——Vercel 默认支持、无需配置；`dist/404.html` 也会被自动用作 404 页。若换成 SPA 回退式托管，非首页的**首帧会看到首页内容**，预渲染正文等于白做（爬虫与无 JS 用户尤其受影响）。
+4. Deploy。以后 `git push` 自动重新构建发布。
+   - ⚠ 构建环境跑不了 sharp 的场合（极少见）：只把 `assets`（唯一吃 sharp 的一步）拆出去——本地 `npm run assets` 后提交 `source/site/*`，云端 Build Command 改 `npm run content && npm run media && npm run gate && tsc --noEmit && vite build && npm run ssr && npm run prerender && npm run feeds`。
      `media` **不含 sharp**（纯媒体闸：体积/编码/faststart + MP4 头解析），留在链上做交付前校验；图片/视频的搬运由 `vite.config.ts` 的 `staticFromSource` 插件负责（dev 直供 `source/`、build 直写 `dist/`）。
-
-### 方式 B · 直接拖拽（最快，一次性）
-
-Dashboard → Pages → **Upload assets** → 把 `dist/` 整个文件夹拖进去 → 部署完成。每次改版重传。
 
 ### 安全响应头（**当前未配置**）
 
-> ⚠ 2026-09-18：安全响应头机制整体移除——`scripts/headers.ts` 与 `scripts/gate-csp.ts` 退役，`npm run build` 不再产出 `dist/_headers`。
-> 托管方案定稿后按新形态加回：**托管侧声明**（Vercel 走根目录 `vercel.json` 的 `headers`；国内 CDN 走控制台）+ **内容侧闸门**（沿用 `gate:csp` 式静态核对）。
+> ⚠ 2026-09-18：安全响应头机制整体移除——原生成器与配套静态闸门已退役，`npm run build` 不再产出任何响应头文件。
+> 定稿后按新形态加回：**托管侧声明**（Vercel 走根目录 `vercel.json` 的 `headers`）+ **内容侧闸门**（沿用 `gate:csp` 式静态核对）。
 > 在此之前整站没有 CSP / HSTS / X-Frame-Options / `nosniff` / Referrer-Policy / Permissions-Policy 等响应头，`/assets/*` 也没有 immutable 缓存声明。
 
 ## 3. SPA 路由与 404
 
-- `dist/404.html` 会被 Pages 自动用作 404 页（含 noindex）。
+- `dist/404.html` 会被 Vercel 自动用作 404 页（含 noindex）。
 - 已知深链（如 `/portfolio/ip-character`）由预渲染目录直出；未知路径的真 404 由**托管商侧的 fallback / 重定向规则**提供——本工程不含托管专有配置（2026-09-16 已移除）。
 - 本地 `vite preview` 的等价语义写在 `vite.config.ts` 的 `previewDirIndex()`（只挂 preview，产物零改动）。
 - ★2026-09-13 起已退役的旧地址（/work、/works、/pipeline 及其 :slug 族）不再兜底，一律返回真 404。
 
 ## 4. 绑自定义域名（以后再说也完全可以）
 
-1. Pages 项目 → **Custom domains → Set up a custom domain**。
-2. 域名解析交给 Cloudflare（或在原 DNS 加 CNAME 到 `<项目>.pages.dev`）。
+1. Vercel 项目 → **Settings → Domains → Add**，填你的域名。
+2. 按 Vercel 提示到 DNS 服务商加记录（apex 用 A 记录 `76.76.21.21`，`www` 用 CNAME 指向 Vercel 给出的目标——以域名卡显示的值为准）。
 3. **改 `site.yml` 的 `site.url` 一行** → `npm run build` → 重新部署（预渲染逐路由 canonical 的绝对域唯一来源就是这行，10 §3.2）。
 
 ## 5. 访问统计（可选，10 §7）
@@ -87,12 +83,12 @@ Umami 免费云版注册站点后，把这段加进 `index.html` 的 `</body>` �
 
 ## 6. 上线前验收（10 §8 M4，需你本人过一遍）
 
-- [ ] 手机**关 Wi-Fi 用流量**访问 pages.dev 地址：首屏粒子山、滚动不掉帧（中端手机 60fps 口径）。
+- [ ] 手机**关 Wi-Fi 用流量**访问 Vercel 地址：首屏粒子山、滚动不掉帧（中端手机 60fps 口径）。
 - [ ] **逐个路由直访**：页面标题/描述正确、无控制台报错（★OG 卡片已于 2026-09-11 移除，微信/QQ 分享不再出卡片）。
 - [ ] `npm run checklist` 的 🟢 开关处理：`contact.bilibili` 补真地址或维持「筹建中」。
 - [ ] 🟡 占位替换（不阻塞投递，素材来一张换一张）：案例封面 → `source/images/<slug>/cover.webp`（列表卡与案例页共用）。
 - [ ] 想挂简历 / 资料 PDF：文件放进 `site/source/site/`（如 `source/site/resume/du-kang.pdf`），再在 `site.yml` 的 `footer.columns` 加一栏，例：`{ id: files, title: 资料, links: [ { label: 简历, to: /resume/du-kang.pdf } ] }`——没有专门的简历字段，构建期会校文件是否落盘。
-- [ ] 换完任何素材：`npm run build` → 重新部署（方式 A 即 push）。
+- [ ] 换完任何素材：`npm run build` → 重新部署（push 即自动部署）。
 
 ## 7. 日常改内容（不碰代码）
 
@@ -154,7 +150,7 @@ video:
 
 | 闸 | 行为 | 为什么 |
 |---|---|---|
-| 单文件 > 25 MiB | 🔴 **构建失败** | Cloudflare Pages 硬上限；超限=部署直接失败，不如本地早失败 |
+| 单文件 > 25 MiB | 🔴 **构建失败** | 托管单文件上限（保守取 25 MiB）；超限=部署直接失败，不如本地早失败 |
 | mp4 编码 = `hvc1`/`hev1`（H.265/HEVC） | ⚠️ 警告 | **Chrome/Edge/Firefox 在多数 Windows 上解不了**（页面是黑框，只 Safari 与部分手机稳） |
 | moov 在 mdat 之后（无 faststart） | ⚠️ 警告 | 首帧要等整段下完才开始播 |
 

@@ -1,6 +1,6 @@
 // source/ 媒体交付闸（2026-09-16 免暂存改造）：图片/视频不再经 public/ 镜像——
 // dev 由 vite.config.ts 的 staticFromSource 直供 source/、build 由它直接写进 dist；本步只做闸 + 落报告，不碰文件。
-// 闸：单文件 ≤25MiB（Cloudflare Pages 硬上限）· 视频编码须浏览器安全 · mp4 须 faststart（moov 在 mdat 前）。
+// 闸：单文件 ≤25MiB（托管单文件上限，保守取值）· 视频编码须浏览器安全 · mp4 须 faststart（moov 在 mdat 前）。
 import { existsSync, readFileSync, readdirSync, statSync, mkdirSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
@@ -11,7 +11,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const SOURCE = path.join(ROOT, 'source')
 const REPORT = path.join(ROOT, '.content', 'media-report.json')
 
-const MAX_BYTES = 25 * 1024 * 1024 // Cloudflare Pages 单文件硬上限
+const MAX_BYTES = 25 * 1024 * 1024 // 托管单文件上限：保守取 25 MiB，留足各托管商余量
 const SAFE_CODECS = new Set(['avc1', 'avc3', 'av01', 'vp09', 'vp08'])
 const HEVC_CODECS = new Set(['hvc1', 'hev1', 'dvh1', 'dvhe'])
 
@@ -101,7 +101,7 @@ function main(): void {
       // 闸① 体积：超硬上限即 error
       if (size > MAX_BYTES) {
         errors.push(
-          `${label}：${(size / 1048576).toFixed(2)} MiB 超过 25 MiB 上限（Cloudflare Pages 单文件硬上限，超限=部署直接失败）——` +
+          `${label}：${(size / 1048576).toFixed(2)} MiB 超过 25 MiB 上限（超过托管单文件上限，超限=部署直接失败）——` +
             `处理：降码率/降分辨率重导，或改走 A 外链（B站）不用自托管`,
         )
         continue

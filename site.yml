@@ -21,7 +21,7 @@ site:
   author: 杜康
   lang: zh-CN
   description: 何以解忧？唯有杜康
-  url: https://dukang.pages.dev        # 站点绝对 URL：预渲染逐路由 canonical 的唯一来源（绑域名只改这一行）
+  url: https://dukang.vercel.app       # 站点绝对 URL：预渲染逐路由 canonical 的唯一来源（绑域名只改这一行）
 
 # --------------------------------------
 # Navigation（双导航唯一事实源）

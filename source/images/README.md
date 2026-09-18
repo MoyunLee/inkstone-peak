@@ -24,7 +24,7 @@ source/images/
 | 博文顶图 | `top_img:` | `top.webp` | 21:9，按 `object-fit: cover` 裁切 |
 
 - 一律 **WebP**（`source/` 是母版唯一家，只有 `source/` 会被搬进产物）。
-- 单文件 **> 25 MiB 直接构建失败**（Cloudflare Pages 单文件硬上限）；视频规格见 `DEPLOY.md` §8。
+- 单文件 **> 25 MiB 直接构建失败**（托管单文件上限，保守取值）；视频规格见 `DEPLOY.md` §8。
 - 字体不需要管：全站走系统字体栈，**没有字体子集**这回事。
 
 ## 清零三步
