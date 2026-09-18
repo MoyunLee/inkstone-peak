@@ -73,15 +73,7 @@ npm run checklist # 上线检查表：🔴 必须为 0
 2. 按 Vercel 提示到 DNS 服务商加记录（apex 用 A 记录 `76.76.21.21`，`www` 用 CNAME 指向 Vercel 给出的目标——以域名卡显示的值为准）。
 3. **改 `site.yml` 的 `site.url` 一行** → `npm run build` → 重新部署（预渲染逐路由 canonical 的绝对域唯一来源就是这行，10 §3.2）。
 
-## 5. 访问统计（可选，10 §7）
-
-Umami 免费云版注册站点后，把这段加进 `index.html` 的 `</body>` 前（site 地址与 id 换成你的）：
-
-```html
-<script defer src="https://analytics.example.com/script.js" data-website-id="xxxxxxxx"></script>
-```
-
-## 6. 上线前验收（10 §8 M4，需你本人过一遍）
+## 5. 上线前验收（10 §8 M4，需你本人过一遍）
 
 - [ ] 手机**关 Wi-Fi 用流量**访问 Vercel 地址：首屏粒子山、滚动不掉帧（中端手机 60fps 口径）。
 - [ ] **逐个路由直访**：页面标题/描述正确、无控制台报错（★OG 卡片已于 2026-09-11 移除，微信/QQ 分享不再出卡片）。
@@ -90,7 +82,7 @@ Umami 免费云版注册站点后，把这段加进 `index.html` 的 `</body>` �
 - [ ] 想挂简历 / 资料 PDF：文件放进 `site/source/site/`（如 `source/site/resume/du-kang.pdf`），再在 `site.yml` 的 `footer.columns` 加一栏，例：`{ id: files, title: 资料, links: [ { label: 简历, to: /resume/du-kang.pdf } ] }`——没有专门的简历字段，构建期会校文件是否落盘。
 - [ ] 换完任何素材：`npm run build` → 重新部署（push 即自动部署）。
 
-## 7. 日常改内容（不碰代码）
+## 6. 日常改内容（不碰代码）
 
 - 改话术/导航/页脚 → `site.yml`；改事实 → 见下方目录表。
 
@@ -118,7 +110,7 @@ Umami 免费云版注册站点后，把这段加进 `index.html` 的 `</body>` �
 - 开发预览：`npm run content:watch` + `npm run dev` 两个终端并跑（改完即热更）；或直接 `npm run build && npx vite preview`。
 - 校验永远在构建里兜底：缺字段=中文报错+构建失败（M0 机制）。
 
-## 8. 视频上传（三路线，2026-09-12 落地）
+## 7. 视频上传（三路线，2026-09-12 落地）
 
 案例页支持三种视频形态，**可同时用**，都写在 `source/posts/<slug>.md`（tags 含 `portfolio` 标记）的 frontmatter 里：
 
