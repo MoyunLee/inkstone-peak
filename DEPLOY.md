@@ -8,11 +8,11 @@
 
 ```bash
 cd <仓库目录>
-npm run build      # 产 dist/（内容校验→媒体→素材→中文闸→类型→构建→SSR→21 路由正文预渲染→feeds）
+npm run build      # 产 dist/（内容校验→媒体→素材→中文闸→类型→构建→SSR→10 路由正文预渲染→feeds）
 npm run preview    # 起本地服务 → 浏览器打开 http://127.0.0.1:4173
 ```
 
-- **`npm run preview` 的语义与生产一致**（目录路径直出 `<路径>/index.html`，未知路径给 404 页）：`vite.config.ts` 里的 `previewDirIndex()` 补了这层改写。★此前 vite preview 的 SPA 回退会把**所有非首页路径都喂成 `dist/index.html`**，于是刷新 /portfolio、/blog、/footer 时**首帧先看到首页内容**、React 挂载后才换成真页面（地址栏不变，像被弹回首页）；21 份预渲染正文里只有首页那份在本地可见（2026-09-16 修复）。
+- **`npm run preview` 的语义与生产一致**（目录路径直出 `<路径>/index.html`，未知路径给 404 页）：`vite.config.ts` 里的 `previewDirIndex()` 补了这层改写。★此前 vite preview 的 SPA 回退会把**所有非首页路径都喂成 `dist/index.html`**，于是刷新 /portfolio、/blog、/footer 时**首帧先看到首页内容**、React 挂载后才换成真页面（地址栏不变，像被弹回首页）；10 份预渲染正文里只有首页那份在本地可见（2026-09-16 修复）。
 - 只投递期自用：这台电脑开着 `npm run preview` 就能逛所有页面（首页五段/案例/关于/流程/404 全功能，粒子、导航、深链都在）。
 - 想给别人看但不想上网：同一 Wi-Fi 下用 `npx vite preview --host 0.0.0.0`，手机访问 `http://<你电脑IP>:4173`（防火墙放行即可）——仅限同网段，不出户。
 - 改文案/内容想即时看：另开一个终端 `npm run content:watch`，再跑 `npm run dev`（地址 http://127.0.0.1:5173），改 `site.yml`、`source/` 或 `content/` 下的 md 存盘即热更。
@@ -29,7 +29,7 @@ npm run build     # = content → media → assets → 中文闸 → tsc → vit
 npm run checklist # 上线检查表：🔴 必须为 0
 ```
 
-产物在 `dist/`：21 份路由 HTML（6 固定 + 5 案例 + 10 博文；每页独立 title/description/canonical/keywords **且内嵌预渲染正文**）+ 哈希资源 + `sitemap.xml` `rss.xml` `robots.txt`（三份构建期生成，域名唯一源 = `site.yml` 的 `site.url`）+ 站点根静态件（`hero-base.png`、`mist-a/b.png`、`noise.webp`、`favicon.svg`、`apple-touch-icon.png`，源在 `source/site/`）。★2026-09-13：旧地址重定向桩 ×11 已整层删除。
+产物在 `dist/`：10 份路由 HTML（5 固定 + 2 案例 + 2 博文 + 404；每页独立 title/description/canonical/keywords **且内嵌预渲染正文**）+ 哈希资源 + `sitemap.xml` `rss.xml` `robots.txt`（三份构建期生成，域名唯一源 = `site.yml` 的 `site.url`）+ 站点根静态件（`hero-base.png`、`mist-a/b.png`、`noise.webp`、`favicon.svg`、`apple-touch-icon.png`，源在 `source/site/`）。★2026-09-13：旧地址重定向桩 ×11 已整层删除。
 > ★2026-09-11 用户令：OG 全套（og:title/description/url/image 及 og 图）已移除——微信/QQ 分享不再出卡片，故 `source/site/` 下不再有 `og-default.png` 与 `og/*.png`。
 
 ## 2. 部署（Vercel）
@@ -63,7 +63,7 @@ npm run checklist # 上线检查表：🔴 必须为 0
 ## 3. SPA 路由与 404
 
 - `dist/404.html` 会被 Vercel 自动用作 404 页（含 noindex）。
-- 已知深链（如 `/portfolio/ip-character`）由预渲染目录直出；未知路径的真 404 由**托管商侧的 fallback / 重定向规则**提供——本工程不含托管专有配置（2026-09-16 已移除）。
+- 已知深链（如 `/portfolio/18th-ada`）由预渲染目录直出；未知路径的真 404 由**托管商侧的 fallback / 重定向规则**提供——本工程不含托管专有配置（2026-09-16 已移除）。
 - 本地 `vite preview` 的等价语义写在 `vite.config.ts` 的 `previewDirIndex()`（只挂 preview，产物零改动）。
 - ★2026-09-13 起已退役的旧地址（/work、/works、/pipeline 及其 :slug 族）不再兜底，一律返回真 404。
 
