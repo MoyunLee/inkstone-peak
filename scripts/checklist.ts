@@ -67,7 +67,7 @@ if (site.footer.demo_note) toggles.push('footer.demo_note 仍在——正式发�
 const dist = P('dist')
 const delivery: string[] = []
 if (existsSync(path.join(dist, 'index.html'))) {
-  for (const f of ['sitemap.xml', 'rss.xml', 'robots.txt', '_headers']) {
+  for (const f of ['sitemap.xml', 'rss.xml', 'robots.txt']) {
     if (!existsSync(path.join(dist, f))) blocking.push(`dist/${f.split(path.sep).join('/')} 未产出——build 链缺 pre-render/feeds/media 步？`)
   }
   const routes = readJson<ArticleJson[]>('posts.json')

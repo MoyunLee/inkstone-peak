@@ -66,23 +66,25 @@ tags: [写作]
 | `npm run media` | 素材闸：单文件 ≤ 25 MiB、MP4 编码、faststart |
 | `npm run assets` | 用 sharp 生成站点根素材（底图 / 云雾 / 噪点 / favicon） |
 | `npm run gate` | 中文闸 + 调试语句闸 |
-| `npm run build` | 完整链：content → media → assets → gate → tsc → vite build → ssr → prerender → gate:csp → feeds |
+| `npm run build` | 完整链：content → media → assets → gate → tsc → vite build → ssr → prerender → feeds |
 | `npm run preview` | 本地预览 `dist/` |
 | `npm run checklist` | 上线检查表（硬阻塞 / 占位 / 素材体检 / 依赖审计） |
 | `npm run clean` | 清理 `dist/` `.ssr/` `.content/`（`--all` 连缓存与截图） |
 
 ## 部署
 
-纯静态站点，推荐 Cloudflare Pages（连 Git，push 即发布）：
+纯静态站点。以 Vercel 为例（Framework Preset 选 **Other**——Vite 预设会把构建命令覆盖成 `vite build`，跳过内容校验与预渲染）：
 
 | 项 | 值 |
 |---|---|
-| Build command | `npm run build` |
-| Build output directory | `dist` |
-| 环境变量 `NODE_VERSION` | `24` |
+| Build Command | `npm run build` |
+| Output Directory | `dist` |
+| Install Command | `npm ci` |
+| Node.js Version | 24（Vercel 默认） |
 
-- 托管方必须支持**目录索引**（请求 `/portfolio` 直出 `dist/portfolio/index.html`）；SPA 回退式托管会让非首页首帧先闪首页内容，预渲染白做。
-- `dist/_headers`（CSP 等安全响应头）由 `scripts/headers.ts` 生成，Cloudflare Pages 会自动读取；换其他托管商需在网关侧复刻。
+- `dist/404.html` 会被 Vercel 自动用作 404 页；`/portfolio` 这类目录索引无需额外配置。
+- 托管方必须支持**目录索引**；SPA 回退式托管会让非首页首帧先闪首页内容，预渲染白做。
+- ⚠ **安全响应头当前未配置**（CSP / HSTS / X-Frame-Options 等）：托管方案定稿后按平台声明（Vercel 用 `vercel.json`，国内 CDN 用控制台）。
 - 绑域名只需改 `site.yml` 的 `site.url` 一行再重新构建（canonical / sitemap / rss 都由它派生）。
 - 更细的说明见 `DEPLOY.md`。
 

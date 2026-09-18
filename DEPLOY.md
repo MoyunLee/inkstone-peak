@@ -58,13 +58,11 @@ npm run checklist # 上线检查表：🔴 必须为 0
 
 Dashboard → Pages → **Upload assets** → 把 `dist/` 整个文件夹拖进去 → 部署完成。每次改版重传。
 
-### 方式 B 之后 · 安全响应头（**换托管商必读**）
+### 安全响应头（**当前未配置**）
 
-`dist/_headers` 由 `scripts/headers.ts` 生成（CSP / X-Content-Type-Options / X-Frame-Options / Referrer-Policy / Permissions-Policy / HSTS），**Cloudflare Pages 会自动读取**，无需额外操作。
-
-> ⚠ 若为国内不稳切到 **COS + CDN** 或自建 Nginx（10 §7 的平移预案），`_headers` **不会被读取**——必须在 CDN/网关侧复刻同名响应头，否则整站回到"零安全头"。CSP 的 `frame-src` 是 `EMBED_HOSTS` 派生的，换托管商时照 `dist/_headers` 原样搬即可。
-
-`npm run build` 链末的 `gate:csp` 会拿 `dist/_headers` 的 CSP 逐份核对 22 份 HTML（内联脚本 / 内联事件 / `<style>` / 外链样式表 / 站外图片 / iframe 源），命中即构建失败——所以**改内容或加嵌入平台后不必靠肉眼记 CSP**。
+> ⚠ 2026-09-18：安全响应头机制整体移除——`scripts/headers.ts` 与 `scripts/gate-csp.ts` 退役，`npm run build` 不再产出 `dist/_headers`。
+> 托管方案定稿后按新形态加回：**托管侧声明**（Vercel 走根目录 `vercel.json` 的 `headers`；国内 CDN 走控制台）+ **内容侧闸门**（沿用 `gate:csp` 式静态核对）。
+> 在此之前整站没有 CSP / HSTS / X-Frame-Options / `nosniff` / Referrer-Policy / Permissions-Policy 等响应头，`/assets/*` 也没有 immutable 缓存声明。
 
 ## 3. SPA 路由与 404
 
