@@ -1,0 +1,149 @@
+/* 文章详情扩展（顶图/目录/侧栏/版权/代码折叠；开关关时 DOM 不存在） */
+
+/* ── 顶图：21/9，独占整个版心（与轮播图同宽） ── */
+.bd-hero { margin: 0 0 2.2em; }
+.bd-hero img { display: block; width: 100%; aspect-ratio: 21 / 9; object-fit: cover; border-radius: var(--card-radius); }
+
+/* ── 详情两栏：aside 关时单栏（DOM 里也没有 aside 节点） ──
+   整块铺满版心（= 轮播图同宽）：正文栏 1fr、间距 48、侧栏 240。
+   开侧栏时正文即「版心 − 288」，与观山详情的正文栏同宽同左边界。 */
+.bd-layout { display: grid; grid-template-columns: minmax(0, 1fr); }
+.bd-main { min-width: 0; }
+/* 正文撑满正文栏（默认 .prose 的 544 阅读宽在这里放开）——博客与观山详情共用 */
+.bd-main .prose { max-width: none; }
+/* preBody 末块（.ext-links / .embeds）的 margin-bottom 都是 0，
+   正文首段 margin-top 也是 0——正文以 <p> 开头时会与上块贴死（实测：末块 ↓ prose = 0px）。
+   给正文补一档与 .bd-rule 同高的上距：它与首个子元素的上距折叠取大，所以
+   正文以 h2 开头（pearl，2.2em）或前面是 .bd-rule（博文，1.3em）时观感零变化。 */
+.bd-main .prose { margin-top: 1.3em; }
+@media (min-width: 1024px) {
+  .bd-layout[data-aside='true'] { grid-template-columns: minmax(0, 1fr) 240px; gap: 48px; align-items: start; }
+}
+
+/* ── 标题下的发丝分割线 ──
+   设计总则「分隔用 1px 发丝线，不加装饰框」。上方间距由 h1 自身的 margin-bottom 给
+   （.blog-detail .5em / .portfolio-detail .45em），本类只管线本身与下方节奏。 */
+.bd-rule {
+  height: 2px; /* 与顶栏激活下划线、目录左线同厚（2px），比发丝线重一档 */
+  border: 0;
+  background: color-mix(in srgb, var(--ink-3) 45%, transparent);
+  /* margin-top 与上一个块的 margin-bottom 折叠取大：博文接 .bd-meta(2.4em) → 31px；
+     观山接 .meta-bar(margin 0) → 这里给的 1.5em。 */
+  margin: 1.5em 0 1.3em;
+}
+
+/* ── 目录（TOC）：number=CSS counters 编号；simple=扁平 ── */
+/* 左侧强调线取「与朱点同一个颜色式」：不设 main_color 的文章不再落灰（原回退 --ink-4），
+   全局都是朱；设了 main_color 的文章则是线、点、hover、激活四处同色，永不走散。 */
+.post-toc { margin: 0 0 2.4em; padding: 16px 20px; border-left: 2px solid var(--post-accent, var(--seal)); background: color-mix(in srgb, var(--card) 72%, transparent); border-radius: 0 var(--card-radius) var(--card-radius) 0; }
+.post-toc[data-variant='aside'] { margin: 1.8em 0 0; padding: 12px 14px; }
+.post-toc-list { counter-reset: toc; list-style: none; margin: 0; padding: 0; }
+.post-toc-list ol { counter-reset: toc; list-style: none; margin: 0; padding: 0 0 0 1.1em; }
+.post-toc-item { counter-increment: toc; }
+.post-toc-item > a { position: relative; display: block; padding: 5px 0 5px 2em; text-indent: -2em; color: var(--ink-2); text-decoration: none; font-size: 13px; line-height: 1.6; letter-spacing: 0.04em; transition: color var(--t) var(--ease); }
+.post-toc-item + .post-toc-item { margin-top: 3px; } /* 条目原本首尾严丝合缝，全靠行高撑 */
+.post-toc-item > a:hover { color: var(--post-accent, var(--seal)); }
+.post-toc[data-number='true'] .post-toc-item > a::before { content: counters(toc, '.') '. '; color: var(--ink-3); }
+.post-toc[data-simple='true'] .post-toc-list { padding-left: 0; }
+/* 当前章节（useTocSpy 命中 aria-current="location"）：只染链接与序号，另在悬挂缩进里挂一枚 6px 朱点——
+   与顶栏激活下划线 / 首页右侧题签同为「朱点跟随」语言，不铺面（印朱面积纪律）。
+   ::after 常驻、只切 opacity（content 切换没法过渡）；top 12px = 5px 上内距 + 1.6 行高首行字心 − 半枚点。 */
+.post-toc-item > a::after {
+  content: '';
+  position: absolute;
+  left: -12px;
+  top: 12px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--post-accent, var(--seal));
+  opacity: 0;
+  transition: opacity var(--t) var(--ease);
+}
+.post-toc-item > a[aria-current] { color: var(--post-accent, var(--seal)); }
+.post-toc[data-number='true'] .post-toc-item > a[aria-current]::before { color: var(--post-accent, var(--seal)); }
+.post-toc-item > a[aria-current]::after { opacity: 1; }
+
+[data-toc-number='true'] .prose { counter-reset: prose-h2; }
+[data-toc-number='true'] .prose h2 { counter-increment: prose-h2; counter-reset: prose-h3; }
+[data-toc-number='true'] .prose h2::before { content: counter(prose-h2) '. '; color: var(--ink-3); }
+[data-toc-number='true'] .prose h3 { counter-increment: prose-h3; }
+[data-toc-number='true'] .prose h3::before { content: counter(prose-h2) '.' counter(prose-h3) ' '; color: var(--ink-3); }
+.prose :is(h1, h2, h3, h4, h5, h6) { scroll-margin-top: calc(var(--nav-h) + 16px); }
+
+/* ── 强调色：只染链接与引用侧线，不铺面（印朱面积纪律） ── */
+.blog-detail .prose a,
+.post-copyright a { color: var(--post-accent, var(--seal)); }
+/* 引用块左线同目录左线一式：与朱点同色（原回落 --ink-4 落灰）。只染线不染字——引文仍 --ink-3。 */
+.prose blockquote { margin: 1.2em 0; padding: 0 1.1em; border-left: 2px solid var(--post-accent, var(--seal)); color: var(--ink-3); }
+
+/* ── 代码块与折叠（highlight_shrink） ──
+   preflight 把 pre 外边距清零了：上一段 16px 挤着它、下一段却贴到 0px。
+   按正文段距节奏补成上下对称（1.5em＝24px），别再让代码块和后文连成一片。 */
+.prose pre { margin: 1.5em 0; background: color-mix(in srgb, var(--ink) 92%, transparent); color: var(--paper); border-radius: var(--card-radius); padding: 14px 16px; overflow: auto; font-family: var(--font-mono); font-size: 13px; line-height: 1.7; }
+.prose code { font-family: var(--font-mono); font-size: 0.92em; }
+.prose :not(pre) > code { background: color-mix(in srgb, var(--ink-4) 45%, var(--paper)); border-radius: 3px; padding: 1px 5px; }
+.prose > .cs-wrap { margin: 1.5em 0; }
+.prose > .cs-wrap > pre { margin: 0; } /* 折叠壳持距，pre 自身归零，免得双份 */
+.cs-wrap { position: relative; }
+.prose[data-shrink='true'] .cs-wrap:not(.cs-open) pre { max-height: 20rem; overflow: hidden; }
+.cs-btn { position: absolute; right: 10px; bottom: 10px; font: inherit; font-size: 12px; letter-spacing: 0.08em; color: var(--paper); background: color-mix(in srgb, var(--ink) 70%, transparent); border: 1px solid color-mix(in srgb, var(--paper) 40%, transparent); border-radius: 999px; padding: 3px 12px; cursor: pointer; }
+.cs-btn:hover { background: color-mix(in srgb, var(--ink) 88%, transparent); }
+
+/* ── 侧栏（aside） ── */
+.post-aside { font-size: 13px; }
+.pa-author { margin: 0 0 14px; font-family: var(--font-song); font-size: 16px; letter-spacing: 0.08em; color: var(--ink); }
+.pa-rows { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.pa-rows li { display: flex; gap: 10px; color: var(--ink-2); }
+.pa-rows b { flex: none; font-weight: 400; color: var(--ink-3); letter-spacing: 0.1em; }
+.pa-tags { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 0; padding: 0; }
+.pa-tags li { font-size: 12px; color: var(--ink-2); background: color-mix(in srgb, var(--ink-4) 45%, var(--paper)); border: 1px solid color-mix(in srgb, var(--ink-4) 70%, transparent); border-radius: 2px; padding: 1px 9px; }
+/* ≥1024 侧栏吸顶：限高到视口内，内容超出时**目录自身**滚动。
+   原先只有 `position: sticky`：aside 高过视口时它是「整体钉住」的，
+   露不出来的末尾条目永远够不着（文章标题一多，目录下半截就消失）。
+   flex 链的必要性：.post-aside 限高 → .post-aside-inner 可收缩（min-height:0）
+   → .post-toc 才拿到确定高度去 overflow-y。署名/元信息行/标签 flex:none，保持不动。 */
+@media (min-width: 1024px) {
+  .post-aside {
+    position: sticky;
+    top: calc(var(--nav-h) + 24px);
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100svh - var(--nav-h) - 48px);
+  }
+  .post-aside-inner {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  .post-aside-inner > :not(.post-toc) {
+    flex: none;
+  }
+  .post-aside-inner > .post-toc {
+    flex: 0 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain; /* 滚到目录尽头不要把整页带下去 */
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--ink-4) 75%, transparent) transparent;
+  }
+}
+
+/* ── 版权模块（post_copyright） ── */
+/* tokens.css 的裸 `section` 选择器带的是**首页段落规格**（min-height: var(--section-h) = 100svh）。
+   详情页里这两个 <section> 是内容块而非段落：不摘掉该规格，版权框会被撑成一整屏
+   （实测内容 143px / 盒子 900px，758px 纯空）。与 .section-auto 同一思路，就地归零。 */
+.post-copyright,
+.post-comments { min-height: auto; scroll-snap-align: none; }
+.post-comments { padding: 0; } /* 评论挂载点不该继承首页段落的 6vw/8vh 内边距 */
+.post-copyright { margin-top: 3.4em; padding: 18px 20px; border: 1px solid color-mix(in srgb, var(--ink-4) 60%, transparent); border-radius: var(--card-radius); background: color-mix(in srgb, var(--card) 60%, transparent); }
+.post-copyright h2 { font-size: 14px; letter-spacing: 0.18em; color: var(--ink-3); margin: 0 0 12px; }
+.pc-rows { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: 13px; }
+.pc-rows li { display: flex; gap: 10px; flex-wrap: wrap; }
+.pc-rows b { flex: none; font-weight: 400; color: var(--ink-3); letter-spacing: 0.1em; }
+.pc-rows a { word-break: break-all; }
+.pc-info { margin: 12px 0 0; font-size: 13px; color: var(--ink-2); }
+.pc-info b { font-weight: 400; color: var(--ink-3); letter-spacing: 0.1em; margin-right: 8px; }
+
+/* ── 评论区挂载点（provider 配好后才进 DOM；本片只给容器规格） ── */
+.post-comments { margin-top: 2.6em; }

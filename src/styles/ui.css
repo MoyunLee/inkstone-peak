@@ -1,0 +1,93 @@
+/* ---------- .seal-btn 全站唯一墨框按钮族 ---------- */
+.seal-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  color: var(--ink);
+  border: 1.5px solid var(--ink-2);
+  border-radius: 12px;
+  padding: 9px 18px;
+  font-size: 14px;
+  letter-spacing: 0.2em;
+  background: transparent;
+  white-space: nowrap;
+  max-width: 100%;
+  transition:
+    background var(--t-seal),
+    border-color var(--t-seal),
+    color var(--t-seal);
+  --chip: radial-gradient(circle 3.5px at 0% 0%, transparent 96%, #000 100%), radial-gradient(circle 3px at 46% -1px, transparent 96%, #000 100%),
+    radial-gradient(circle 4px at 100% 100%, transparent 96%, #000 100%), radial-gradient(circle 2.5px at 0% 68%, transparent 96%, #000 100%);
+  -webkit-mask-image: var(--chip);
+  mask-image: var(--chip);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+/* 族内变体一律只覆盖 --chip/尺寸，禁复制第二套渲染 */
+.seal-btn.chip-a {
+  border-color: var(--ink);
+  border-radius: 2px 5px 3px 6px/5px 2px 6px 3px; /* 四角不等=手工钤压微歪 */
+  padding: 9px 20px;
+  letter-spacing: 0.24em;
+  --chip: radial-gradient(circle 5px at 0% 0%, transparent 96%, #000 100%), radial-gradient(circle 3.5px at 34% -1px, transparent 96%, #000 100%),
+    radial-gradient(circle 4px at 100% 22%, transparent 96%, #000 100%), radial-gradient(circle 5.5px at 100% 100%, transparent 96%, #000 100%),
+    radial-gradient(circle 3px at 62% calc(100% + 1px), transparent 96%, #000 100%), radial-gradient(circle 2.5px at 0% 66%, transparent 96%, #000 100%);
+}
+.seal-btn.chip-b {
+  border-color: var(--ink);
+  border-radius: 2px 5px 3px 6px/5px 2px 6px 3px;
+  padding: 9px 20px;
+  letter-spacing: 0.24em;
+  --chip: radial-gradient(circle 4px at 20% 0%, transparent 96%, #000 100%), radial-gradient(circle 5px at 100% 0%, transparent 96%, #000 100%),
+    radial-gradient(circle 2.5px at 100% 74%, transparent 96%, #000 100%), radial-gradient(circle 4.5px at 0% 100%, transparent 96%, #000 100%),
+    radial-gradient(circle 3px at 55% calc(100% + 1px), transparent 96%, #000 100%), radial-gradient(circle 2px at 0% 30%, transparent 96%, #000 100%);
+}
+.seal-btn:hover {
+  border-color: var(--ink);
+  background: #ede5d6;
+}
+.seal-btn:active {
+  background: #e5dcc9;
+}
+.seal-btn:focus-visible {
+  outline: 2px solid var(--seal);
+  outline-offset: 3px;
+  border-radius: 12px;
+}
+.seal-btn.head-act {
+  margin-left: auto;
+  align-self: center;
+}
+.foot-cta {
+  padding: 11px 24px;
+  font-size: 15px;
+  margin-top: 22px;
+  --chip: radial-gradient(circle 4px at 0% 0%, transparent 96%, #000 100%), radial-gradient(circle 3px at 58% -1px, transparent 96%, #000 100%),
+    radial-gradient(circle 4.5px at 100% 100%, transparent 96%, #000 100%), radial-gradient(circle 2.5px at 0% 72%, transparent 96%, #000 100%);
+}
+
+/* ---------- 段标题行公共 ---------- */
+.heading {
+  display: flex;
+  align-items: baseline;
+  gap: 18px;
+  margin-bottom: 5vh;
+  flex-wrap: wrap;
+}
+.heading h2 {
+  font-family: var(--font-kai);
+  font-size: clamp(26px, 3.4vw, 44px);
+  letter-spacing: 0.14em;
+}
+.heading small {
+  color: var(--ink-3);
+  letter-spacing: 0.3em;
+  font-size: 12px;
+}
+.sec-intro {
+  margin: -3vh 0 4vh;
+  color: var(--ink-3);
+  font-size: 13px;
+  letter-spacing: 0.15em;
+}

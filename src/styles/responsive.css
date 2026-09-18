@@ -1,0 +1,55 @@
+/* ---------- 窄屏兜底（样片：只补溢出不改设计） ---------- */
+@media (max-width: 640px) {
+  .heading {
+    gap: 10px;
+  }
+  .head-act,
+  .head-acts .seal-btn {
+    font-size: 13px;
+    padding: 7px 14px;
+    letter-spacing: 0.16em;
+  }
+  .foot-head .head-acts {
+    margin-top: 0;
+  }
+  .topbar {
+    gap: clamp(12px, 3vw, 24px);
+  }
+  .hero-copy {
+    left: 6vw;
+    right: 6vw;
+  }
+}
+
+.scroll-prog {
+  position: fixed;
+  top: var(--nav-h);
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--ink-2);
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+  z-index: 30;
+  display: none;
+}
+@media (max-width: 640px) {
+  .scroll-prog {
+    display: block;
+    animation: prog linear both;
+    animation-timeline: scroll();
+  }
+}
+@keyframes prog {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@supports not (animation-timeline: scroll()) {
+  .scroll-prog {
+    display: none;
+  }
+}

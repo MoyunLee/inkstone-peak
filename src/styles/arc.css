@@ -1,0 +1,187 @@
+/* 造境 /blog 归档卡片网格与文章详情；另持「封面占位皮肤」.cover-ph——与观山共用一套（2026-09-16）。 */
+.archive {
+  --arc-w: 100%;
+  --arc-gap: clamp(14px, 1.5vw, 20px); /* 卡片间隙唯一真源 */
+  --arc-pad: clamp(12px, 1.3vw, 16px); /* 卡片内边距唯一真源 */
+  max-width: var(--arc-w);
+  margin-inline: auto;
+}
+.arc-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--arc-gap);
+}
+@media (min-width: 640px) {
+  .arc-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1024px) {
+  .arc-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+.arc-grid > li {
+  display: flex; /* 让卡片铺满整格，同排等高 */
+}
+.arc-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: var(--card);
+  border: 1px solid color-mix(in srgb, var(--ink-4) 55%, transparent); /* 发丝描边界，非装饰框 */
+  border-radius: var(--card-radius);
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  transition:
+    transform var(--t) var(--ease),
+    border-color var(--t) var(--ease);
+}
+.arc-card:hover {
+  transform: translateY(-4px);
+  border-color: color-mix(in srgb, var(--ink-3) 70%, transparent);
+}
+.arc-card:focus-visible {
+  outline: 2px solid var(--seal); /* 全站唯一朱框 */
+  outline-offset: 2px;
+}
+/* 列表页进场级联（2026-09-16）：与 /about 同一条 rise-in；--i 由 ArticleCard 逐项给（封顶 12）。
+   只挂在 .blog-list 下——首页造境段用的是同一组件，不该跟着动。 */
+.blog-list .arc-card {
+  animation: rise-in 560ms var(--ease) backwards;
+  animation-delay: calc(var(--i, 0) * 50ms);
+}
+@media (prefers-reduced-motion: reduce) {
+  .blog-list .arc-card {
+    animation: none;
+  }
+}
+/* 封面占位皮肤（唯一真源）：屏上「色块 + 噪纹」只此一份，/blog 归档卡与 /portfolio 观山卡共用；
+   宽高比等几何由各页容器类（.arc-cover / .cover）自持。本片晚于 portfolio.css ⇒ 同权时覆盖 .cover 的浅米底。 */
+.cover-ph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: color-mix(in srgb, var(--ink-3) var(--cover-mix), transparent);
+  background-image: url('/noise.webp');
+  background-repeat: repeat;
+}
+/* 占位正中的站章：复用 Seal 母版（mark 变体）。尺寸随块宽伸缩（约封面宽的 28%），实印不透明 */
+.cover-seal {
+  width: clamp(56px, 28%, 128px);
+  height: clamp(56px, 28%, 128px);
+  opacity: 1;
+  transform: rotate(-4deg);
+}
+.cover-ph[data-tone='0'] {
+  background-color: color-mix(in srgb, #41586b var(--cover-mix), transparent);
+}
+.cover-ph[data-tone='1'] {
+  background-color: color-mix(in srgb, #6f7f5c var(--cover-mix), transparent);
+}
+.cover-ph[data-tone='2'] {
+  background-color: color-mix(in srgb, #9a6f4e var(--cover-mix), transparent);
+}
+.cover-ph[data-tone='3'] {
+  background-color: color-mix(in srgb, var(--ink-2) var(--cover-mix), transparent);
+}
+.cover-ph[data-tone='4'] {
+  background-color: color-mix(in srgb, #5f7d78 var(--cover-mix), transparent);
+}
+.arc-cover {
+  flex: none;
+  aspect-ratio: 16/9;
+}
+.arc-cover-img {
+  background-color: var(--cover);
+}
+.arc-cover-img img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.arc-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  padding: var(--arc-pad);
+}
+.arc-title {
+  font-family: var(--font-song);
+  font-weight: 700;
+  font-size: clamp(15px, 1.5vw, 19px);
+  line-height: 1.5;
+  letter-spacing: 0.05em;
+  color: var(--ink);
+  margin: 0;
+  /* 题最多两行（超长截断，保证同排卡片高度节奏） */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+.arc-tags {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  margin: 0;
+  padding: 0;
+}
+.arc-tags li {
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  color: var(--ink-2);
+  background: color-mix(in srgb, var(--ink-4) 45%, var(--paper));
+  border: 1px solid color-mix(in srgb, var(--ink-4) 70%, transparent);
+  border-radius: 2px;
+  padding: 1px 9px;
+}
+.arc-date {
+  margin-top: auto;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  color: var(--ink-3);
+}
+
+/* ---------- /blog/:slug 文章详情 ---------- */
+/* 版心不再在这里限宽（原 960px 把正文栏挤成 384px）；正文/侧栏宽度由 .bd-layout 定，见 post.css */
+.blog-detail h1 {
+  font-size: clamp(26px, 3.6vw, 42px);
+  line-height: 1.35; /* 标题不继承正文的 1.75 行高 */
+  letter-spacing: 0.06em;
+  margin-bottom: 0.5em;
+}
+.bd-meta {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 32px;
+  margin: 0 0 2.4em;
+  padding: 0;
+  color: var(--ink-3);
+  font-size: 13px;
+  letter-spacing: 0.12em;
+}
+.notfound {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 34px;
+  text-align: center;
+}
+.notfound h1 {
+  font-size: clamp(24px, 4vw, 40px);
+  letter-spacing: 0.2em;
+}

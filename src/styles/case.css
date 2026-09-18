@@ -1,0 +1,106 @@
+/* ---------- 子页公共（/portfolio /about /blog） ---------- */
+.page-pad {
+  padding-top: calc(var(--nav-h) + 8vh);
+  padding-bottom: 8vh;
+}
+.prose {
+  max-width: var(--prose-max);
+  line-height: 2; /* 对齐 Butterfly 的 $text-line-height = 2 */
+}
+/* Tailwind preflight 把 p / ul / ol 的默认外边距与列表标记清零了 —— 正文里显式还回来。
+   下面这组的取值照搬 Butterfly：段距 16px、ul 用 ○、li 上下 4px。 */
+.prose p { margin: 0 0 16px; }
+.prose ul,
+.prose ol { margin: 0 0 16px; padding-left: 1.6em; }
+.prose ul { list-style: circle; }
+.prose ol { list-style: decimal; }
+.prose li { margin: 4px 0; }
+.prose li::marker { color: var(--ink-3); }
+.prose > :last-child { margin-bottom: 0; }
+.prose img { display: block; max-width: 100%; margin: 1.5em auto; border-radius: var(--card-radius); }
+.prose h2 {
+  font-size: 22px;
+  line-height: 1.4;
+  letter-spacing: 0.04em;
+  margin: 2.2em 0 0.9em;
+}
+.prose h3 {
+  font-size: 19px;
+  line-height: 1.45;
+  letter-spacing: 0.04em;
+  margin: 2em 0 0.8em;
+}
+.prose p,
+.prose li {
+  color: var(--ink-2);
+}
+.prose table {
+  border-collapse: collapse;
+}
+.prose th,
+.prose td {
+  border: 1px solid var(--ink-4);
+  padding: 6px 12px;
+  font-size: 14px;
+}
+.ph {
+  color: var(--ink-3);
+  border: 1px dashed var(--ink-3);
+  border-radius: 4px;
+  padding: 0 6px;
+  font-size: 0.86em;
+  letter-spacing: 0.05em;
+}
+/* ── 详情页统一：案例页与文章页共用同一套骨架（.bd-layout / .bd-main / .post-aside）──
+   正文栏宽度由 .bd-layout 的栅格给（版心 − 288），封面独占整个版心；这里只留案例页自己的尺度。 */
+.portfolio-detail .meta-bar {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 26px;
+  padding: 0;
+  color: var(--ink-2);
+  font-size: 14px;
+}
+.portfolio-detail h1 {
+  font-size: clamp(28px, 4vw, 44px);
+  line-height: 1.35; /* 标题不该继承正文的 1.75 行高 */
+  letter-spacing: 0.08em;
+  margin-bottom: 0.45em;
+}
+.portfolio-detail .case-lead {
+  font-size: 17px;
+  line-height: 1.9;
+  color: var(--ink-2);
+  margin-block: 0 1.5em;
+}
+/* ── C 路线·视频嵌入：16/9 定比容器；用 div 不用 section（全局 section 带首页段落规格）── */
+.embeds {
+  max-width: var(--prose-max);
+  margin-top: 34px;
+}
+.embeds h2 {
+  font-size: 22px;
+  margin: 0 0 0.8em;
+}
+.embeds ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 16px;
+}
+.embeds iframe {
+  width: 100%;
+  aspect-ratio: 16/9;
+  border: 0;
+  display: block;
+  background: var(--cover);
+}
+.ext-links {
+  padding-left: 1.2em;
+  line-height: 2;
+  list-style: circle; /* preflight 把 list-style 也清了：缩进留着却没标记，等于一串悬空的行 */
+  margin-block: 1.8em 0;
+}
+.ext-links li::marker { color: var(--ink-3); }

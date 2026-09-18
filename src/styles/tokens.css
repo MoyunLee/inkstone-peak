@@ -1,0 +1,147 @@
+/* 字体：一律走系统回退栈，**不引入任何外来字体文件**（2026-09-16 用户令；20 §1）。
+   标题吃 --font-kai、正文吃 --font-song，两栈都在下面 :root 里；全站没有 @font-face、没有 /fonts/。
+   「子集自托管」一度做过又撤掉：为了跨机一致多背 177KB，且云端无法再生（需本机 Python），
+   与「只用系统自带字体」的取向不符。真要恢复：见 Dev_Docs/90 已否决表。 */
+:root {
+  /* 色墨：纸底禁纯白；印朱=全站唯一彩色（面积 <2%） */
+  --paper: #f7f4ee;
+  --ink: #14161a; /* 浓墨 */
+  --ink-2: #3e4148; /* 次墨 */
+  --ink-3: #8a8d93; /* 淡墨 */
+  --ink-4: #c9cbd0; /* 清墨（发丝界） */
+  --seal: #9e2b25; /* 印朱 */
+  --card: #fbf9f3; /* 宣纸册页 */
+  --cover: #ece5d8; /* 占位浅米（图未到位时的底） */
+  --cover-mix: 62%; /* 封面占位色块混墨占比唯一真源（<35% 色相不可辨，>75% 逼近原色显重） */
+
+  /* 热力五档：空白 → 更新多 */
+  --heat-0: #e7e3d7;
+  --heat-1: #cfd9c6;
+  --heat-2: #a6bb9b;
+  --heat-3: #74906a;
+  --heat-4: #47603f;
+
+  --page-max: 1700px;
+  --gutter: clamp(20px, 4vw, 72px);
+  --inset-x: calc(6vw + var(--gutter));
+  --prose-max: 34rem; /* rem 不是 em：正文宽必须全站同一个像素值，em 会随各块字号浮动 */
+  --card-radius: 6px; /* 卡片圆角唯一真源（现由 .arc-card 使用；日后热力图卡片化直接复用，勿新开第二个值） */
+  --section-h: 100svh; /* 禁 100vh */
+  --nav-h: 64px;
+
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --t: 160ms;
+  --t-seal: 260ms ease-out;
+
+  --font-kai: 'LXGW WenKai', '霞鹜文楷', KaiTi, '楷体', serif;
+  --font-song: 'Source Han Serif SC', '思源宋体', 'Noto Serif SC', SimSun, serif;
+  --font-mono: 'LXGW WenKai Mono', '霞鹜文楷等宽', ui-monospace, monospace;
+}
+
+/* ── 共用动效原语（2026-09-16 统一渲染层）──
+   区块/卡片进场级联：/about 便当盒与 /blog、/portfolio 列表共用这一条。
+   阶梯延迟由 --i 逐项给（见 arc.css / portfolio.css）。
+   ★列表卡用 backwards 而非 both——both 会把收尾的 transform:translateY(0) 永久钉住，
+     从而压掉 .arc-card:hover / .card:hover 的 translateY(-4px)（便当卡 hover 不动位移，故它用 both 无碍）。 */
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+html {
+  scroll-behavior: smooth;
+  background: var(--paper);
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+body {
+  margin: 0;
+  background: var(--paper) url('/noise.webp') repeat;
+  color: var(--ink);
+  font-family: var(--font-song);
+  font-size: 16px;
+  line-height: 1.75;
+  scroll-snap-type: y proximity;
+  -webkit-font-smoothing: antialiased;
+}
+::selection {
+  background: rgba(158, 43, 37, 0.18);
+}
+h1,
+h2,
+h3 {
+  font-family: var(--font-kai);
+  font-weight: 700;
+  margin: 0;
+}
+
+section {
+  min-height: var(--section-h);
+  scroll-snap-align: start;
+  position: relative;
+  padding: calc(var(--nav-h) + 6vh) 6vw 8vh;
+  scroll-margin-top: calc(var(--nav-h) + 8px);
+}
+.site-foot {
+  scroll-margin-top: calc(var(--nav-h) + 8px);
+}
+.site-foot.as-section {
+  min-height: var(--section-h);
+  scroll-snap-align: start;
+}
+.section-full {
+  min-height: var(--section-h);
+}
+.section-auto {
+  min-height: auto;
+}
+
+.shell {
+  max-width: var(--page-max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+/* 子页一级容器（全站版心统一）：与首页正文段内容宽逐像素一致；改版心只改 --inset-x。 */
+.page-main {
+  max-width: var(--page-max);
+  margin-inline: auto;
+  padding-inline: var(--inset-x);
+}
+@media (min-width: 1700px) {
+  body::before,
+  body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    width: calc((100vw - var(--page-max)) / 2);
+    z-index: 15;
+    pointer-events: none;
+    background:
+      linear-gradient(90deg, rgba(20, 22, 26, 0.05), rgba(20, 22, 26, 0.015) 55%, rgba(20, 22, 26, 0.05)),
+      url('/noise.webp') repeat;
+  }
+  body::before {
+    left: 0;
+    border-right: 1px solid color-mix(in srgb, var(--ink-4) 60%, transparent);
+  }
+  body::after {
+    right: 0;
+    border-left: 1px solid color-mix(in srgb, var(--ink-4) 60%, transparent);
+  }
+  .side-tabs {
+    right: max(18px, calc((100vw - var(--page-max)) / 2 + 14px));
+  }
+}

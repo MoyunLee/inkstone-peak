@@ -1,0 +1,161 @@
+/* ---------- S5 传音 · 结构化页脚（版心 1320 双居中） ---------- */
+#footer {
+  display: flex;
+  align-items: center;
+  padding: calc(var(--nav-h) + 8vh) 6vw 8vh;
+}
+.foot {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: var(--page-max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+.foot-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(18px, 3vw, 44px);
+  flex-wrap: wrap;
+  margin-bottom: clamp(20px, 3.2vh, 36px);
+}
+.foot-head h2 {
+  font-size: clamp(30px, 4.6vw, 58px);
+  line-height: 1.22;
+  letter-spacing: 0.1em;
+}
+.foot-head small {
+  display: block;
+  color: var(--ink-3);
+  font-weight: 400;
+  font-size: 13px;
+  letter-spacing: 0.3em;
+  margin: 0 0 12px;
+}
+.head-acts {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-left: auto;
+  align-self: center;
+}
+.head-acts .foot-cta {
+  margin-top: 0;
+}
+.foot-head .head-acts {
+  margin-top: 22px;
+}
+.foot-cols {
+  display: grid;
+  /* 列数跟 site.yml footer.columns 走：首栏 brand 1.5fr、末栏 1.25fr、中间 repeat(--foot-rest)，4 栏即为 1.5/1/1/1.25。
+     --foot-rest 由 SiteFooter 内联给出（= 列数 − 2，下限 0）——增删栏位不再改 CSS。 */
+  grid-template-columns: 1.5fr repeat(var(--foot-rest, 2), 1fr) 1.25fr;
+  column-gap: clamp(18px, 2.2vw, 36px);
+  row-gap: clamp(26px, 3.6vh, 38px);
+}
+.fcol h3 {
+  font-family: var(--font-kai);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  color: var(--ink-2);
+  margin: 0 0 16px;
+  padding-bottom: 9px;
+  border-bottom: 1px solid var(--ink-4);
+}
+.fcol ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+}
+.fcol a,
+.fcol .soon {
+  color: var(--ink-2);
+  text-decoration: none;
+  font-size: 15.5px;
+  letter-spacing: 0.08em;
+  transition:
+    color var(--t-seal),
+    transform var(--t-seal);
+}
+.fcol a:hover {
+  color: var(--ink);
+  transform: translateX(2px);
+}
+.fcol a:focus-visible {
+  outline: 2px solid var(--seal);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+.fcol .soon {
+  color: var(--ink-3);
+}
+.foot-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  line-height: 0;
+}
+.big-seal {
+  width: 96px;
+  height: 96px;
+  flex: none;
+  transform: rotate(-4deg); /* JS 轻震关键帧写死此角，不得改 */
+  cursor: pointer;
+}
+.big-seal:active {
+  transform: rotate(-4deg) scale(0.94);
+}
+.foot-bio {
+  margin: 18px 0 0;
+  color: var(--ink-2);
+  font-size: 15.5px;
+  line-height: 1.6;
+  letter-spacing: 0.04em;
+  max-width: var(--prose-max);
+}
+.foot-bar {
+  margin-top: clamp(36px, 6.4vh, 76px);
+  padding: clamp(18px, 3vh, 28px) 0 0;
+  border-top: 1px solid var(--ink-4);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px 20px;
+  flex-wrap: wrap;
+  color: var(--ink-3);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+}
+@media (max-width: 1023px) {
+  .foot-cols {
+    grid-template-columns: repeat(2, 1fr);
+    row-gap: clamp(28px, 4vh, 42px);
+  }
+}
+@media (max-width: 640px) {
+  .foot-cols {
+    grid-template-columns: 1fr;
+    row-gap: 30px;
+  }
+  .foot-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .foot-cta {
+    margin-top: 0;
+    align-self: flex-start;
+  }
+  .foot-brand {
+    justify-content: center;
+  }
+  .foot-bar {
+    flex-direction: column;
+    gap: 6px;
+  }
+}

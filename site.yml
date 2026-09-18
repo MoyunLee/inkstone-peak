@@ -1,0 +1,322 @@
+# --------------------------------------
+# 杜康 · 作品集 · 站点配置（site.yml）
+#
+# 组织体例参考 Butterfly _config.yml（https://butterfly.js.org/）：
+#   · 按「能力」分节（Navigation / Index / Portfolio / Blog / Post / Footer…），不按页面分节；
+#   · 每节以 # -------------------------------------- 标语分隔，节名中英并存；
+#   · 每个键上方一行注释；枚举写成「Choose: a / b / c」；
+#   · 顶层 capability + 嵌套开关，且**逐篇 front-matter 覆盖站点默认值**（Post Settings 一节）。
+#
+# 唯一事实源：界面可见中文一律住本文件（中文闸 scripts/gate-cn.ts 注释之外零例外）。
+# ⚠ 刻意【不抄】Butterfly 里本站无落点的段：analytics / PWA / effects / ad / share /
+#   translate / search / darkmode / preloader / 各评论服务商细分配置 / code_blocks 的
+#   copy·language·word_wrap —— 不引零消费者的死配置（30 §3.3「缺省即隐藏」的同一条精神）。
+# --------------------------------------
+
+# --------------------------------------
+# Site（站点元信息）
+# --------------------------------------
+site:
+  title: 杜康
+  author: 杜康
+  lang: zh-CN
+  description: 何以解忧？唯有杜康
+  url: https://dukang.pages.dev        # 站点绝对 URL：预渲染逐路由 canonical 的唯一来源（绑域名只改这一行）
+
+# --------------------------------------
+# Navigation（双导航唯一事实源）
+# --------------------------------------
+# 每行五字段：ink=显示名 / route=页面基础路由 / isDetailPage / detailPrefix / module=长滚动共享页段锚点 id
+# 新增页面=在此加一行（如属首页模块另在 sections.ts 注册），双导航 UI/高亮/交互自动生效，组件零改动。
+nav:
+  - { ink: 山门, route: /,               isDetailPage: false, detailPrefix: null,             module: home }
+  - { ink: 观山, route: /portfolio,      isDetailPage: true,  detailPrefix: /portfolio,       module: portfolio }  # 列表页+/portfolio/:slug 动态详情同前缀固定激活（旧 /work 族已于 2026-09-13 彻底移除）
+  - { ink: 造境, route: /blog,           isDetailPage: true,  detailPrefix: /blog,            module: blog }       # 博客随笔页（旧 /pipeline 于 2026-09-13 彻底移除）。2026-09-09 归档复活升族：/blog/:slug 详情族按前缀固定激活（观山同权 R2 语义），module=blog 首页段照常参与滚动联动
+  - { ink: 观自, route: /about,          isDetailPage: false, detailPrefix: null,            module: about }      # 观自=整页 /about（旧 hash 锚点关联已于 2026-09-13 彻底移除）
+  - { ink: 传音, route: /footer,         isDetailPage: false, detailPrefix: null,            module: footer }     # 独立传音页 /footer（2026-09-16：旧 /footer/:id 动态详情退役——组件从不读 :id、全站无入口、预渲染只产 /footer 一条）
+
+# 子页 meta 专名：只喂预渲染 <title>，不进页面可见层
+# ★2026-09-13 用户令：键名归位=路由段名（pipeline→blog、contact→footer，与 nav[].route 一致）；
+#   about 值由旧专名「道途」改「观自」——全站唯一一处双层命名退场，meta 名自此与导航同词。
+page_meta:
+  portfolio: 观山
+  about: 观自
+  blog: 造境
+  footer: 传音
+
+# --------------------------------------
+# Index（首页五段：顺序权威）
+# --------------------------------------
+# 加一段 = 这里加一段 + src/site/sections.ts 注册一行 + nav 里挂 module 一行（题签/页脚栏2 自动生效）
+home:
+  sections:
+    - id: home
+      heading_lines: [何以解忧？, 唯有杜康]      # 横排断句两行，句末标点保留（09-05 七轮定版；竖排方案作废）
+      cta:
+        - { label: 入山观展, to: /portfolio }  # 山门两枚=.seal-btn 族实例；2026 锚点改制 #featured→#portfolio
+        - { label: 阅杜康传, to: /about }        # "杜康传"=关于我
+    # 通用化：本段=source/posts/ 里 tags 含 portfolio 标记的全部作品，与 /portfolio 列表同数据同顺序，没有「精选 N 件」这种挑选项。
+    # 如何控制：① 给 source/posts/<slug>.md 的 tags 加/去 portfolio 标记 = 增删作品（首页与列表同步增删）；
+    #           ② 各篇 front-matter 的 date 决定先后——倒序（近的在前），同日按 slug 升序。
+    - id: portfolio                              # 段 id/锚点与 /portfolio 一一对应
+      heading: 观山 · 作品全览
+      en: PORTFOLIO
+      intro: null
+      cta_detail: true                         # 标题行右上「查看详细 →」按钮退役——每张卡即入口（缺省=true，只影响本段）
+    - id: blog                                   # 与 /blog 对应
+      heading: 造境 · 笔墨札记
+      en: BLOG
+      intro: null
+      cta_detail: true
+    - id: about                                  # 与 /about 对应；/about 页内层亦用此 id
+      heading: 观自 · 吾身技艺
+      en: ABOUT
+      intro: null
+      cta_detail: true
+    - id: footer                                 # 与 /footer 对应
+      heading: 有想法了？来信相告。               # 09-06 页脚重构（原"传音入密"退役，只留 ink 词"传音"）
+      en: FOOTER
+      intro: null
+      cta_detail: true
+
+# --------------------------------------
+# Portfolio（观山 /portfolio）
+# --------------------------------------
+# 顶部轮播分两处管：
+#   ① 谁能上 → 作品自己的 front-matter：source/posts/<slug>.md 写 carousel: true（false 或缺省=不上）；
+#   ② 最多放几张 → 本节的 carousel.max_slides（删键或不写=不限）。
+#   轮播是**纯图**：只有「carousel: true 且写了 cover」的作品才进得去，画面里不出任何文字；
+#   顺序=作品 period 倒序，与下方列表同序。
+portfolio:
+  carousel:
+    max_slides: 4
+    interval_ms: 5000     # 自动播间隔（毫秒；缺省/删键=5000）。有图≥2 张且未 reduced-motion 才自动播
+  # 作品详情页的目录默认（2026-09-16 统一渲染层）：博客走 Post Settings 的 toc.*，
+  # 两型共用**同一条渲染规则**，只是默认值分家——保住案例页既有观感；改 true 即与博客一致。
+  toc:
+    enable: true          # 详情页出目录（有 h2/h3 才出）
+    number: false         # 目录与正文标题是否编号（博客侧 site.yml toc.number 现为 true）
+    style_simple: false   # 简洁模式（扁平内联）
+
+# --------------------------------------
+# Blog（造境 /blog = 全站文章中心库：博文 + 作品都在这里；卡片与列表控制台）
+# --------------------------------------
+blog:
+  order: desc           # Choose: desc / asc（新文章在前 / 旧在前；两个挂载点共用）
+  show_date: true       # 卡片底部显示完整发布日期（★2026-09-12 卡片网格改版由 false 打开：日期是卡片结构元素）
+  tags_max: 4           # 每卡最多显示几个标签（删键=不限量）
+  preview_max: 6        # 首页「造境」段预览卡片上限（=3 列 × 2 排；超出的**不渲染、不占 DOM**）
+  portfolio_tag: portfolio  # ★类型标记：front-matter tags 含此值 = 作品（/portfolio 视图据此过滤）
+  work_tag: 作品            # 作品在归档卡上的显示标签（标记本身不外显，改用这枚中文标签）
+
+# --------------------------------------
+# Post Settings（文章：站点级默认值）
+#   解析优先级：逐篇 front-matter > 本节 > 内置缺省（scripts/content/post.ts）
+#   ★缺省即隐藏：新能力一律缺省关——现有文章观感零变化；要开就改本节，或在对应文章里逐篇声明
+# --------------------------------------
+
+# 图片与封面
+cover:
+  enable: true          # 归档卡是否使用 front-matter cover 图（false=全站强制色块）
+top_img:
+  enable: true          # 详情页是否允许顶部大图（对应 Butterfly `disable_top_img` 的正写法；逐篇 top_img:false 仍可关）
+
+# 详情页 meta 行（Butterfly post_meta）
+post_meta:
+  post:
+    # Choose: created / updated / both —— 只出发布日期 / 只出更新日期（缺则回落发布）/ 两者都出
+    date_type: both
+    categories: true    # 显示 front-matter categories
+    tags: true          # 显示 front-matter tags
+    label: true         # 显示「更新于 / 分类」这类行首词（false=只出值）
+
+# 文章目录（Butterfly toc）
+toc:
+  post: true            # 详情页出目录（文章有 h2/h3 才出，没标题不出）
+  number: true          # 目录与正文标题同时编号
+  style_simple: false   # 简洁模式（扁平内联）
+
+# 版权模块（Butterfly post_copyright）
+#   ⚠ Butterfly 的 license / license_url 两名在本站折进 info 一句——显示文案=唯一来源，不设第二个家
+post_copyright:
+  enable: false
+  author: null          # null=回落 site.author
+  author_href: null     # null=作者名不出链接
+  url: null             # null=回落本站该文绝对地址（site.url + /blog/<slug>）
+  info: 本文采用「署名-非商业性使用-相同方式共享 4.0 国际 (CC BY-NC-SA 4.0)」许可协议，转载请注明出处。
+
+# 评论（Butterfly comments；本站只留开关与提供方）
+comments:
+  enable: false
+  provider: null        # null=即便逐篇 comments:true 也不挂载（不留空壳）
+
+# 数学公式（Butterfly math）
+math:
+  # Choose: true / false
+  # true=仅逐篇声明 mathjax/katex 的页面加载；false=按下方引擎全站生效
+  per_page: true
+  mathjax: { enable: false }
+  katex:   { enable: false }
+
+# 音乐播放器（APlayer）
+aplayer:
+  enable: false
+  per_page: true
+
+# 代码框（Butterfly code_blocks；本站只保留折叠一项——copy/language/word_wrap 尚无落点故不设）
+code_blocks:
+  shrink: false         # true=代码框默认折叠（逐篇 highlight_shrink 覆盖）
+
+# 文章侧栏（Butterfly aside；本站只做「作者/日期/分类/目录」信息栏）
+# enable: true = 全站文章默认出右侧信息栏；某篇不想要就在它的 front-matter 写 aside: false
+aside:
+  enable: true
+
+# --------------------------------------
+# Heatmap（贡献日历热力图）
+# --------------------------------------
+# 组件只吃数据（items=[{date,count}]），文案/图例/星期月名全在此注入——中文闸铁律：组件零中文字面量。
+# 视图=**自然年＋年份页签**（仿 GitHub 年视图）：窗口=所选年 1/1–12/31；页签=数据年份∪当前年（倒序，当前年恒在）。
+heatmap:
+  title: "{year} 年共更新 {n} 条"       # {year}=所选自然年（页签切换即换）、{n}=该年合计条数（组件自动统计，勿写死数字）
+  less: 较少                            # 图例左端（浅=更新少）
+  more: 较多                            # 图例右端（深=更新多）
+  tip: "{date} · 更新 {n} 条"           # 悬浮提示（有更新）；{date}=YYYY-MM-DD、{n}=当日条数
+  tip_empty: "{date} · 无更新"          # 悬浮提示（当日空白格）
+  region_label: 更新日历热力图           # 区块 aria-label（可访问名）
+  years_label: 年份切换                  # 年份页签组 aria-label
+  weekdays: [日, 一, 二, 三, 四, 五, 六]  # 纵轴星期序，**周日起**（索引 0=首行=周日；七项全留=占格对行用，组件只在奇数行出字＝一/三/五；勿改序）
+  months: [1月, 2月, 3月, 4月, 5月, 6月, 7月, 8月, 9月, 10月, 11月, 12月]  # 横轴月名
+
+# --------------------------------------
+# About（/about 便当盒）
+# --------------------------------------
+# 双层文案：事实层存英文码，展示层在此出话术。{city} 模板由组件运行时替换为 about.location。
+# 除 hero_title（本页唯一 h1）外全部可省：删掉某一键，页面就不出那一行/那一块（缺省即隐藏，30 §缺省即隐藏）。
+about:
+  # —— 顶部区域：印章居中，标签左右分列，下方书法大题 ——
+  hero_title: 观自
+  tags_left:  [游戏美术, TA, AIGC内容导演, 独立跑通角色管线]
+  tags_right: [2027届毕业生, 12集AI短剧导演, 接受远程合作]
+  # —— 六卡：label_*=卡片左上极小字；title_*=大字题 ——
+  label_intro: 你好，很高兴认识你 👋
+  intro_lead: 我叫
+  # intro_sub: 游戏美术 / TA / AIGC内容导演，2027届春招求职中
+  # ↑ 有意**不写**（穗/深/沪/京）：地域信息在便当盒里只留一处＝坐标卡 place_avail（「在哪住 · 能去哪」同卡）
+  label_pursuit: 追求
+  title_pursuit_a: 何以解忧？
+  title_pursuit_b: 唯有杜康              # 朱砂高亮部分（印朱唯一彩色=关键强调）
+  label_skill: 技能
+  title_skill: 开启创造力
+  label_career: 生涯
+  title_career: 无限进步
+  label_stats: 数据
+  title_stats: 游戏阅历与拆解
+  label_place: 坐标
+  title_place: 我现在住在
+  place_note: 现居 {city}                    # {city} 运行时替换为 about.location
+  # place_avail: 接受穗 / 深 / 沪 / 京远程或实地实习   # 单起一行：与上行同句时窄卡会把「实习」二字挤到下一行
+  # place_coord: 28.23°N / 112.94°E  # 长沙坐标，纯装饰（卡片右下角定位感）；删键即不出
+  hours_unit: h
+  # —— 事实层（2026-09-16 由 content/about/about.md 整份并入；唯一事实源）——
+  # 生涯卡时间轴：period=左侧时段、text=右侧事件；数组顺序即从上到下；整块可省（删=生涯卡不出）。
+  timeline:
+    - { period: "2024 - 2027", text: 动漫制作技术专业（在读） }
+    # - { period: "2025", text: 独立跑通三维角色管线 }
+    # - { period: "2026", text: 执导 12 集 AI 短剧 }
+  # 数据卡「游戏阅历与拆解」：hours=小时数、insight=该游戏的收获解析（缺省=该条不出解析行）；整块可省。
+  gameLog:
+    - { game: 我的世界（MC）, hours: 1000, insight: 体素逻辑与程序化生成思维 }
+    - { game: 三角洲行动, hours: 876, insight: FPS 资产规范与性能优化 }
+    - { game: 王者荣耀, hours: 645, insight: MOBA 特效与动效拆解 }
+    - { game: 金铲铲之战, hours: 216 }
+    - { game: 绝区零, hours: 152 }
+    - { game: 缺氧, hours: 133 }
+  # 现居城市：填 place_note 的 {city}；与「求职目标城市」是两件事（后者唯一落点 = footer.brand_bio）。
+  location: 中国，河源市
+  # /about 声明的锚点段（可整键删；给了须含 about + footer）：内链 /about#碎片 校验的事实源（zod⑥）。
+  anchors: [about, footer]
+  # 技能卡「开启创造力」四组（**唯一事实源**：直接改本表即可）。
+  #   id=图标键（组件内映射 lucide 图标）；tier=墨档英文码，挂 data-tier 上色（浓墨/淡墨/清墨/飞白）
+  skill_groups:
+    - { id: brush,    title: 笔 · 建模雕刻,   desc: 独立跑通建模→UV→材质灯光→渲染出图闭环,        tier: mastered, tools: [3ds Max, ZBrush, C4D 动画] }
+    - { id: ink,      title: 墨 · 后期动效,   desc: 漫画分层、木偶绑定与剪辑合成，静态漫画做成动态叙事, tier: skilled,  tools: [PS, AE 木偶绑定, PR 剪辑] }
+    - { id: paper,    title: 纸 · AIGC 管线,  desc: 提示词迭代到图生视频，IP 管线无带教独立跑通,      tier: basic,    tools: [提示词工程, 即梦, 混元3D] }
+    - { id: inkstone, title: 砚 · 引擎与编程, desc: 引擎内演示验证，补脚本与编程基础,              tier: drybrush, tools: [Substance PBR, UE5, C 语言] }
+
+# --------------------------------------
+# Footer（页脚：联系方式 + 四栏）
+# --------------------------------------
+# 联系方式（页脚栏4 与「联系我」按钮的唯一数据源）
+contact:
+  email: 2106996916@qq.com
+  douyin:   { platform: 抖音, value: 重生1985, url: "https://v.douyin.com/IgjCV-dLEFA/" }
+  bilibili: { platform: B 站, value: null, url: null, pending: 筹建中 }   # url=null → 不渲染成链接（诚实优先，不留死链；M4 换真地址或经用户确认维持"筹建中"）
+
+# S5 传音 · 结构化页脚
+footer:
+  cta: { label: 联系我, arrow: true, to: "mailto:2106996916@qq.com" }   # 圆角+钤印残缺框=.seal-btn 族
+  columns:                                      # 桌面四栏 / 640~1023 两栏 / <640 单列
+    # links 两种写法：① 键名字符串=引用 footer 下的链接表（如 portfolio_links）；② 内联 [{ label, to }] 现写现用。
+    # to 允许：站内路由（须命中 nav 白名单）· http(s) 外链 · mailto: · source/site/ 下的静态文件（如 /resume/xxx.pdf，构建期查落盘）。
+    - { id: brand,   title: null }              # 栏1：印章母版 + 简介（brand_bio，无栏题）
+    - { id: site,    title: 站内, from: nav }    # ★读 nav 自动生成，加一段导航此处自动出现
+    - { id: portfolio, title: 创作, links: portfolio_links }
+    - { id: social,  title: 联系, from: contact }
+  brand_bio: 杜康，游戏方向创作者。2027 春起可实习，穗 / 深 / 沪 / 京，接受远程合作。
+                                                # ↑ 求职意向行=全站唯一落点；别在组件里写第二处
+  portfolio_links:                              # 09-06 裁定：「项目」改词「流程」→ 三条全有真页且互不重复
+    - { label: 作品,   to: /portfolio }
+    - { label: 流程,   to: /blog }
+    - { label: 关于我, to: /about }
+    # 想挂简历 / 作品集 PDF：文件放进 site/source/site/（如 source/site/resume/du-kang.pdf），
+    # 再在 columns 里加一栏即可，例：
+    #   - { id: files, title: 资料, links: [ { label: 简历, to: /resume/du-kang.pdf } ] }
+  seal_text: 杜康                               # 与顶栏 logo 同一枚印章母版；崩口/键线在组件里，不在此处
+  copyright: © 2026 杜康
+
+# --------------------------------------
+# 404
+# --------------------------------------
+notfound:
+  line: 此路云雾深处，请折返
+  cta: { label: 回山门, to: / }
+
+# --------------------------------------
+# A11y（无障碍与可见小字）
+# --------------------------------------
+# aria/title 文案的唯一家（中文闸无例外通道）；节内的 post_* 同时充当详情页可见小字。
+a11y:
+  nav_label: 主导航
+  tabs_label: 章节题签
+  skip_link_label: 跳到正文                     # 键盘用户第一个焦点位（指向 <main id="main-content">）
+  seal_copy_hint: 点击复制邮箱                   # 页脚大印 title/aria-label
+  brand_label: 杜康 · 返回首页                   # 顶栏徽章 aria-label（title 取 site.title）
+  case_period: 周期                             # 案例页 meta 条题词
+  case_embeds: 视频                              # 案例页第三方嵌入分节标题（C 路线 iframe）
+  case_aside_label: 作品信息                     # 案例页右侧信息栏可访问名
+  detail_cta: 查看详细                           # 四段标题行按钮文字
+  detail_aria: 查看「{ink}」详情页                # 同上 aria-label 模板，{ink} 运行时替换为段雅名
+  carousel_prev: 上一张                           # 轮播左箭头 aria-label
+  carousel_next: 下一张                           # 轮播右箭头 aria-label
+  about_seal_label: 杜康 · 个人印章                # /about 顶部印章 aria-label
+  about_tags_label: 个人标签                       # /about 顶部左右标签组 aria-label
+  about_timeline_label: 生涯时间轴                  # /about 生涯卡时间轴 aria-label
+  # —— 博客详情可见小字（front-matter 系统的标签唯一家）——
+  post_date: 发布                                   # 侧栏发布日期行标签
+  post_updated: 更新于                              # 侧栏/meta「更新于」标签
+  post_categories: 分类                             # 详情页 meta「分类」标签
+  post_toc_label: 文内目录                          # TOC 区可访问名
+  post_aside_label: 文章信息                        # 详情页侧栏可访问名
+  post_comments_label: 评论                         # 评论区可访问名（comments.provider 配好后才挂载）
+  post_copyright_heading: 版权声明                  # 版权模块标题
+  post_copyright_author: 文章作者                    # 版权模块作者行标签
+  post_copyright_link: 文章链接                      # 版权模块链接行标签
+  post_copyright_notice: 版权声明                    # 版权模块声明行标签
+  post_code_expand: 展开全部                        # 代码框折叠时按钮文字
+  post_code_collapse: 收起                          # 代码框展开时按钮文字
+
+# 刻意【不放在本文件】的三样，避免双主：
+#   · 粒子物理/淡出曲线/崩缺半径/160ms 令牌 → src/styles/ + src/fx/ink-field.ts
+#   · 案例事实（职责/数据/Before-After/复盘/图）→ source/posts/<slug>.md（tags 含 portfolio）
+#   · 断点与版心数字 → 20 §1 令牌，代码里不出现第二套

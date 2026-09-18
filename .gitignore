@@ -1,0 +1,20 @@
+node_modules/
+dist/
+.content/
+.npm-cache/
+*.log
+.DS_Store
+
+# 密钥 / 环境变量一律不进仓（Vite 只有 VITE_ 前缀会进客户端包，其余更不该入库）
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+
+.shots/
+.ssr/
+
+# source/ 是母版唯一家（仓库只存这一份）：图片/视频由 vite 插件（vite.config.ts staticFromSource）
+# dev 直供、build 直接写进 dist，不再经 public/ 暂存。resume/ 等手工静态件仍直放 public/。

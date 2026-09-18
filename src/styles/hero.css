@@ -1,0 +1,98 @@
+/* ---------- S1 山门 ---------- */
+#home {
+  padding: 0;
+  display: block;
+  overflow-x: hidden;
+  overflow-x: clip;
+}
+#ink {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  mix-blend-mode: multiply;
+  --fade-y: linear-gradient(to bottom, #000 0 30%, rgba(0, 0, 0, 0.78) 48%, rgba(0, 0, 0, 0.42) 64%, rgba(0, 0, 0, 0.14) 76%, transparent 88%);
+  --fade-x: linear-gradient(to right, rgba(0, 0, 0, 0.26) 0 14%, rgba(0, 0, 0, 0.6) 38%, #000 66%);
+  -webkit-mask-image: var(--fade-y), var(--fade-x);
+  mask-image: var(--fade-y), var(--fade-x);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+@media (max-width: 640px) {
+  #ink {
+    --fade-y: linear-gradient(to bottom, #000 0 16%, rgba(0, 0, 0, 0.62) 30%, rgba(0, 0, 0, 0.28) 44%, rgba(0, 0, 0, 0.06) 56%, transparent 66%);
+    -webkit-mask-image: var(--fade-y);
+    mask-image: var(--fade-y);
+  }
+}
+/* 云雾层：构建期预模糊 PNG + 横漂 + 8s 呼吸；越界由 #home overflow-x:clip 封死 */
+.mist {
+  position: absolute;
+  left: -10%;
+  width: 120%;
+  height: 26%;
+  pointer-events: none;
+  background: url('/mist-a.png') center / 100% 100% no-repeat;
+  will-change: transform, opacity;
+}
+.mist.a {
+  bottom: 12%;
+  animation:
+    drift 64s linear infinite alternate,
+    breathe 8s ease-in-out infinite alternate;
+}
+.mist.b {
+  bottom: 2%;
+  background-image: url('/mist-b.png');
+  animation:
+    drift 92s linear infinite alternate-reverse,
+    breathe 8s ease-in-out infinite alternate-reverse;
+}
+@keyframes drift {
+  from {
+    transform: translateX(-3%);
+  }
+  to {
+    transform: translateX(3%);
+  }
+}
+@keyframes breathe {
+  from {
+    opacity: 0.06;
+  }
+  to {
+    opacity: 0.12;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mist {
+    animation: none;
+    opacity: 0.09;
+  }
+}
+.hero-copy {
+  position: absolute;
+  top: clamp(210px, 36vh, 470px);
+  left: clamp(36px, 9vw, 150px);
+  z-index: 5;
+  max-width: var(--prose-max);
+}
+.hero-copy h1 {
+  font-family: var(--font-kai);
+  font-weight: 700;
+  color: var(--ink);
+  font-size: clamp(48px, 7.5vw, 104px);
+  line-height: 1.18;
+  letter-spacing: 0.14em;
+}
+.hero-copy .hero-line {
+  display: block;
+  white-space: nowrap;
+}
+.hero-cta {
+  display: flex;
+  gap: 16px;
+  margin-top: clamp(56px, 12vh, 140px);
+  flex-wrap: wrap;
+}

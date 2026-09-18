@@ -1,0 +1,214 @@
+/* ---------- S2 观山 · 响应式两列瀑布流 ---------- */
+.portfolio {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(14px, 2vw, 28px);
+}
+@media (min-width: 1024px) {
+  .portfolio {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+.portfolio.is-masonry {
+  grid-auto-rows: 8px; /* 与 useMasonry 的 UNIT 必须一致 */
+  align-items: start;
+}
+.card {
+  background: var(--card);
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  transition: transform var(--t) var(--ease);
+}
+.card:hover {
+  transform: translateY(-4px);
+}
+/* 列表页进场级联（2026-09-16）：与 /blog、/about 同一条 rise-in；--i 由 ArticleCard 逐项给（封顶 12）。
+   只挂在 .portfolio-list 下——首页观山段用的是同一组件，不该跟着动。 */
+.portfolio-list .card {
+  animation: rise-in 560ms var(--ease) backwards;
+  animation-delay: calc(var(--i, 0) * 50ms);
+}
+@media (prefers-reduced-motion: reduce) {
+  .portfolio-list .card {
+    animation: none;
+  }
+}
+/* .cover = 观山封面容器（图/视频一视同仁）；无图时与 .cover-ph 合用，
+   皮肤（色块 + 噪纹）定义在 arc.css，此处只管几何与图的底。 */
+.cover {
+  aspect-ratio: 16/9;
+  background: var(--cover);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-3);
+  border-bottom: 1px solid rgba(20, 22, 26, 0.08);
+  letter-spacing: 0.2em;
+  font-size: 13px;
+  overflow: hidden;
+}
+.cover img,
+.cover video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+/* 详情页顶图/视频槽与标题的距离：对齐博文 .bd-hero 的 2.2em@16px。
+   只挂在详情页的直系 hero 上——.cover 同时是 /portfolio 瀑布流卡的封面容器，不能全局加外边距。 */
+.portfolio-detail > .cover {
+  margin-bottom: 2.2rem;
+}
+.card h3 {
+  font-family: var(--font-song);
+  font-size: clamp(17px, 1.7vw, 22px);
+  letter-spacing: 0.12em;
+  margin: 14px 16px 2px;
+}
+.card p {
+  color: var(--ink-3);
+  font-size: 13px;
+  margin: 0 16px 16px;
+  line-height: 1.7;
+}
+.portfolio .card:nth-child(even) .cover {
+  aspect-ratio: 4/3;
+}
+.portfolio-page {
+  gap: clamp(20px, 2.6vw, 44px);
+}
+
+/* ---------- 淡入淡出轮播 FadeCarousel ---------- */
+/* 只淡变不滑动；交叉淡变 500ms=动效预算第三例外 */
+.fade-carousel {
+  --fc-fade: 500ms;
+  position: relative;
+  aspect-ratio: 16 / 9; /* 与封面规格一致：16:9 的图进来零裁剪，高度随版心宽度走 */
+  background: var(--cover);
+  overflow: hidden;
+}
+.fc-stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.fc-slide {
+  position: absolute;
+  inset: 0;
+  text-decoration: none;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--fc-fade) var(--ease);
+}
+.fc-slide.on {
+  opacity: 1;
+  pointer-events: auto;
+}
+/* 轮播＝纯图：封面铺满整张，画面里不放任何文字（作品名只作链接可访问名） */
+.fc-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+/* 图上的翻页件：纸色描边 + 极淡投影，深色画面里也看得见（无图时仍是原墨色） */
+.fade-carousel.has-photo .fc-arrow {
+  color: var(--paper);
+  text-shadow: 0 1px 6px rgba(20, 22, 26, 0.55);
+}
+.fade-carousel.has-photo .fc-arrow:hover {
+  color: var(--paper);
+}
+.fade-carousel.has-photo .fc-dot {
+  background: color-mix(in srgb, var(--paper) 72%, transparent);
+  opacity: 1;
+}
+.fade-carousel.has-photo .fc-dot.on {
+  background: var(--paper);
+}
+.fc-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--font-song);
+  font-size: 34px;
+  line-height: 1;
+  color: var(--ink-4);
+  padding: 8px 14px;
+  transition: color var(--t) var(--ease);
+}
+.fc-arrow.prev {
+  left: 8px;
+}
+.fc-arrow.next {
+  right: 8px;
+}
+.fc-arrow:hover {
+  color: var(--ink-2);
+}
+.fc-arrow:focus-visible {
+  outline: 2px solid var(--seal);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+.fc-dots {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 18px;
+  z-index: 2;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+.fc-dot {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--ink-4);
+  cursor: pointer;
+  opacity: 0.6;
+  transition: background var(--t) var(--ease), opacity var(--t) var(--ease);
+}
+.fc-dot.on {
+  background: var(--ink-2);
+  opacity: 1;
+}
+.fc-dot:focus-visible {
+  outline: 2px solid var(--seal);
+  outline-offset: 3px;
+}
+.portfolio-carousel {
+  margin: 0 0 clamp(48px, 9vh, 110px);
+}
+@media (max-width: 640px) {
+  .fc-arrow {
+    font-size: 26px;
+  }
+}
+[data-tier='mastered'] {
+  background: rgba(20, 22, 26, 0.82);
+  color: var(--paper);
+}
+[data-tier='skilled'] {
+  background: rgba(20, 22, 26, 0.55);
+  color: var(--paper);
+}
+[data-tier='basic'] {
+  background: rgba(20, 22, 26, 0.22);
+  color: var(--ink-2);
+}
+[data-tier='drybrush'] {
+  border: 1px dashed var(--ink-3);
+  color: var(--ink-3);
+}
+

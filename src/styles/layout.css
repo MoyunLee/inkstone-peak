@@ -1,0 +1,187 @@
+/* ---------- 预渲染交接 ----------
+   #prerender 是构建期 SSR 写进 HTML 的正文：首帧、无 JS、爬虫都靠它。
+   #root 一旦非空（React 首次提交完成），同一帧内隐去预渲染块，随后由 DropPrerender 从 DOM 摘除——
+   两者内容同源（同一批组件渲染），故交接不可见，也不会出现双份内容。 */
+#root:not(:empty) ~ #prerender {
+  display: none;
+}
+
+/* ---------- 跳转正文（a11y） ----------
+   默认移出视口：鼠标用户看不见，Tab 第一下到达时浮到左上角。目标 = 各页 <main id="main-content">。 */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 8px;
+  z-index: 30;
+  padding: 8px 14px;
+  background: var(--card);
+  color: var(--ink);
+  border: 1px solid var(--seal);
+  border-radius: var(--card-radius);
+  font-family: var(--font-kai);
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+}
+.skip-link:focus-visible {
+  left: 12px;
+  outline: 2px solid var(--seal);
+  outline-offset: 2px;
+}
+
+/* ---------- 顶栏 ---------- */
+.topbar {
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: var(--nav-h);
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: clamp(20px, 4vw, 56px);
+  padding: 0 clamp(16px, 4vw, 48px);
+  background: color-mix(in srgb, var(--paper) 86%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--ink-4);
+}
+.topbar .brand-wrap {
+  display: flex;
+  align-items: center;
+  gap: clamp(20px, 4vw, 56px);
+}
+.topbar .brand {
+  display: inline-flex;
+  align-items: center;
+  line-height: 0;
+  text-decoration: none;
+  color: var(--ink);
+}
+.badge-seal {
+  width: clamp(34px, 2.6vw, 42px);
+  height: auto;
+  display: block;
+  transform: rotate(-3deg);
+  transition: transform var(--t) var(--ease);
+}
+.brand:hover .badge-seal {
+  transform: rotate(0deg) scale(1.05);
+}
+.brand:active .badge-seal {
+  transform: rotate(0deg) scale(0.96);
+}
+.brand:focus-visible {
+  outline: 2px solid var(--seal);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+.topbar nav {
+  display: flex;
+  gap: clamp(16px, 3vw, 36px);
+  list-style: none;
+  margin-left: auto;
+}
+.topbar nav a {
+  position: relative;
+  display: inline-block;
+  padding: 8px 2px;
+  text-decoration: none;
+  color: var(--ink-3);
+  font-size: 15px;
+  letter-spacing: 0.2em;
+  transition:
+    color var(--t) var(--ease),
+    transform var(--t) var(--ease);
+}
+.topbar nav a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  width: 0;
+  background: var(--ink);
+  transition: width 200ms var(--ease);
+}
+.topbar nav a:hover {
+  color: var(--ink-2);
+  transform: translateY(-1px);
+}
+.topbar nav a:hover::after {
+  width: 60%;
+}
+.topbar nav a.on {
+  color: var(--ink);
+  font-weight: 700;
+}
+.topbar nav a.on::after {
+  left: 0;
+  transform: none;
+  width: 100%;
+  height: 2px;
+  background: var(--seal);
+}
+.topbar nav a.on::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -1px;
+  transform: translateX(-50%);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--seal);
+}
+
+/* ---------- 右侧题签（首页专属：只在 '/' 挂载，子页 DOM 无 .side-tabs） ---------- */
+.side-tabs {
+  position: fixed;
+  right: clamp(10px, 2.2vw, 28px);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(18px, 3.2vh, 30px);
+  align-items: center;
+  padding: 16px 9px;
+}
+.side-tabs i.dot {
+  position: absolute;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--seal);
+  transform: translateX(-50%);
+  transition: top var(--t) var(--ease);
+  z-index: 2;
+  pointer-events: none;
+}
+.side-tabs a {
+  writing-mode: vertical-rl;
+  text-decoration: none;
+  color: var(--ink-2);
+  opacity: 0.78;
+  font-family: var(--font-kai);
+  font-size: clamp(15px, 1.1vw, 17px);
+  letter-spacing: 0.34em;
+  padding: 8px 3px;
+  transition: all var(--t) var(--ease);
+  text-shadow:
+    0 0 5px rgba(247, 244, 238, 0.85),
+    0 0 10px rgba(247, 244, 238, 0.55);
+}
+.side-tabs a:hover {
+  opacity: 1;
+  color: var(--ink);
+  transform: translateX(-2px);
+}
+.side-tabs a.on {
+  opacity: 1;
+  color: var(--ink);
+  font-weight: 700;
+}
+@media (max-width: 640px) {
+  .side-tabs {
+    display: none;
+  }
+}

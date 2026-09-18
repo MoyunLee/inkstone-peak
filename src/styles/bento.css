@@ -1,0 +1,479 @@
+/* /about 便当盒：纸感材料、墨色层级、微动效与加载级联。骨架（网格/跨列）在组件内用 Tailwind 工具类写。 */
+.bento-grid {
+  min-height: auto;
+  scroll-snap-align: none;
+  padding: 0;
+}
+
+/* ---------- 顶部区域：左标签 | 印章 | 右标签，下方居中书法大题 ---------- */
+.bento-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  padding-block: clamp(6px, 2vh, 24px) clamp(10px, 2.4vh, 26px);
+  text-align: center;
+  animation: rise-in 560ms var(--ease) both;
+}
+.bento-hero-top {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(14px, 3vw, 40px);
+  width: 100%;
+}
+.about-preview .bento-hero {
+  padding-block-start: 0;
+}
+.bento-tags {
+  list-style: none;
+  display: flex;
+  flex: 1 1 0;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+}
+.bento-tags-left {
+  justify-content: flex-end;
+}
+.bento-tags-right {
+  justify-content: flex-start;
+}
+.bento-tag {
+  background: rgba(20, 22, 26, 0.06);
+  border: 1px solid rgba(20, 22, 26, 0.05);
+  border-radius: 999px;
+  color: var(--ink-2);
+  padding: 4px 13px;
+  font-size: 12.5px;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  transition:
+    background-color var(--t) var(--ease),
+    border-color var(--t) var(--ease),
+    color var(--t) var(--ease);
+}
+.bento-tag:hover {
+  background: var(--seal);
+  border-color: var(--seal);
+  color: var(--paper);
+}
+.bento-seal-slot {
+  flex: none;
+  line-height: 0;
+  transform-origin: center;
+  transition: transform var(--t-seal);
+}
+.bento-seal-slot:hover {
+  transform: scale(1.02);
+}
+.about-seal {
+  flex: none;
+  width: 118px;
+  height: 118px;
+}
+.bento-hero-title {
+  margin: 0;
+  font-family: var(--font-kai);
+  font-size: clamp(26px, 4vw, 46px);
+  line-height: 1.2;
+  letter-spacing: 0.2em;
+  text-indent: 0.2em;
+}
+
+/* ---------- 卡面材料 + 加载级联 ---------- */
+.bento-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(20, 22, 26, 0.09);
+  border-radius: 4px;
+  padding: clamp(18px, 2.2vw, 26px);
+  box-shadow:
+    0 1px 2px rgba(20, 22, 26, 0.03),
+    0 10px 26px -16px rgba(20, 22, 26, 0.14);
+  transition:
+    border-color var(--t) var(--ease),
+    background-color var(--t) var(--ease),
+    box-shadow var(--t) var(--ease);
+  animation: rise-in 560ms var(--ease) both;
+}
+.bento-card:nth-child(2) {
+  animation-delay: 100ms;
+}
+.bento-card:nth-child(3) {
+  animation-delay: 200ms;
+}
+.bento-card:nth-child(4) {
+  animation-delay: 300ms;
+}
+.bento-card:nth-child(5) {
+  animation-delay: 400ms;
+}
+.bento-card:nth-child(6) {
+  animation-delay: 500ms;
+}
+.bento-card:nth-child(7) {
+  animation-delay: 600ms;
+}
+.bento-card:hover {
+  border-color: color-mix(in srgb, var(--seal) 40%, transparent);
+  background: rgba(255, 255, 255, 0.66);
+  box-shadow: 0 4px 20px rgba(20, 22, 26, 0.04);
+}
+
+.bento-label {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--ink-3);
+  font-size: 11.5px;
+  letter-spacing: 0.18em;
+}
+.bento-card-title {
+  margin: 0 0 clamp(14px, 1.8vw, 20px);
+  font-family: var(--font-kai);
+  font-size: clamp(20px, 2.2vw, 28px);
+  letter-spacing: 0.14em;
+}
+
+/* ---------- 第一行左：自我介绍深墨卡 ---------- */
+.bento-intro-card {
+  justify-content: center;
+  min-height: clamp(178px, 21vh, 228px);
+  background: var(--ink);
+  border-color: transparent;
+  color: var(--paper);
+}
+.bento-intro-card .bento-label {
+  color: color-mix(in srgb, var(--paper) 62%, transparent);
+}
+.bento-intro-card:hover {
+  background: var(--ink);
+  border-color: color-mix(in srgb, var(--seal) 55%, transparent);
+  box-shadow: 0 4px 20px rgba(20, 22, 26, 0.18);
+}
+.bento-intro-name {
+  margin: 0;
+  font-family: var(--font-kai);
+  font-size: clamp(26px, 3.4vw, 44px);
+  line-height: 1.25;
+  letter-spacing: 0.06em;
+}
+.bento-intro-name b {
+  font-weight: inherit;
+}
+.bento-intro-sub {
+  margin: 12px 0 0;
+  color: color-mix(in srgb, var(--paper) 78%, transparent);
+  font-size: 14px;
+  line-height: 1.75;
+  letter-spacing: 0.04em;
+}
+
+/* ---------- 第一行右：追求卡 ---------- */
+.bento-pursuit {
+  justify-content: center;
+  background: var(--card);
+}
+.bento-pursuit-title {
+  margin: 0;
+  font-family: var(--font-kai);
+  font-size: clamp(23px, 2.7vw, 34px);
+  line-height: 1.35;
+  letter-spacing: 0.08em;
+}
+.bento-pursuit-title em {
+  display: block;
+  margin-top: 4px;
+  color: var(--seal);
+  font-style: normal;
+}
+
+/* ---------- 第二行左：技能「开启创造力」 ---------- */
+/* 自适应：网格吃满卡片剩余高度（flex: 1），行按可用高度均分（1fr）——
+   左列被右列撑高时，四组摊开而不是把空白堆在卡底。 */
+.bento-skill-groups {
+  list-style: none;
+  display: grid;
+  flex: 1 1 auto;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: 1fr;
+  gap: clamp(14px, 1.8vw, 22px);
+  margin: 0;
+  padding: 0;
+}
+.bento-skill-group {
+  padding-left: 12px;
+  border-left: 2px solid color-mix(in srgb, var(--ink) 16%, transparent);
+}
+.bento-skill-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 5px;
+  font-family: var(--font-kai);
+  font-size: 15.5px;
+  letter-spacing: 0.1em;
+}
+.bento-skill-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 3px;
+}
+.bento-skill-desc {
+  margin: 0 0 9px;
+  color: var(--ink-3);
+  font-size: 11.5px;
+  line-height: 1.7;
+  letter-spacing: 0.05em;
+}
+.bento-pills {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 0;
+  padding: 0;
+}
+.bento-pill {
+  background: rgba(20, 22, 26, 0.05);
+  border: 1px solid rgba(20, 22, 26, 0.06);
+  border-radius: 999px;
+  color: var(--ink-2);
+  padding: 4px 12px;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  transition: all var(--t) var(--ease);
+}
+.bento-pill:hover {
+  background: var(--seal);
+  border-color: var(--seal);
+  color: var(--paper);
+}
+
+/* ---------- 第二行右：生涯时间轴 ---------- */
+/* 自适应：ol 吃满卡片剩余高度（flex: 1），节点按可用高度均分（1fr 行 + 固定最小行距）。
+   竖线不再是贯穿整列的 ::before，而是每个节点「连到下一节点圆点」的 ::after 片段：
+   行高随卡伸缩时线段跟着伸缩，首节点上方不悬空、末节点下方不拖尾。 */
+.bento-timeline {
+  --tl-gap: 20px;
+  position: relative;
+  flex: 1 1 auto;
+  display: grid;
+  grid-auto-rows: 1fr;
+  row-gap: var(--tl-gap);
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0 0 0 26px;
+}
+.bento-node {
+  position: relative;
+}
+/* 只有一个节点时无处可分：整体在卡内垂直居中，避免「内容顶、底部空」 */
+.bento-node:only-child {
+  align-self: center;
+}
+.bento-node::after {
+  content: '';
+  position: absolute;
+  left: -21px; /* 与 .bento-node-dot 圆心同轴（dot 左 -26 + 宽 11 的一半） */
+  top: 17px; /* 圆点下沿 = top 6 + 高 11 */
+  width: 1px;
+  height: calc(100% + var(--tl-gap) - 11px); /* 恰好接到下一节点圆点上沿 */
+  background: color-mix(in srgb, var(--ink-4) 80%, transparent);
+}
+.bento-node:last-child::after {
+  content: none;
+}
+.bento-node-dot {
+  position: absolute;
+  left: -26px;
+  top: 6px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--seal);
+  animation: bento-breath 2.8s ease-in-out infinite;
+}
+@keyframes bento-breath {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--seal) 36%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--seal) 0%, transparent);
+  }
+}
+.bento-node-period {
+  display: block;
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+}
+.bento-node-text {
+  display: block;
+  margin-top: 3px;
+  color: var(--ink-2);
+  font-size: 13.5px;
+  line-height: 1.7;
+}
+
+/* ---------- 第三行左：数据「游戏阅历与拆解」2×3 网格 ---------- */
+/* 自适应：网格吃满卡片剩余高度（flex: 1），行按可用高度均分（1fr）——
+   单元格等高拉伸，配文行 min-height 已锁等高，故整块随卡伸缩而不破格。 */
+.bento-game-grid {
+  list-style: none;
+  display: grid;
+  flex: 1 1 auto;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: 1fr;
+  gap: clamp(10px, 1.4vw, 16px);
+  margin: 0;
+  padding: 0;
+}
+@media (min-width: 640px) {
+  .bento-game-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+.bento-game {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  padding: 12px 14px;
+  border: 1px solid color-mix(in srgb, var(--ink-4) 60%, transparent);
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--paper) 55%, transparent);
+}
+.bento-game-hours {
+  color: var(--ink);
+  font-family: var(--font-kai);
+  font-size: clamp(23px, 2.5vw, 31px);
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+}
+.bento-game-hours i {
+  margin-left: 2px;
+  color: var(--ink-3);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-style: normal;
+}
+.bento-game-name {
+  color: var(--ink);
+  font-size: 13.5px;
+  letter-spacing: 0.06em;
+}
+.bento-game-insight {
+  min-height: 1.6em;
+  color: var(--ink-3);
+  font-size: 11px;
+  line-height: 1.6;
+  letter-spacing: 0.04em;
+}
+
+/* ---------- 第三行右：坐标（水墨线条城市剪影） ---------- */
+/* 自适应：插画槽吃满卡片剩余高度（flex: 1），画面贴底（SVG 自带 xMidYMax）随槽缩放——
+   配文永远紧贴地平线，多出来的高度上移成「天」，不再夹在插画与配文之间。 */
+.bento-city-slot {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  margin: 2px 0 14px;
+}
+.bento-city {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 100%;
+  fill: none;
+  stroke: color-mix(in srgb, var(--ink) 52%, transparent);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.bento-city-mist {
+  stroke: color-mix(in srgb, var(--ink) 26%, transparent);
+  stroke-width: 1.1;
+}
+.bento-place-meta {
+  margin: 0; /* 空白已由 .bento-city-slot 吸收，配文不必再被 auto 推到卡底 */
+}
+.bento-place-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 0;
+  color: var(--ink-2);
+  font-size: 13px;
+  line-height: 1.75;
+}
+.bento-place-note svg {
+  flex: none;
+  margin-top: 3px;
+  color: var(--seal);
+}
+.bento-place-avail {
+  margin: 4px 0 0;
+  padding-left: 19px;
+  color: var(--ink-3);
+  font-size: 12px;
+  line-height: 1.7;
+}
+.bento-place-coord {
+  margin: 6px 0 0;
+  color: var(--ink-3);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+}
+
+/* ---------- 窄屏收敛（<640：印章在上、标签整片在下） ---------- */
+@media (max-width: 639px) {
+  .bento-hero-top {
+    flex-direction: column;
+    gap: 16px;
+  }
+  .bento-tags-left,
+  .bento-tags-right {
+    justify-content: center;
+  }
+  .about-seal {
+    width: 92px;
+    height: 92px;
+  }
+  .bento-skill-groups {
+    grid-template-columns: 1fr;
+  }
+}
+/* 加载级联与呼吸光晕是纯装饰：reduced-motion 下整体不挂载（只压 animation-duration 管不到 delay，会留空窗）。 */
+@media (prefers-reduced-motion: reduce) {
+  .bento-hero,
+  .bento-card,
+  .bento-node-dot {
+    animation: none;
+  }
+  .bento-seal-slot:hover {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

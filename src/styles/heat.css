@@ -1,0 +1,199 @@
+/* 贡献日历热力图：自然年 + 年份页签；周日起 7 行网格，左侧只标 一/三/五。 */
+.heat {
+  min-height: auto;
+  scroll-snap-align: none;
+  padding: 0;
+  --heat-cell: 16px; /* 方块边长唯一真源 */
+  --heat-gap: 4px;
+  --heat-cols: 53; /* 周列数：自然年恒 53 */
+  --heat-label-w: 18px;
+  --heat-label-gap: 6px;
+  --heat-radius: 4px;
+  --heat-grid-w: calc(var(--heat-cols) * var(--heat-cell) + (var(--heat-cols) - 1) * var(--heat-gap));
+  --heat-total-w: calc(var(--heat-label-w) + var(--heat-label-gap) + var(--heat-grid-w));
+  margin: 0 auto clamp(56px, 7vh, 80px);
+}
+.heat[data-cols='54'] {
+  --heat-cols: 54; /* 唯一特例：闰年且 1/1=周六（如 2028）跨 54 周列 */
+}
+.heat-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px clamp(14px, 2.4vw, 28px);
+  flex-wrap: wrap;
+  margin-bottom: clamp(24px, 3.2vh, 34px);
+}
+.heat-title {
+  font-family: var(--font-kai);
+  font-size: clamp(19px, 2.2vw, 25px);
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  color: var(--ink);
+  margin: 0;
+}
+.heat-years {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.heat-year {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.6;
+  letter-spacing: 0.06em;
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  padding: 1px 9px;
+  cursor: pointer;
+  transition:
+    color var(--t) var(--ease),
+    background-color var(--t) var(--ease),
+    border-color var(--t) var(--ease);
+}
+.heat-year:hover {
+  background: var(--card);
+  border-color: color-mix(in srgb, var(--ink-4) 70%, transparent);
+}
+.heat-year.on {
+  color: var(--paper);
+  background: var(--ink);
+  border-color: var(--ink);
+}
+.heat-year:focus-visible {
+  outline: 2px solid var(--seal); /* 全站唯一 focus 描边色 */
+  outline-offset: 2px;
+}
+.heat-body {
+  position: relative; /* tooltip 定位锚 */
+  padding-top: 6px;
+}
+.heat-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--ink-4) 75%, transparent) transparent;
+}
+.heat-inner {
+  width: max-content;
+  margin-inline: auto;
+  padding-right: 4px;
+}
+.heat-months {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: var(--heat-cell);
+  column-gap: var(--heat-gap);
+  margin-left: calc(var(--heat-label-w) + var(--heat-label-gap));
+  height: 20px;
+  margin-bottom: 6px;
+}
+.heat-month {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.heat-main {
+  display: flex;
+  gap: var(--heat-label-gap);
+}
+.heat-weekdays {
+  flex: none;
+  width: var(--heat-label-w);
+  display: grid;
+  grid-template-rows: repeat(7, var(--heat-cell));
+  row-gap: var(--heat-gap);
+}
+.heat-weekday {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: calc(var(--heat-cell) + var(--heat-gap)); /* 与网格严格对行 */
+  color: var(--ink);
+  text-align: right;
+}
+.heat-grid {
+  display: grid;
+  grid-auto-flow: column; /* 星期为行，一列=一周 */
+  grid-template-rows: repeat(7, var(--heat-cell));
+  grid-auto-columns: var(--heat-cell);
+  gap: var(--heat-gap);
+}
+.heat-cell {
+  width: var(--heat-cell);
+  height: var(--heat-cell);
+  border-radius: var(--heat-radius);
+  background: var(--heat-0);
+  /* 空白格须此发丝界，否则与纸底糊成一片（非装饰框）；有档位色时由下方 data-level 清除 */
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink-4) 45%, transparent);
+}
+.heat-cell[data-level='1'] {
+  background: var(--heat-1);
+  box-shadow: none;
+}
+.heat-cell[data-level='2'] {
+  background: var(--heat-2);
+  box-shadow: none;
+}
+.heat-cell[data-level='3'] {
+  background: var(--heat-3);
+  box-shadow: none;
+}
+.heat-cell[data-level='4'] {
+  background: var(--heat-4);
+  box-shadow: none;
+}
+.heat-cell[data-state='future'] {
+  opacity: 0.45;
+}
+.heat-cell[data-state='out'] {
+  background: transparent; /* 首/末列跨年溢出日：无形 */
+  box-shadow: none;
+}
+.heat-tip {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translate(-50%, calc(-100% - 6px));
+  z-index: 3;
+  padding: 4px 10px;
+  border-radius: 3px;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.6;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  pointer-events: none; /* 提示不吃鼠标 */
+}
+.heat-foot {
+  display: flex;
+  justify-content: flex-end;
+  padding-right: max(0px, calc((100% - var(--heat-total-w)) / 2));
+  margin-top: clamp(12px, 1.8vh, 18px);
+}
+.heat-legend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--ink);
+  font-size: 14px;
+  letter-spacing: 0.12em;
+}
+.heat-legend-cap {
+  padding: 0 4px;
+}
+.heat-legend-cell {
+  display: block;
+}
+@media (max-width: 640px) {
+  .heat-legend {
+    letter-spacing: 0.06em;
+  }
+}
