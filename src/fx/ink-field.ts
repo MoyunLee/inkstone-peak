@@ -43,8 +43,13 @@ export function createInkField(canvas: HTMLCanvasElement): () => void {
   let raf = 0
   let paused = false
   let lastNow = 0
-  let mx = -9e9
+  let mx = -9e9 // 画布位图坐标下的指针（= 斥力中心）
   let my = -9e9
+  let lx = -9e9 // 最近一次指针的视口坐标（滚动时重算局部坐标用）
+  let ly = -9e9
+  let over = false // 指针是否还在山门里
+  let pvx = 0 // 最近一枚 pointermove 的位移（剑气方向：顺着划动扫）
+  let pvy = 0
   let slashes: Slash[] = []
   let slashLeft = 3
   let slashReadyAt = 0
@@ -161,6 +166,7 @@ export function createInkField(canvas: HTMLCanvasElement): () => void {
     canvas.style.width = window.innerWidth + 'px'
     canvas.style.height = window.innerHeight + 'px'
     build()
+    if (over) toLocal(lx, ly) // 画布尺寸变了，局部坐标按新画布重算
     if (reduce) {
       lastNow = performance.now()
       frame(lastNow) // 静止成画：只画一帧
@@ -171,19 +177,52 @@ export function createInkField(canvas: HTMLCanvasElement): () => void {
     window.clearTimeout(rt)
     rt = window.setTimeout(fit, 180)
   }
+  // 视口坐标 → 画布位图坐标（**唯一换算处**）。
+  // 画布虽由 fit() 定成「视口尺寸」，却挂在山门段里随文档滚动（position:absolute）——
+  // 直接拿 clientX/clientY 当画布坐标，滚动后散开中心会顶到指针上方整整一个 scrollY
+  // （2026-09-19 实测：scrollY=260 时散开中心偏高 254px）。
+  const toLocal = (cx: number, cy: number): void => {
+    const r = canvas.getBoundingClientRect()
+    mx = (cx - r.left) * (r.width > 0 ? canvas.width / r.width : 1)
+    my = (cy - r.top) * (r.height > 0 ? canvas.height / r.height : 1)
+    lx = cx
+    ly = cy
+  }
   const onMove = (e: PointerEvent): void => {
-    mx = e.clientX * dpr
-    my = e.clientY * dpr
+    const px = mx
+    const py = my
+    over = true
+    toLocal(e.clientX, e.clientY)
+    if (px > -9e8) {
+      pvx = mx - px // 剑气方向的事实源：上一枚样本 → 这一枚的位移
+      pvy = my - py
+    }
   }
   const onLeave = (): void => {
+    over = false
     mx = my = -9e9
+  }
+  // 滚轮滚动时指针可以一动不动，但画布在动：局部坐标必须跟着重算，
+  // 否则散开中心又漂回旧位置；指针被滚出山门则当场收工。
+  const onScroll = (): void => {
+    if (!over) return
+    const r = canvas.getBoundingClientRect()
+    if (lx < r.left || lx > r.right || ly < r.top || ly > r.bottom) {
+      over = false
+      mx = my = -9e9
+      return
+    }
+    toLocal(lx, ly)
   }
   const onDown = (e: PointerEvent): void => {
     if (reduce || slashLeft <= 0 || performance.now() < slashReadyAt) return
     slashLeft--
     slashReadyAt = performance.now() + 2000 // 限 3 次/页、冷却 2s
-    const th = Math.atan2(my - e.clientY * dpr + 1, mx - e.clientX * dpr + 0.001) || -0.5
-    slashes.push({ x: e.clientX * dpr, y: e.clientY * dpr, c: Math.cos(th), si: Math.sin(th), t0: performance.now(), p: 0, e: 1 })
+    toLocal(e.clientX, e.clientY)
+    // 剑气方向 = 指针**划动方向**（原实现取「上一帧坐标 − 当前坐标」，两值几乎相同 ⇒ 恒为竖直扫过，2026-09-19 实测比值 0.84）；
+    // 原地点击无位移时回落竖直下扫，保持原手感。
+    const sweep = Math.hypot(pvx, pvy) > 1 ? Math.atan2(pvy, pvx) : Math.PI / 2
+    slashes.push({ x: mx, y: my, c: Math.cos(sweep), si: Math.sin(sweep), t0: performance.now(), p: 0, e: 1 })
   }
   const wake = (): void => {
     if (!paused && !reduce) {
@@ -192,6 +231,7 @@ export function createInkField(canvas: HTMLCanvasElement): () => void {
     }
   }
   const section = canvas.closest('section')
+  const surface: HTMLElement = section ?? canvas // 指针落点：整个山门（段）优先，认不出段时退化回画布
   const io = new IntersectionObserver(
     ([en]) => {
       paused = !(en?.isIntersecting ?? false)
@@ -205,9 +245,12 @@ export function createInkField(canvas: HTMLCanvasElement): () => void {
     if (!paused) wake()
   }
 
-  canvas.addEventListener('pointermove', onMove)
-  canvas.addEventListener('pointerleave', onLeave)
-  canvas.addEventListener('pointerdown', onDown)
+  // 指针事件挂**段**而不是画布：画布上还压着 .hero-copy（大字标题 / 按钮），挂画布的话
+  // 悬停标题只收得到 pointerleave（散开整个消失）；挂段则整个山门都跟手。
+  surface.addEventListener('pointermove', onMove)
+  surface.addEventListener('pointerleave', onLeave)
+  surface.addEventListener('pointerdown', onDown)
+  window.addEventListener('scroll', onScroll, { passive: true })
   window.addEventListener('resize', onResize)
   document.addEventListener('visibilitychange', onVis)
 
@@ -218,9 +261,10 @@ export function createInkField(canvas: HTMLCanvasElement): () => void {
     cancelAnimationFrame(raf)
     window.clearTimeout(rt)
     io.disconnect()
-    canvas.removeEventListener('pointermove', onMove)
-    canvas.removeEventListener('pointerleave', onLeave)
-    canvas.removeEventListener('pointerdown', onDown)
+    surface.removeEventListener('pointermove', onMove)
+    surface.removeEventListener('pointerleave', onLeave)
+    surface.removeEventListener('pointerdown', onDown)
+    window.removeEventListener('scroll', onScroll)
     window.removeEventListener('resize', onResize)
     document.removeEventListener('visibilitychange', onVis)
   }

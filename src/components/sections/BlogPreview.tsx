@@ -2,14 +2,13 @@
 import Section from '../layout/Section'
 import ArticleGrid from '../ui/article/ArticleGrid'
 import Heatmap from '../ui/heatmap'
-import { articles } from '../../lib/data/content'
+import { articles, heatItems } from '../../lib/data/content'
 import { sectionById, useSite } from '../../lib/data/site'
 
 export default function BlogPreview() {
   const site = useSite()
   const sec = sectionById(site, 'blog')
   if (!sec) return null
-  const heatItems = articles.map((a) => ({ date: a.date, count: 1 }))
   return (
     <Section sec={sec}>
       {site.heatmap ? <Heatmap items={heatItems} labels={site.heatmap} /> : null}

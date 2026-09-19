@@ -3,15 +3,13 @@ import Header from '../components/layout/Header'
 import SiteFooter from '../components/sections/SiteFooter'
 import ArticleGrid from '../components/ui/article/ArticleGrid'
 import Heatmap from '../components/ui/heatmap'
-import { articles } from '../lib/data/content'
+import { articles, heatItems } from '../lib/data/content'
 import { useHashScroll } from '../lib/hooks/useHashScroll'
 import { useSite } from '../lib/data/site'
 
 export default function BlogList() {
   useHashScroll()
   const site = useSite()
-  // 热力图吃全站文章（含作品）
-  const heatItems = articles.map((a) => ({ date: a.date, count: 1 }))
   return (
     <>
       <Header />

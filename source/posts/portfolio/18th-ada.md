@@ -3,11 +3,11 @@ title: 大广赛 · 千问大模型 30s 广告片
 description: 把命题「用 AI 传播 AI」做成实操：AI 出 slogan 候选、人工筛选定稿，再生图、以图生视频，合成 30 秒成片。
 period: 2026.03 – 2026.07
 date: "2026-03-01"
+updated: "2026-09-19"
 tags: [portfolio]
 carousel: true
 cover: source/images/18th-ada/18th-ada.webp
-links:
-  - { label: 大广赛 · 阿里云命题页（千问大模型）, url: "https://www.sun-ada.net/zt_xqs3026.html" }
+
 video:
   src: source/video/18th-ada.mp4
   caption: 千问大模型命题 30s 成片

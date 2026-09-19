@@ -16,6 +16,28 @@ export const works = posts.filter((p): p is WorkArticle => p.kind === 'work')
 export const articles: ArticleEntry[] = posts
 
 /**
+ * 贡献热力图的喂料（全站文章含作品；**数据口径的唯一真源**）：每篇「发布日 + 更新日各记 1 条」。
+ *
+ * 两个日子都上历：发布格记「什么时候发的」，更新格记「最后一次动它是什么时候」。
+ * 只认 `updated` 这一个字段（站内无历史版本，「改过几次」不可知），故一篇最多 2 条；
+ * `updated` 缺省、或与 `date` 同日时只记发布日 1 条——同日双计会让那一格凭空翻倍。
+ *
+ * 结构即 `components/ui/heatmap` 的 `HeatItem`（组件侧零转换、零数据 import）。
+ *
+ * @example
+ * // 18th-ada：date 2026-03-01 + updated 2026-09-19 → 03-01 与 09-19 各 +1
+ * // 没写 updated 的篇目：只在发布日 +1
+ */
+export const heatItems: { date: string; count: number }[] = articles.flatMap((a) =>
+  a.updated && a.updated !== a.date
+    ? [
+        { date: a.date, count: 1 },
+        { date: a.updated, count: 1 },
+      ]
+    : [{ date: a.date, count: 1 }],
+)
+
+/**
  * 按 slug 取作品（/portfolio/:slug 用）。
  *
  * @param slug 路由参数；未命中路由时是 undefined，函数会直接返回 undefined。
