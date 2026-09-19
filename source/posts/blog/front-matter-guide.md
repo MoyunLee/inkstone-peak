@@ -1,7 +1,7 @@
 ---
 title: 本站 front-matter 全字段速查：一篇配置一篇
 date: "2026-09-16"
-updated: "2026-09-16"
+updated: "2026-09-19"
 tags: [写作, 配置, 建站]
 categories: [站务]
 keywords: front-matter,Butterfly,anzhiyu,博客配置,站点默认值,作品集
@@ -106,8 +106,10 @@ tags: [标签一]
 
 **一篇是作品还是博文，只看 `tags`**：
 
-- `tags` 里含 `portfolio`（值可在 `site.yml blog.portfolio_tag` 改）→ **作品**，走 `/portfolio/<slug>`，可选用下列作品专属字段；
+- `tags` 里含 `portfolio` → **作品**，走 `/portfolio/<slug>`，可选用下列作品专属字段；
 - `tags` 里不含该标记 → **博文**，走 `/blog/<slug>`。
+
+> 标记词是**构建期**的分流指令：判定只做一处（`scripts/content/schemas/article.ts` 的常量），随后构建期会把它从产物的标签里剔掉——所以卡片上不会出现 `portfolio` 这枚标签，运行层也不认识这个词。它**不可在 `site.yml` 里配置**（历史上有过 `blog.portfolio_tag` 键，会与常量分叉、改了就静默出错，已删）。
 
 所以下面这段就是一篇作品，多写一行可选的 `description` 提要即可（`period` 同样可选）：
 

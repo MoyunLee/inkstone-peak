@@ -106,8 +106,9 @@ blog:
   show_date: true       # 卡片底部显示完整发布日期（★2026-09-12 卡片网格改版由 false 打开：日期是卡片结构元素）
   tags_max: 4           # 每卡最多显示几个标签（删键=不限量）
   preview_max: 6        # 首页「造境」段预览卡片上限（=3 列 × 2 排；超出的**不渲染、不占 DOM**）
-  portfolio_tag: portfolio  # ★类型标记：front-matter tags 含此值 = 作品（/portfolio 视图据此过滤）
-  work_tag: 作品            # 作品在归档卡上的显示标签（标记本身不外显，改用这枚中文标签）
+  # 类型标记（md 的 tags 里写 portfolio）是**构建期**概念：判定只用 scripts/content/schemas/article.ts
+  # 的常量，运行层只看 kind，故此处没有 portfolio_tag 键——它曾与常量分叉（改它会让 /portfolio 静默变空），已删。
+  work_tag: 作品            # 作品在归档卡上显示的中文标签（标记词构建期已剔除，卡片上只出这一枚）
 
 # --------------------------------------
 # Post Settings（文章：站点级默认值）

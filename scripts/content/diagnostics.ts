@@ -9,7 +9,7 @@ const FIELD_CN: Record<string, string> = {
   cta_detail: '标题行「查看详细」按钮开关（缺省开）',
   cta: '按钮', label: '文字', to: '指向', arrow: '箭头标记',
   blog: '造境归档列表与卡片控制台（=全站文章中心库）', order: '排列方向（desc|asc）',
-  portfolio_tag: '类型标记：front-matter tags 含此值即作品（/portfolio 视图据此过滤）', work_tag: '作品在归档卡上的显示标签（界面中文唯一家）',
+  work_tag: '作品在归档卡上的显示标签（界面中文唯一家）',
   show_date: '条目显示日期开关', tags_max: '条目标签显示上限', preview_max: '首页造境段预览卡片上限（扁平网格最多渲染几张；缺省 6）',
   carousel: '是否上观山顶部轮播（true=上，false 或缺省=不上；纯图，须有 cover）',
   max_slides: '轮播最多呈现几张（缺省或删键=不限）',

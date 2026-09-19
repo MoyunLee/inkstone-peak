@@ -31,8 +31,6 @@ export interface BlogCfg {
   show_date?: boolean
   tags_max?: number
   preview_max?: number
-  /** 类型标记：tags 含此值 = 作品（进 /portfolio 视图）。缺省回落 'portfolio'。 */
-  portfolio_tag?: string
   /** 作品在归档卡上的显示标签（界面中文的唯一家 = site.yml）。 */
   work_tag?: string
 }

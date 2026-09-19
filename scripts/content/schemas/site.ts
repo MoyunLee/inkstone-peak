@@ -75,7 +75,6 @@ export const siteSchema = z.object({
     show_date: z.boolean().optional(),
     tags_max: z.number().int().positive().optional(),
     preview_max: z.number().int().positive().optional(),
-    portfolio_tag: z.string().min(1).optional(),
     work_tag: z.string().min(1).optional(),
   }).strict().optional(),
   // ── Post Settings（逐篇 front-matter 的站点级默认值）──

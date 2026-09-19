@@ -29,7 +29,7 @@ toc_number: false     # 本文标题自带编号（## 一、/ ### 3.1），再�
 | `page_meta` | ✅ 可整节删 | — | 子页 `<title>` 专名 |
 | `home` | ❌ 不能 | `sections` ≥1 段；每段 `id` + （`heading` 或 `heading_lines` ≤2 行） | 首页五段 |
 | `portfolio` | ✅ 可整节删 | — | 观山轮播张数 / 作品详情目录 |
-| `blog` | ✅ 可整节删 | — | 归档列表 / 首页造境段 / 类型标记 |
+| `blog` | ✅ 可整节删 | — | 归档列表 / 首页造境段 / 卡片标签 |
 | `cover` `top_img` `post_meta` `toc` `post_copyright` `comments` `math` `aplayer` `code_blocks` `aside` | ✅ 十节都可整节删 | — | 文章详情的站点级默认值（Post Settings） |
 | `heatmap` | ✅ 可整节删 | 给了就要给全 9 键 | 首页造境段与 `/blog` 的热力图 |
 | `about` | ❌ 不能 | **仅 `hero_title`** | `/about` 便当盒（话术 + 事实） |
@@ -119,7 +119,6 @@ page_meta:
 | `show_date` | 布尔 | 缺省/删 = 归档卡不显示日期 |
 | `tags_max` | 正整数 | 删键 = 不限量 |
 | `preview_max` | 正整数 | 缺省 `6`（首页造境段预览卡上限，超出的不渲染、不占 DOM） |
-| `portfolio_tag` | 字符串 | **类型标记**：front-matter `tags` 含此值 = 作品。键或整节缺省时回落常量 `portfolio`；**改它要同步所有文章的 tags** |
 | `work_tag` | 字符串 | 作品在归档卡上的中文标签；删键 = 卡片不加这枚标签 |
 
 ### 3.7 Post Settings 十节（每节都可整节删）
@@ -289,7 +288,7 @@ columns:
 | `site.tagline` | 无影响（当前无消费者） |
 | `page_meta.<某页>` | 该页 `<title>` 回落 `site.title` |
 | `portfolio` 整节 | 轮播不限张数、间隔 5000ms、作品目录用通用默认 |
-| `blog` 整节 | 新在前 / 卡不显示日期 / 标签不限 / 首页预览 6 张 / 类型标记回落 `portfolio` / 不出「作品」标签 |
+| `blog` 整节 | 新在前 / 卡不显示日期 / 标签不限 / 首页预览 6 张 / 不出「作品」标签 |
 | `heatmap` 整节 | 首页造境段与 `/blog` 的热力图整块不出 |
 | `about` 任一文案键 | 对应那一行 / 那一块不出 |
 | `about.skill_groups` | 技能卡整张不出 |
@@ -308,7 +307,7 @@ columns:
 - **`nav` 加一行**：预渲染页面清单、sitemap、rss、页面 meta、双导航、滚动高亮、内链白名单全部自动跟；如果是一个**新页面**，还要写页面组件并在 `src/routes.tsx` 注册。
 - **`home.sections` 加一段**：三件事一起做——yml 加段、`src/site/sections.ts` 注册组件、`nav` 挂 `module`。
 - **`footer.seal_text`**：页脚大印与构建期生成的 favicon / apple-touch-icon 都用它，改完重跑 `npm run assets`。
-- **`blog.portfolio_tag`**：类型判定的唯一开关，改值要同步所有文章的 `tags`。
+- **类型标记**：不在 `site.yml` 里配——「作品 / 博文」的判定住构建期（`scripts/content/schemas/article.ts` 的常量），运行层只看 `kind`；构建期还会把标记词从产物标签里剔除，所以卡片上不会露出 `portfolio`。
 - **`about.skill_groups`**：技能卡的唯一事实源，改表即改卡。
 - **`site.yml about` 的事实层**：`timeline` / `gameLog` / `location` / `anchors` 与话术同住 `about`（2026-09-16 由 `content/about/about.md` 整份并入，`site/content/` 已删）；`place_note` 的 `{city}` 由 `about.location` 填。
 

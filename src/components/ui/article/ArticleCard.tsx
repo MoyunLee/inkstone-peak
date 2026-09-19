@@ -1,7 +1,6 @@
 import type { CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
 import type { ArticleEntry } from '../../../lib/types/content'
-import { PORTFOLIO_TAG } from '../../../lib/data/content'
 import Seal from '../Seal'
 
 /** 占位色块轮换数：须与 arc.css 的 .cover-ph[data-tone='0..4'] 五档一致（改色只改 CSS）。 */
@@ -63,8 +62,8 @@ export default function ArticleCard({
       </Link>
     )
   }
-  // 类型标记不外显（它是分流指令）；作品改用 site.yml 的中文标签打头
-  const own = entry.tags.filter((t) => t !== PORTFOLIO_TAG)
+  // 类型标记是分流指令、构建期已从 tags 里剔除，故此处直接展示；作品改用 site.yml 的中文标签打头
+  const own = entry.tags
   const all = entry.kind === 'work' && workTag ? [workTag, ...own] : own
   const tags = tagsMax > 0 ? all.slice(0, tagsMax) : all
   return (

@@ -1,5 +1,6 @@
 // 内容管线主流程（2026-09-16 通用化）：单一 source/posts/ 目录 + 一份文章契约。
-// 类型由 front-matter 的 tags 判定（含 PORTFOLIO_TAG=作品 / 否则=博文），产出单份 .content/posts.json。
+// 类型由 front-matter 的 tags 判定（含 PORTFOLIO_TAG=作品 / 否则=博文）——判定**只在构建期这一处**；
+// 标记词随后从产物的 tags 里剔除（运行层只看 kind、不认识那个词），产出单份 .content/posts.json。
 // 读事实 → zod 三集合校验 → 交叉规则 → 写盘；runOnce 负责报错与退出码。
 import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
@@ -254,7 +255,9 @@ export function build(report = true): boolean {
       to,
       title: d.title,
       date: d.date,
-      tags: d.tags,
+      // 类型标记是**分流指令**，不进产物：md 里照写 tags: [portfolio]，落 posts.json 前剔掉——
+      // 运行层因此完全不需要知道那个词（身份看 kind、展示看这枚 tags），配置与常量的双源从根上消失。
+      tags: d.tags.filter((t) => t !== PORTFOLIO_TAG),
       bodyHtml: e.bodyHtml,
       ...settings, // 含 resolvePost 回带的 tocItems
     }

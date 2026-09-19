@@ -35,7 +35,7 @@ export interface ArticleCommon {
   title: string
   /** 统一排序键（ISO 日期）。 */
   date: string
-  /** 原始标签。作品含类型标记（渲染层剔除后再显示，标记值见 site.yml blog.portfolio_tag）。 */
+  /** 展示用标签：作者手写的 tags **已由构建期剔掉类型标记**（标记词只活在 md 与构建期，不进产物）。 */
   tags: string[]
   cover: string | null
   /** 正文标题清单（构建期抽，喂详情页目录）。 */

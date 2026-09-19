@@ -1,7 +1,7 @@
-// 事实集合的只读源：posts.json 由 scripts/content 构建期生成（site.yml 配置随 site.json 走）。
-// 统一数据源 = .content/posts.json 一份；/blog 与 /portfolio 只是它的两种视图（按 tags 里的类型标记分流）。
+// 事实集合的只读源：posts.json 由 scripts/content 构建期生成。
+// 统一数据源 = .content/posts.json 一份；/blog 与 /portfolio 只是它的两种视图——**分流只看 kind**（构建期已定死），
+// 运行层不认识任何“类型标记词”，故不存在“配置与常量分叉”的可能。
 import postsJson from '../../../.content/posts.json'
-import siteJson from '../../../.content/site.json'
 import type { ArticleEntry, PostArticle, WorkArticle } from '../types/content'
 
 export type { ArticleEntry, PostArticle, WorkArticle } from '../types/content'
@@ -9,11 +9,8 @@ export type { ArticleEntry, PostArticle, WorkArticle } from '../types/content'
 // as unknown as 只因 JSON 导入会把字面量拓宽成 string；schema 漂移由 scripts/content 的类型对账在 tsc 阶段拦下。
 export const posts = postsJson as unknown as ArticleEntry[]
 
-/** 类型标记：tags 含此值 = 作品。事实源 = site.yml 的 blog.portfolio_tag（缺省回落常量）。 */
-export const PORTFOLIO_TAG = siteJson.blog?.portfolio_tag ?? 'portfolio'
-
-/** /portfolio 视图：同一份数据里 tags 含类型标记的那些（构建期用同一 tags 定 kind，两者恒等）。 */
-export const works = posts.filter((p): p is WorkArticle => p.tags.includes(PORTFOLIO_TAG))
+/** /portfolio 视图：构建期判定为作品的那些（判据 = posts.json 的 kind，运行层唯一依据）。 */
+export const works = posts.filter((p): p is WorkArticle => p.kind === 'work')
 
 /** /blog 视图：**全量**（含作品）——/blog 是中心库，作品只是带标记的一类。 */
 export const articles: ArticleEntry[] = posts
