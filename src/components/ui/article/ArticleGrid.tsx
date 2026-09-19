@@ -15,7 +15,7 @@ function pinRank(e: ArticleEntry): [number, number] {
  * 同组内按索引升序。limit 为真时截断。
  *
  * @param entries 待排序清单（内部会 slice 复制，不改原数组）。
- * @param cfg site.yml 的 blog 段配置（order / show_date / tags_max）。
+ * @param cfg site.yml 的 blog 段配置（order / tags_max）。
  * @param limit 只显示前 N 条；省略或 ≤0 表示不截断。
  * @param workTag 作品在归档卡上的中文标签。
  * @example
@@ -50,8 +50,6 @@ export default function ArticleGrid({
               entry={entry}
               index={Math.min(i, 12)}
               tone={i % COVER_TONES}
-              // 归档网格里日期受 site.yml blog.show_date 管（缺省/删＝不出）；观山卡没有这个开关，恒出
-              date={cfg?.show_date === true}
               tagsMax={cfg?.tags_max}
               workTag={workTag}
             />

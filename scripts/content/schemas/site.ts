@@ -72,7 +72,6 @@ export const siteSchema = z.object({
   // ── Blog（归档列表与卡片）──
   blog: z.object({
     order: z.enum(['desc', 'asc']).optional(),
-    show_date: z.boolean().optional(),
     tags_max: z.number().int().positive().optional(),
     preview_max: z.number().int().positive().optional(),
     work_tag: z.string().min(1).optional(),

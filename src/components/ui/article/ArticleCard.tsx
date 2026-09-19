@@ -9,6 +9,7 @@ export const COVER_TONES = 5
 /**
  * 文章卡（全站唯一一张，2026-09-20 统一）：/blog 归档网格与 /portfolio 瀑布流共用本组件、同一套槽位——
  * 封面 → 标题 → 提要 → 标签 → 日期（**有 updated 就出 updated，否则回落发布日**）。
+ * 日期是**结构元素**：不受任何 site.yml 开关管，恒出（原 blog.show_date 已于 2026-09-20 退役）。
  *
  * 两页剩下的差别只有**容器几何**：/blog 走 .arc-grid（1/2/3 列等宽网格），/portfolio 走 .portfolio
  * （两列瀑布流、偶数卡封面 4:3）——几何归容器（arc.css / portfolio.css），槽位与皮肤归本组件。
@@ -18,17 +19,15 @@ export const COVER_TONES = 5
  * @param entry 文章事实（作品 / 博文同一契约）。
  * @param index 列表序号 → 挂成 --i，供列表页进场级联的阶梯延迟；首页各段不挂该 CSS，故无副作用。
  * @param tone 无封面时的色块档位（0..COVER_TONES-1）。
- * @param date 是否渲染日期（缺省 true；归档网格由 site.yml 的 blog.show_date 决定）。
  * @param tagsMax 标签上限；0 或省略 = 不限。
  * @param workTag 作品的中文标签（唯一家 = site.yml blog.work_tag）；只在归档网格里传。
  * @example
  * <ArticleCard entry={w} index={i} tone={i % COVER_TONES} />
- * <ArticleCard entry={a} date={cfg?.show_date === true} tagsMax={cfg?.tags_max} workTag={workTag} />
+ * <ArticleCard entry={a} tagsMax={cfg?.tags_max} workTag={workTag} />
  */
 export default function ArticleCard({
   entry,
   tone = 0,
-  date = true,
   tagsMax = 0,
   workTag = '',
   index,
@@ -38,8 +37,6 @@ export default function ArticleCard({
   index?: number
   /** 无封面时的色块档位（0..4）；由调用方按序轮换。 */
   tone?: number
-  /** 是否渲染日期；缺省 true（归档网格受 site.yml blog.show_date 管）。 */
-  date?: boolean
   /** 标签上限；0 或省略 = 不限量。 */
   tagsMax?: number
   /** 作品在归档卡上的显示标签（中文唯一家 = site.yml blog.work_tag）。 */
@@ -74,11 +71,9 @@ export default function ArticleCard({
             ))}
           </ul>
         ) : null}
-        {date ? (
-          <time className="card-date" dateTime={stamp}>
-            {stamp}
-          </time>
-        ) : null}
+        <time className="card-date" dateTime={stamp}>
+          {stamp}
+        </time>
       </div>
     </Link>
   )

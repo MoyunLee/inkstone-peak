@@ -28,7 +28,6 @@ export interface FooterColumn {
 
 export interface BlogCfg {
   order?: 'desc' | 'asc'
-  show_date?: boolean
   tags_max?: number
   preview_max?: number
   /** 作品在归档卡上的显示标签（界面中文的唯一家 = site.yml）。 */
