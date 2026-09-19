@@ -13,8 +13,12 @@
   grid-auto-rows: 8px; /* 与 useMasonry 的 UNIT 必须一致 */
   align-items: start;
 }
+/* 观山卡的圆角与 /blog 归档卡（.arc-card）同一真源：tokens.css 的 --card-radius。
+   封面是卡内首个子块，不裁就会盖掉上两个圆角——两处卡片自此同角（2026-09-19）。 */
 .card {
   background: var(--card);
+  border-radius: var(--card-radius);
+  overflow: hidden;
   text-decoration: none;
   color: inherit;
   display: block;

@@ -25,7 +25,7 @@
   --gutter: clamp(20px, 4vw, 72px);
   --inset-x: calc(6vw + var(--gutter));
   --prose-max: 34rem; /* rem 不是 em：正文宽必须全站同一个像素值，em 会随各块字号浮动 */
-  --card-radius: 6px; /* 卡片圆角唯一真源（现由 .arc-card 使用；日后热力图卡片化直接复用，勿新开第二个值） */
+  --card-radius: 6px; /* 卡片圆角唯一真源（现由 .arc-card 与观山 .card 共用；日后热力图卡片化直接复用，勿新开第二个值） */
   --section-h: 100svh; /* 禁 100vh */
   --nav-h: 64px;
 
