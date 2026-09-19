@@ -62,7 +62,7 @@ home:
       heading: 观山 · 作品全览
       en: PORTFOLIO
       intro: null
-      cta_detail: false                        # 本段标题行按钮退役——首页观山段已含全量作品，每张卡即入口（缺省 true＝出按钮；2026-09-20 修正：原写 true 与注释和走查 T3 相抵）
+      cta_detail: true                         # 出标题行右上「查看详细 →」（缺省 true＝出；此处显式保留，2026-09-20 用户确认）
     - id: blog                                   # 与 /blog 对应
       heading: 造境 · 笔墨札记
       en: BLOG
