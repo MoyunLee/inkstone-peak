@@ -181,4 +181,4 @@ export function resolvePost(fm: FrontMatter, cfg: PostDefaults) {
 
 本站额外提供的字段：`relatedWork` `main_color`（6 位十六进制且不可缩写）`background`，以及作品专属一整套（见第五节）。
 
-想看每一篇的真实头部，直接读 `site/source/posts/` 里任意一篇；字段的中文解释住 `scripts/content/diagnostics.ts` 的 `FIELD_CN` 表，报错时逐字段给你翻译。文案手册见 `Dev_Docs/00-内容与文案手册.md` §9。
+想看每一篇的真实头部，直接读 `site/source/posts/` 里任意一篇；字段的中文解释住 `scripts/content/diagnostics.ts` 的 `FIELD_CN` 表，报错时逐字段给你翻译。站点侧每个键怎么配，看配套的[《本站 site.yml 全字段速查》](/blog/site-yml-guide)——那份管站点，这份管文章。

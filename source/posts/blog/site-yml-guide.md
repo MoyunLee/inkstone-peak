@@ -1,6 +1,7 @@
 ---
 title: 本站 site.yml 全字段速查：每个键怎么配，什么时候可以删
 date: "2026-09-16"
+updated: "2026-09-19"
 tags: [写作, 配置, 建站]
 categories: [站务]
 keywords: site.yml,配置,建站,Butterfly,zod,缺省即隐藏,构建期校验
@@ -348,4 +349,4 @@ about:
 | 加一个首页段 | `site.yml home.sections` + `src/site/sections.ts` 注册 + `nav` 挂 `module` |
 | 新构建期校验 | `scripts/**` |
 
-字段的中文解释住 `scripts/content/diagnostics.ts` 的 `FIELD_CN` 表，报错时会逐字段翻译；文案手册见 `Dev_Docs/00-内容与文案手册.md`。要理解每一篇文章头部怎么写，看配套的《本站 front-matter 全字段速查》——那份管文章，这份管站点。
+字段的中文解释住 `scripts/content/diagnostics.ts` 的 `FIELD_CN` 表，报错时会逐字段翻译。要理解每一篇文章头部怎么写，看配套的[《本站 front-matter 全字段速查》](/blog/front-matter-guide)——那份管文章，这份管站点。
