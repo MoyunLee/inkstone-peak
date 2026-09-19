@@ -16,7 +16,7 @@ const SAFE_CODECS = new Set(['avc1', 'avc3', 'av01', 'vp09', 'vp08'])
 const HEVC_CODECS = new Set(['hvc1', 'hev1', 'dvh1', 'dvhe'])
 
 const KINDS: { dir: string; url: string }[] = [
-  // 说明性文件（CREDITS.md / README.md）不是交付件：不校验、不发布（vite 插件同一条规则）
+  // 素材目录里的 *.md 说明文件不是交付件：不校验、不发布（vite 插件同一条规则）
   { dir: 'images', url: '/images/' },
   { dir: 'video', url: '/media/video/' },
 ]

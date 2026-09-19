@@ -57,7 +57,7 @@ tags: [写作]
 - **图片 / 视频直接写母版位置**：`cover: source/images/<slug>/cover.webp` 与 `cover: /images/<slug>/cover.webp` 等价，
   构建期统一归一成交付地址；视频 `source/video/x.mp4` ↔ `/media/video/x.mp4`。
 - 改文案 / 导航 / 页脚 / 关于页 → 只改 `site.yml`。
-- 字段速查：站点内的《本站 front-matter 全字段速查》；素材规范见 `source/images/README.md`。
+- 字段速查：站点内的《本站 front-matter 全字段速查》；素材规格：图片母版放 `source/images/<slug>/`（封面 WebP / 16:9 / ≤150KB），视频规格见 `DEPLOY.md`。
 
 ## 构建脚本
 

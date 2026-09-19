@@ -18,4 +18,4 @@
 
 代码部分不受本许可约束，见 [LICENSE](LICENSE)（MIT）。
 
-第三方素材的来源与许可登记见 `source/images/CREDITS.md`。
+凡涉及第三方素材，出处与许可在对应文章的正文中注明。

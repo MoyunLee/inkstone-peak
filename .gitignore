@@ -17,4 +17,4 @@ dist/
 .ssr/
 
 # source/ 是母版唯一家（仓库只存这一份）：图片/视频由 vite 插件（vite.config.ts staticFromSource）
-# dev 直供、build 直接写进 dist，不再经 public/ 暂存。resume/ 等手工静态件仍直放 public/。
+# dev 直供、build 直接写进 dist，不再经 public/ 暂存。手工静态件（简历 PDF 等）直放 source/site/。

@@ -99,7 +99,7 @@ function previewDirIndex(): Plugin {
  *   `source/images/**` → `/images/**`      ┐ URL 与源目录不同名，publicDir 表达不了，由本插件搬运
  *   `source/video/**`  → `/media/video/**`  （dev 直读源目录、支持 Range；build closeBundle 直写 dist）
  *
- * `*.md`（CREDITS / README）不是交付件，插件两处都不发。
+ * `*.md`（素材目录里的说明文件）不是交付件，插件两处都不发。
  * SSR 那次 build 跳过搬运（不产交付目录）。
  */
 function staticFromSource(): Plugin {

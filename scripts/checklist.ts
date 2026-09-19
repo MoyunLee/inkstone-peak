@@ -46,11 +46,9 @@ for (const w of portfolio) {
   slotsTotal += 2
   if (mediaOk) cleared += 1
   if (textOk) cleared += 1
-  if (!mediaOk) accepted.push(`案例「${w.slug}」媒体占位：${slots.join('、')}（真实素材到位→归位 source/images/${w.slug}/ 重跑本表；命名见 source/images/README.md）`)
+  if (!mediaOk) accepted.push(`案例「${w.slug}」媒体占位：${slots.join('、')}（真实素材到位→归位 source/images/${w.slug}/ 并重跑本表；规格见 Dev_Docs/00-内容与文案手册.md §5）`)
   if (!textOk) accepted.push(`案例「${w.slug}」正文含【占位】措辞`)
 }
-
-if (!existsSync(P('source', 'images', 'CREDITS.md'))) blocking.push('source/images/CREDITS.md 缺失（20 §3① 许可记录家；母版住 source/images/）')
 
 // 任何「有键无 url」的社交条目都会在页脚渲染「筹建中」——逐条列出，不写死平台名
 for (const [key, raw] of Object.entries(site.contact)) {
