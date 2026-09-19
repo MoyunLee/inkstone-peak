@@ -6,7 +6,7 @@ import { issue, warn } from './diagnostics.ts'
 export function sectionImplIds(): string[] {
   const file = P('src', 'site', 'sections.ts')
   if (!existsSync(file)) {
-    issue('src/site/sections.ts', '（文件）', '缺失——zod③ 需要它作为"哪些段落有组件实现"的事实源（10 §5 校验③）')
+    issue('src/site/sections.ts', '（文件）', '缺失——构建期校验需要它作为"哪些段落有组件实现"的事实源')
     return []
   }
   const src = readFileSync(file, 'utf8')
@@ -67,7 +67,7 @@ export function checkInternalLink(value: string, file: string, where: string, ct
   }
   if (frag !== null) {
     const legal = bare === '/' ? ctx.homeIds : bare === '/about' ? ctx.aboutAnchors : []
-    const srcNote = bare === '/about' ? '（锚点段事实源=site.yml 的 about.anchors，10 §4.5）' : ''
+    const srcNote = bare === '/about' ? '（锚点段事实源=site.yml 的 about.anchors）' : ''
     if (!legal.includes(frag)) issue(file, where, `「${value}」的碎片「#${frag}」未命中 ${bare} 页锚点段${srcNote}`)
   }
 }

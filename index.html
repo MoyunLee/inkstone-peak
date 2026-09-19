@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- 预渲染壳（10 §3.2 V1 meta 注入式）：下方 <html lang> / title / description / canonical 为固定替换锚点，
+<!-- 预渲染壳（meta 注入式）：下方 <html lang> / title / description / canonical 为固定替换锚点，
      构建后由 scripts/pre-render.ts 按路由逐份覆写——此处手改值无意义，话术唯一家在 site.yml（lang 取 site.lang）。
      ★2026-09-11 用户令：**OG 全套移除**（og:site_name/type/title/description/url/image 六个标签全删）
        —— 微信/QQ 分享不再出卡片；`og_default` 配置、assets.ts 的 og 图生成、checklist 的 og 检查同步下线。
@@ -18,7 +18,7 @@
   </head>
   <body>
     <div id="root"></div>
-    <!-- 无 JS 降级（20 §3）：V1 仅 Hero 段预留底图位——assets.ts 预烘程序化数据山静帧；真源画 M4 换 -->
+    <!-- 无 JS 降级：仅 Hero 段预留底图位——assets.ts 预烘程序化数据山静帧；真源画 M4 换 -->
     <noscript><img src="/hero-base.png" alt="" style="position:fixed;inset:0;width:100vw;height:100svh;object-fit:cover;mix-blend-mode:multiply" /></noscript>
     <!-- 预渲染正文（构建期 SSR 注入，见 src/entry-server.tsx + scripts/pre-render.ts）：
          首帧与爬虫看这一块；React 一提交由 CSS 隐去、由 DropPrerender 摘除。本行是替换锚点，勿改。 -->

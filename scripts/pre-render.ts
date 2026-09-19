@@ -72,7 +72,7 @@ function inject(page: Page, body: string): string {
   let html = shell.replace(/<title>[\s\S]*?<\/title>/, () => `<title>${esc(m.title)}</title>`)
   const setAttr = (re: RegExp, val: string, anchor: string): void => {
     if (!re.test(html)) {
-      console.error(`✗ 替换锚点缺失：${anchor}（10 §3.2 要求锚点全在 index.html 固定标签——壳被改动，停下修锚）`)
+      console.error(`✗ 替换锚点缺失：${anchor}（预渲染要求锚点全在 index.html 固定标签——壳被改动，停下修锚）`)
       process.exit(1)
     }
     html = html.replace(re, (mt) => mt.replace(/content="[^"]*"/, () => `content="${esc(val)}"`))
@@ -80,7 +80,7 @@ function inject(page: Page, body: string): string {
   // canonical 用 href 而非 content，另设一支替换器
   const setHref = (re: RegExp, val: string, anchor: string): void => {
     if (!re.test(html)) {
-      console.error(`✗ 替换锚点缺失：${anchor}（10 §3.2 要求锚点全在 index.html 固定标签——壳被改动，停下修锚）`)
+      console.error(`✗ 替换锚点缺失：${anchor}（预渲染要求锚点全在 index.html 固定标签——壳被改动，停下修锚）`)
       process.exit(1)
     }
     html = html.replace(re, (mt) => mt.replace(/href="[^"]*"/, () => `href="${esc(val)}"`))

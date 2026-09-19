@@ -64,7 +64,7 @@ for (const rel of DIRS) {
 }
 
 if (hits.length > 0) {
-  console.error(`\n【中文闸拦截】组件/页面目录发现 ${hits.length} 处中文字面量（注释之外零例外，10 §3.4-6）：`)
+  console.error(`\n【中文闸拦截】组件/页面目录发现 ${hits.length} 处中文字面量（注释之外零例外）：`)
   for (const h of hits) console.error(`  ✗ ${h}`)
   console.error('  → 界面可见中文一律住 site.yml（含 about / a11y 段）；文章内容住 source/posts/。')
   process.exit(1)

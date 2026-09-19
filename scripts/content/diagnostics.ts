@@ -20,7 +20,7 @@ const FIELD_CN: Record<string, string> = {
   contact: '联系方式', email: '邮箱', douyin: '抖音', bilibili: 'B 站', pending: '占位注记',
   platform: '平台名（/about 便当盒「联系方式」左列）', value: '账号值 / 状态值（url=null 时即 pending 措辞）',
   footer: '页脚', columns: '页脚栏序列', brand_bio: '个人简介（求职意向全站唯一落点）', portfolio_links: '「创作」栏链接',
-  seal_text: '印文', copyright: '版权行（同名两处：site.yml footer.copyright=页脚版权行；front-matter copyright=文章版权模块开关）', demo_note: '演示站小字（M4 删行即消失）', cv: '简历 PDF（文件缺失=警告并隐藏，zod⑤）',
+  seal_text: '印文', copyright: '版权行（同名两处：site.yml footer.copyright=页脚版权行；front-matter copyright=文章版权模块开关）', demo_note: '演示站小字（M4 删行即消失）', cv: '简历 PDF（文件缺失=警告并隐藏）',
   from: '自动来源（nav/contact）', links: '链接表',
   notfound: '404 段', line: '提示语',
   a11y: '无障碍文案（aria/title 唯一家——中文闸无例外通道）', nav_label: '顶栏 aria-label', tabs_label: '题签 aria-label',
@@ -45,7 +45,7 @@ const FIELD_CN: Record<string, string> = {
   post_aside_label: '文章侧栏可访问名', post_comments_label: '评论区可访问名',
   post_copyright_heading: '版权模块标题', post_copyright_author: '版权模块作者行标签', post_copyright_link: '版权模块链接行标签', post_copyright_notice: '版权声明行标签',
   post_code_expand: '代码展开按钮文字', post_code_collapse: '代码收起按钮文字',
-  page_meta: '子页 meta 专名（只喂预渲染，M1 补录·10 §9-34）',
+  page_meta: '子页 meta 专名（只喂预渲染）',
   carousel_prev: '轮播左箭头 aria', carousel_next: '轮播右箭头 aria',
   heatmap: '贡献热力图话术（2026-09-10，可复用组件 Heatmap.tsx 唯一文案源）',
   less: '图例左端（浅=少）', more: '图例右端（深=多）', tip: '悬浮提示模板（有更新：{date}/{n}）', tip_empty: '悬浮提示模板（空白格）',
@@ -100,7 +100,7 @@ function translateIssue(i: LooseIssue): string {
     if (got === 'null') return '不允许为空（null）'
     return `类型不对（期望 ${expected}，实际 ${got}）`
   }
-  if (code === 'unrecognized_keys') return `出现了 10 §5 未定义的字段：${Array.isArray(i.keys) ? i.keys.join('、') : '?'}`
+  if (code === 'unrecognized_keys') return `出现了 schema 未定义的字段：${Array.isArray(i.keys) ? i.keys.join('、') : '?'}`
   if (code === 'too_small') return '不能为空 / 数量不足'
   if (code === 'invalid_value') return '取值不在允许的枚举内'
   return raw || code || '校验未通过'

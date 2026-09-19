@@ -39,7 +39,7 @@ export function build(report = true): boolean {
   for (const f of SOURCES) {
     const file = `source/posts/${f.rel}`
     if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(f.name)) {
-      issue(file, 'slug', '文件名必须 kebab-case（slug=文件名=URL 段，10 §6 文件名规范）')
+      issue(file, 'slug', '文件名必须 kebab-case（slug=文件名=URL 段）')
     }
     const dup = seenSlug.get(f.name)
     if (dup) issue(file, 'slug', `slug「${f.name}」与 ${dup} 重名（slug 全站唯一，决定 URL 段）`)
@@ -76,7 +76,7 @@ export function build(report = true): boolean {
   const portfolioSlugs = works.map((w) => w.slug)
   if (works.length === 0) issue('source/posts/', '（目录）', `没有任何作品（tags 含 ${PORTFOLIO_TAG}）——首页观山段与 /portfolio 列表都将为空`)
 
-  // 素材存在性（警告不阻断，与 footer.cv zod⑤ 同构）：一律校 source/ 母版而非镜像产物
+  // 素材存在性（警告不阻断，与 site.yml footer.cv 的存在性校验同构）：一律校 source/ 母版而非镜像产物
   for (const e of entries) {
     const d = e.data
     const slots: [string, string | null | undefined][] = [
@@ -103,7 +103,7 @@ export function build(report = true): boolean {
   const siteRaw = (() => {
     const file = P('site.yml')
     if (!existsSync(file)) {
-      issue('site.yml', '（文件）', '缺失——骨架与话术的唯一来源（10 §5）')
+      issue('site.yml', '（文件）', '缺失——骨架与话术的唯一来源')
       return null
     }
     try {
@@ -156,7 +156,7 @@ export function build(report = true): boolean {
     }
     // 锚点段事实源（2026-09-16 由 content/about 并入；整键可省）：给了就必须含 about + footer 双锚点
     for (const need of ['about', 'footer']) {
-      if (s.about.anchors && !s.about.anchors.includes(need)) issue('site.yml', 'about.anchors', `声明了 anchors 就必须同时含 about 与 footer 双锚点（zod⑥，10 §4.5），缺「${need}」`)
+      if (s.about.anchors && !s.about.anchors.includes(need)) issue('site.yml', 'about.anchors', `声明了 anchors 就必须同时含 about 与 footer 双锚点（构建期硬校验），缺「${need}」`)
     }
     const impl = sectionImplIds()
     for (const [i, sec] of s.home.sections.entries()) {

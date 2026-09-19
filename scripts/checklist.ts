@@ -46,7 +46,7 @@ for (const w of portfolio) {
   slotsTotal += 2
   if (mediaOk) cleared += 1
   if (textOk) cleared += 1
-  if (!mediaOk) accepted.push(`案例「${w.slug}」媒体占位：${slots.join('、')}（真实素材到位→归位 source/images/${w.slug}/ 并重跑本表；规格见 Dev_Docs/00-内容与文案手册.md §5）`)
+  if (!mediaOk) accepted.push(`案例「${w.slug}」媒体占位：${slots.join('、')}（真实素材到位→归位 source/images/${w.slug}/ 并重跑本表）`)
   if (!textOk) accepted.push(`案例「${w.slug}」正文含【占位】措辞`)
 }
 

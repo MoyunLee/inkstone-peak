@@ -122,7 +122,7 @@ export const siteSchema = z.object({
     months: z.array(z.string()).length(12),
   }).strict().optional(),
   // ── About（/about 便当盒话术；标题/标签/卡内文案唯一家）──
-  // 除 hero_title（本页唯一 h1）外全部可缺省：删键即不渲染该元素（缺省即隐藏，见 30 §缺省即隐藏）。
+  // 除 hero_title（本页唯一 h1）外全部可缺省：删键即不渲染该元素（缺省即隐藏）。
   about: z.object({
     hero_title: z.string().min(1),
     tags_left: z.array(z.string()).optional(),
@@ -149,7 +149,7 @@ export const siteSchema = z.object({
     timeline: z.array(z.object({ period: z.string().min(1), text: z.string().min(1) }).strict()).min(1).optional(),
     gameLog: z.array(z.object({ game: z.string(), hours: z.number().int().nonnegative(), insight: z.string().optional() }).strict()).min(1).optional(),
     location: z.string().min(1).optional(),
-    // /about 声明的锚点段（整键可省）：给了就必须含 about + footer（zod⑥）
+    // /about 声明的锚点段（整键可省）：给了就必须含 about + footer（构建期硬校验）
     anchors: z.array(z.string()).optional(),
     // 技能卡四组（唯一事实源）
     skill_groups: z

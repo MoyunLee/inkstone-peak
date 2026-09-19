@@ -1,4 +1,4 @@
-// Vite + React + Tailwind v4（10 §6）；纯静态无 SSR adapter（10 §7），预渲染自管（10 §3.2 pre-render.ts）
+// Vite + React + Tailwind v4；纯静态无 SSR adapter，预渲染自管（scripts/pre-render.ts）
 import { cpSync, createReadStream, existsSync, readdirSync, statSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'

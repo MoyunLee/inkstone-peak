@@ -10,7 +10,7 @@
 # 唯一事实源：界面可见中文一律住本文件（中文闸 scripts/gate-cn.ts 注释之外零例外）。
 # ⚠ 刻意【不抄】Butterfly 里本站无落点的段：analytics / PWA / effects / ad / share /
 #   translate / search / darkmode / preloader / 各评论服务商细分配置 / code_blocks 的
-#   copy·language·word_wrap —— 不引零消费者的死配置（30 §3.3「缺省即隐藏」的同一条精神）。
+#   copy·language·word_wrap —— 不引零消费者的死配置（「缺省即隐藏」的同一条精神）。
 # --------------------------------------
 
 # --------------------------------------
@@ -194,7 +194,7 @@ heatmap:
 # About（/about 便当盒）
 # --------------------------------------
 # 双层文案：事实层存英文码，展示层在此出话术。{city} 模板由组件运行时替换为 about.location。
-# 除 hero_title（本页唯一 h1）外全部可省：删掉某一键，页面就不出那一行/那一块（缺省即隐藏，30 §缺省即隐藏）。
+# 除 hero_title（本页唯一 h1）外全部可省：删掉某一键，页面就不出那一行/那一块（缺省即隐藏）。
 about:
   # —— 顶部区域：印章居中，标签左右分列，下方书法大题 ——
   hero_title: 观自
@@ -236,7 +236,7 @@ about:
     - { game: 缺氧, hours: 133 }
   # 现居城市：填 place_note 的 {city}；与「求职目标城市」是两件事（后者唯一落点 = footer.brand_bio）。
   location: 中国，河源市
-  # /about 声明的锚点段（可整键删；给了须含 about + footer）：内链 /about#碎片 校验的事实源（zod⑥）。
+  # /about 声明的锚点段（可整键删；给了须含 about + footer）：内链 /about#碎片 校验的事实源（构建期硬校验）。
   anchors: [about, footer]
   # 技能卡「开启创造力」四组（**唯一事实源**：直接改本表即可）。
   #   id=图标键（组件内映射 lucide 图标）；tier=墨档英文码，挂 data-tier 上色（浓墨/淡墨/清墨/飞白）
@@ -321,4 +321,4 @@ a11y:
 # 刻意【不放在本文件】的三样，避免双主：
 #   · 粒子物理/淡出曲线/崩缺半径/160ms 令牌 → src/styles/ + src/fx/ink-field.ts
 #   · 案例事实（职责/数据/Before-After/复盘/图）→ source/posts/<slug>.md（tags 含 portfolio）
-#   · 断点与版心数字 → 20 §1 令牌，代码里不出现第二套
+#   · 断点与版心数字 → tokens.css 令牌，代码里不出现第二套
