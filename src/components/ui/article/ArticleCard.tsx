@@ -7,7 +7,7 @@ import Seal from '../Seal'
 export const COVER_TONES = 5
 
 /**
- * 文章卡（全站唯一一张，2026-09-19 统一）：/blog 归档网格与 /portfolio 瀑布流共用本组件、同一套槽位——
+ * 文章卡（全站唯一一张，2026-09-20 统一）：/blog 归档网格与 /portfolio 瀑布流共用本组件、同一套槽位——
  * 封面 → 标题 → 提要 → 标签 → 日期（**有 updated 就出 updated，否则回落发布日**）。
  *
  * 两页剩下的差别只有**容器几何**：/blog 走 .arc-grid（1/2/3 列等宽网格），/portfolio 走 .portfolio
