@@ -2,6 +2,6 @@
   <!-- 构建期生成（scripts/assets.ts）：印文 = site.yml footer.seal_text；色与字族 = tokens.css 的 seal / paper / font-kai 三个令牌。手改无效，改配置后重跑 npm run assets。 -->
   <rect x="2" y="2" width="40" height="40" rx="8" fill="#9e2b25"/>
   <rect x="7" y="7" width="30" height="30" fill="none" stroke="#f7f4ee" stroke-opacity=".45" stroke-width=".9"/>
-  <text x="22" y="21" font-size="15" fill="#f7f4ee" text-anchor="middle" font-family="'Microsoft YaHei', '微软雅黑', 'PingFang SC', 'Hiragino Sans GB', 'Noto Sans SC', sans-serif">杜</text>
-  <text x="22" y="36.5" font-size="15" fill="#f7f4ee" text-anchor="middle" font-family="'Microsoft YaHei', '微软雅黑', 'PingFang SC', 'Hiragino Sans GB', 'Noto Sans SC', sans-serif">康</text>
+  <text x="22" y="21" font-size="15" fill="#f7f4ee" text-anchor="middle" font-family="'LXGW WenKai', '霞鹜文楷', KaiTi, '楷体', serif">杜</text>
+  <text x="22" y="36.5" font-size="15" fill="#f7f4ee" text-anchor="middle" font-family="'LXGW WenKai', '霞鹜文楷', KaiTi, '楷体', serif">康</text>
 </svg>

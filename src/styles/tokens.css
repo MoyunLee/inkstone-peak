@@ -1,9 +1,7 @@
-/* 字体：全站统一 **微软雅黑**（2026-09-18 用户令；此前是 楷/宋/霞鹜 三栈）。
-   仍是系统回退栈、**零下载**：没有 @font-face、没有 /fonts/。
-   三个令牌（kai/song/mono）保留为**语义槽位**——值现在相同，想单独还原某一类
-   （例如代码块保持等宽、印章恢复楷体）只改对应的那一行。
-   macOS 无雅黑，按系统黑体回退（苹方 → 冬青黑 → Noto Sans SC），依旧不下载任何字体。
-   历史：子集自托管一度做过又撤掉；楷/宋栈的取舍见 Dev_Docs/90 已否决表。 */
+/* 字体：一律走系统回退栈，**不引入任何外来字体文件**（2026-09-16 用户令；20 §1）。
+   标题吃 --font-kai、正文吃 --font-song，两栈都在下面 :root 里；全站没有 @font-face、没有 /fonts/。
+   「子集自托管」一度做过又撤掉：为了跨机一致多背 177KB，且云端无法再生（需本机 Python），
+   与「只用系统自带字体」的取向不符。真要恢复：见 Dev_Docs/90 已否决表。 */
 :root {
   /* 色墨：纸底禁纯白；印朱=全站唯一彩色（面积 <2%） */
   --paper: #f7f4ee;
@@ -35,9 +33,9 @@
   --t: 160ms;
   --t-seal: 260ms ease-out;
 
-  --font-kai: 'Microsoft YaHei', '微软雅黑', 'PingFang SC', 'Hiragino Sans GB', 'Noto Sans SC', sans-serif; /* 标题槽位 */
-  --font-song: 'Microsoft YaHei', '微软雅黑', 'PingFang SC', 'Hiragino Sans GB', 'Noto Sans SC', sans-serif; /* 正文槽位 */
-  --font-mono: 'Microsoft YaHei', '微软雅黑', 'PingFang SC', 'Hiragino Sans GB', 'Noto Sans SC', sans-serif; /* 等宽槽位（现已非等宽；要代码对齐就单独还原此行） */
+  --font-kai: 'LXGW WenKai', '霞鹜文楷', KaiTi, '楷体', serif;
+  --font-song: 'Source Han Serif SC', '思源宋体', 'Noto Serif SC', SimSun, serif;
+  --font-mono: 'LXGW WenKai Mono', '霞鹜文楷等宽', ui-monospace, monospace;
 }
 
 /* ── 共用动效原语（2026-09-16 统一渲染层）──

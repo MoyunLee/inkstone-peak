@@ -105,7 +105,7 @@ npm run checklist # 上线检查表：🔴 必须为 0
 - **子目录只是归档习惯，可任意嵌套**（`source/posts/portfolio/x.md`、`source/posts/portfolio/practice/2026/x.md` 都行）：构建期递归读取，slug 取**文件名**、类型取 **tags**、URL 不受目录影响——子目录**不参与**任何路由或类型判定；跨子目录同名会被拦下并报出两处完整路径。
 - `source/site/` = **站点根静态件**（favicon / apple-touch-icon / hero-base / mist / noise；手工件如简历 PDF 也放这里）：`vite.config.ts` 的 `publicDir: 'source/site'`（Vite 原生语义＝该目录内容映射到站点根），dev 直接供、build 直接拷进 `dist/` 根。
 - `source/images/`、`source/video/` 由 `vite.config.ts` 的 `staticFromSource` 插件搬运（URL 与源目录**异名**：`/images/*`、`/media/video/*`）：dev 直接读源目录，build 直写 `dist/`。两段合起来**不再有 `public/` 暂存层**（2026-09-16 免暂存改造），仓库只存母版一份。
-- 字体**不做自托管**（2026-09-16 用户令）：全站统一**微软雅黑**，只吃系统字体栈（`tokens.css` 的字体令牌），产物里没有 `/fonts/`、没有 `@font-face`。子集自托管一度做过又撤掉，缘由与恢复做法见 `Dev_Docs/90` 已否决表。
+- 字体**不做自托管**（2026-09-16 用户令）：全站只吃系统字体栈（`tokens.css` 的 `--font-kai` / `--font-song`），产物里没有 `/fonts/`、没有 `@font-face`。子集自托管一度做过又撤掉，缘由与恢复做法见 `Dev_Docs/90` 已否决表。
 - ⚠ 简历/资料 PDF 直放 `source/site/`（与 `favicon.svg` 同级，走 Vite 的 `publicDir` 原样直出）；只有媒体（images/video）那种「URL 与源目录异名」的映射才需要动 `vite.config.ts` 的 `MIRRORS`。`robots.txt` 自 2026-09-16 起改由 `scripts/feeds.ts` 生成（为了 sitemap 指路用 `site.url`，不再手写双主）。
 - 开发预览：`npm run content:watch` + `npm run dev` 两个终端并跑（改完即热更）；或直接 `npm run build && npx vite preview`。
 - 校验永远在构建里兜底：缺字段=中文报错+构建失败（M0 机制）。
