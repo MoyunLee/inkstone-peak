@@ -253,7 +253,7 @@ about:
 contact:
   email: 2106996916@qq.com
   douyin:   { platform: 抖音, value: 重生1985, url: "https://v.douyin.com/IgjCV-dLEFA/" }
-  bilibili: { platform: B 站, value: null, url: null, pending: 筹建中 }   # url=null → 不渲染成链接（诚实优先，不留死链；M4 换真地址或经用户确认维持"筹建中"）
+  bilibili: { platform: B 站, value: null, url: null, pending: 筹建中 }   # url=null → 不渲染成链接（诚实优先，不留死链；有真地址就填，否则维持「筹建中」）
 
 # S5 传音 · 结构化页脚
 footer:

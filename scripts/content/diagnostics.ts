@@ -20,7 +20,7 @@ const FIELD_CN: Record<string, string> = {
   contact: '联系方式', email: '邮箱', douyin: '抖音', bilibili: 'B 站', pending: '占位注记',
   platform: '平台名（/about 便当盒「联系方式」左列）', value: '账号值 / 状态值（url=null 时即 pending 措辞）',
   footer: '页脚', columns: '页脚栏序列', brand_bio: '个人简介（求职意向全站唯一落点）', portfolio_links: '「创作」栏链接',
-  seal_text: '印文', copyright: '版权行（同名两处：site.yml footer.copyright=页脚版权行；front-matter copyright=文章版权模块开关）', demo_note: '演示站小字（M4 删行即消失）', cv: '简历 PDF（文件缺失=警告并隐藏）',
+  seal_text: '印文', copyright: '版权行（同名两处：site.yml footer.copyright=页脚版权行；front-matter copyright=文章版权模块开关）', demo_note: '演示站小字（删 site.yml 该行即消失）', cv: '简历 PDF（文件缺失=警告并隐藏）',
   from: '自动来源（nav/contact）', links: '链接表',
   notfound: '404 段', line: '提示语',
   a11y: '无障碍文案（aria/title 唯一家——中文闸无例外通道）', nav_label: '顶栏 aria-label', tabs_label: '题签 aria-label',

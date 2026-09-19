@@ -73,7 +73,7 @@ npm run checklist # 上线检查表：🔴 必须为 0
 2. 按 Vercel 提示到 DNS 服务商加记录（apex 用 A 记录 `76.76.21.21`，`www` 用 CNAME 指向 Vercel 给出的目标——以域名卡显示的值为准）。
 3. **改 `site.yml` 的 `site.url` 一行** → `npm run build` → 重新部署（预渲染逐路由 canonical 的绝对域唯一来源就是这行）。
 
-## 5. 上线前验收（M4 清单，需你本人过一遍）
+## 5. 上线前验收（发布清单，需你本人过一遍）
 
 - [ ] 手机**关 Wi-Fi 用流量**访问 Vercel 地址：首屏粒子山、滚动不掉帧（中端手机 60fps 口径）。
 - [ ] **逐个路由直访**：页面标题/描述正确、无控制台报错（★OG 卡片已于 2026-09-11 移除，微信/QQ 分享不再出卡片）。
@@ -108,7 +108,7 @@ npm run checklist # 上线检查表：🔴 必须为 0
 - 字体**不做自托管**（2026-09-16 用户令）：全站只吃系统字体栈（`tokens.css` 的 `--font-kai` / `--font-song`），产物里没有 `/fonts/`、没有 `@font-face`。子集自托管一度做过又撤掉，（为跨机一致得多背 177KB，且云端无法再生——2026-09-16 用户令否掉这条路线）。
 - ⚠ 简历/资料 PDF 直放 `source/site/`（与 `favicon.svg` 同级，走 Vite 的 `publicDir` 原样直出）；只有媒体（images/video）那种「URL 与源目录异名」的映射才需要动 `vite.config.ts` 的 `MIRRORS`。`robots.txt` 自 2026-09-16 起改由 `scripts/feeds.ts` 生成（为了 sitemap 指路用 `site.url`，不再手写双主）。
 - 开发预览：`npm run content:watch` + `npm run dev` 两个终端并跑（改完即热更）；或直接 `npm run build && npx vite preview`。
-- 校验永远在构建里兜底：缺字段=中文报错+构建失败（M0 机制）。
+- 校验永远在构建里兜底：缺字段=中文报错+构建失败（构建期兜底）。
 
 ## 7. 视频上传（三路线，2026-09-12 落地）
 

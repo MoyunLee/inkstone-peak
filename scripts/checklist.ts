@@ -128,7 +128,7 @@ if (!npmCli) {
   }
 }
 
-console.log('══════ M4 上线检查表（用户决定版）══════')
+console.log('══════ 上线检查表（用户决定版）══════')
 if (blocking.length === 0) console.log('🔴 硬阻塞：0 —— 可上线')
 else {
   console.log(`🔴 硬阻塞 ${blocking.length} 项（上线前必须清零）：`)
