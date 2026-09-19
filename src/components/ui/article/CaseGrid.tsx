@@ -4,7 +4,7 @@ import { useMasonry } from '../../../lib/hooks/useMasonry'
 import ArticleCard, { COVER_TONES } from './ArticleCard'
 
 /**
- * 观山网格：响应式两列瀑布流，/portfolio 列表页与首页观山段共用（几何差异由 page 决定）。
+ * 观山网格：响应式两列瀑布流，/portfolio 列表页与首页观山段共用（卡片＝全站唯一的 ArticleCard；几何差异由 page 决定）。
  *
  * 卡片按序轮换五档占位色；序号封顶 12——--i 的进场阶梯延迟不再随列表长度增长。
  *
@@ -20,7 +20,7 @@ export default function CaseGrid({ items, page = false }: { items: WorkArticle[]
   return (
     <div className={page ? 'portfolio portfolio-page' : 'portfolio'} ref={ref}>
       {items.map((w, i) => (
-        <ArticleCard key={w.slug} entry={w} skin="case" index={Math.min(i, 12)} tone={i % COVER_TONES} />
+        <ArticleCard key={w.slug} entry={w} index={Math.min(i, 12)} tone={i % COVER_TONES} />
       ))}
     </div>
   )

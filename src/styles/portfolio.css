@@ -13,19 +13,15 @@
   grid-auto-rows: 8px; /* 与 useMasonry 的 UNIT 必须一致 */
   align-items: start;
 }
-/* 观山卡的圆角与 /blog 归档卡（.arc-card）同一真源：tokens.css 的 --card-radius。
-   封面是卡内首个子块，不裁就会盖掉上两个圆角——两处卡片自此同角（2026-09-19）。 */
-.card {
-  background: var(--card);
-  border-radius: var(--card-radius);
-  overflow: hidden;
-  text-decoration: none;
-  color: inherit;
-  display: block;
-  transition: transform var(--t) var(--ease);
+/* 观山卡＝全站唯一那张 .card（槽位与皮肤见 arc.css），本片只管**瀑布流的几何**：
+   ① 观山卡比归档卡宽（两列 vs 三列），题字相应大一档；
+   ② 偶数卡封面改 4:3——两列高度错落就是瀑布流的节奏（arc.css 的基准是 16:9，这里覆写）。 */
+.portfolio .card-title {
+  font-size: clamp(17px, 1.7vw, 22px);
+  letter-spacing: 0.12em;
 }
-.card:hover {
-  transform: translateY(-4px);
+.portfolio .card:nth-child(even) .card-cover {
+  aspect-ratio: 4/3;
 }
 /* 列表页进场级联（2026-09-16）：与 /blog、/about 同一条 rise-in；--i 由 ArticleCard 逐项给（封顶 12）。
    只挂在 .portfolio-list 下——首页观山段用的是同一组件，不该跟着动。 */
@@ -38,8 +34,9 @@
     animation: none;
   }
 }
-/* .cover = 观山封面容器（图/视频一视同仁）；无图时与 .cover-ph 合用，
-   皮肤（色块 + 噪纹）定义在 arc.css，此处只管几何与图的底。 */
+/* .cover = 详情页顶图/视频槽（图与视频一视同仁）；无图时与 .cover-ph 合用，
+   皮肤（色块 + 噪纹）定义在 arc.css，此处只管几何与图的底。
+   列表卡片的封面槽另有其类（.card-cover，arc.css）——详情页顶图与卡片封面互不牵连。 */
 .cover {
   aspect-ratio: 16/9;
   background: var(--cover);
@@ -59,25 +56,9 @@
   object-fit: cover;
   display: block;
 }
-/* 详情页顶图/视频槽与标题的距离：对齐博文 .bd-hero 的 2.2em@16px。
-   只挂在详情页的直系 hero 上——.cover 同时是 /portfolio 瀑布流卡的封面容器，不能全局加外边距。 */
+/* 详情页顶图/视频槽与标题的距离：对齐博文 .bd-hero 的 2.2em@16px。只挂在详情页的直系 hero 上。 */
 .portfolio-detail > .cover {
   margin-bottom: 2.2rem;
-}
-.card h3 {
-  font-family: var(--font-song);
-  font-size: clamp(17px, 1.7vw, 22px);
-  letter-spacing: 0.12em;
-  margin: 14px 16px 2px;
-}
-.card p {
-  color: var(--ink-3);
-  font-size: 13px;
-  margin: 0 16px 16px;
-  line-height: 1.7;
-}
-.portfolio .card:nth-child(even) .cover {
-  aspect-ratio: 4/3;
 }
 .portfolio-page {
   gap: clamp(20px, 2.6vw, 44px);

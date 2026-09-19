@@ -7,84 +7,78 @@ import Seal from '../Seal'
 export const COVER_TONES = 5
 
 /**
- * 文章卡：一个组件、两个皮肤——链接落点（entry.to）与封面回落只在这里写一份。
+ * 文章卡（全站唯一一张，2026-09-19 统一）：/blog 归档网格与 /portfolio 瀑布流共用本组件、同一套槽位——
+ * 封面 → 标题 → 提要 → 标签 → 日期（**有 updated 就出 updated，否则回落发布日**）。
  *
- * - `arc`  = 归档卡 / 首页造境段（.arc-card：封面或五档色块 + 标题 + 标签 + 日期）
- * - `case` = 观山卡 / 首页观山段（.card：封面或五档色块 + 标题 + 提要）
+ * 两页剩下的差别只有**容器几何**：/blog 走 .arc-grid（1/2/3 列等宽网格），/portfolio 走 .portfolio
+ * （两列瀑布流、偶数卡封面 4:3）——几何归容器（arc.css / portfolio.css），槽位与皮肤归本组件。
  *
- * 无图占位两皮肤共用 .cover-ph（arc.css），几何各随所在容器。
+ * 无封面时走 .cover-ph 色块占位（皮肤在 arc.css，五档 tone 由调用方按下标轮换）。
  *
- * @param entry 文章事实（两型通用）。
- * @param skin 皮肤：'arc' | 'case'。
- * @param index 列表序号 → 挂成 --i，供列表页进场级联的阶梯延迟；首页段不挂该 CSS，故无副作用。
+ * @param entry 文章事实（作品 / 博文同一契约）。
+ * @param index 列表序号 → 挂成 --i，供列表页进场级联的阶梯延迟；首页各段不挂该 CSS，故无副作用。
  * @param tone 无封面时的色块档位（0..COVER_TONES-1）。
- * @param date arc 皮肤是否渲染日期。
- * @param tagsMax arc 皮肤标签上限；0 或省略 = 不限。
- * @param workTag 作品在归档卡上的中文标签（唯一家 = site.yml blog.work_tag）。
+ * @param date 是否渲染日期（缺省 true；归档网格由 site.yml 的 blog.show_date 决定）。
+ * @param tagsMax 标签上限；0 或省略 = 不限。
+ * @param workTag 作品的中文标签（唯一家 = site.yml blog.work_tag）；只在归档网格里传。
  * @example
- * <ArticleCard entry={w} skin="case" index={i} tone={i % COVER_TONES} />
+ * <ArticleCard entry={w} index={i} tone={i % COVER_TONES} />
+ * <ArticleCard entry={a} date={cfg?.show_date === true} tagsMax={cfg?.tags_max} workTag={workTag} />
  */
 export default function ArticleCard({
   entry,
-  skin,
   tone = 0,
-  date = false,
+  date = true,
   tagsMax = 0,
   workTag = '',
   index,
 }: {
   entry: ArticleEntry
-  skin: 'arc' | 'case'
   /** 列表内的序号 → 挂成 --i，供「列表页进场级联」的阶梯延迟（首页各段不挂该 CSS，故无副作用）。 */
   index?: number
-  /** 无封面时的色块档位（0..4）；两皮肤共用 .cover-ph 皮肤，由调用方按序轮换。 */
+  /** 无封面时的色块档位（0..4）；由调用方按序轮换。 */
   tone?: number
+  /** 是否渲染日期；缺省 true（归档网格受 site.yml blog.show_date 管）。 */
   date?: boolean
+  /** 标签上限；0 或省略 = 不限量。 */
   tagsMax?: number
   /** 作品在归档卡上的显示标签（中文唯一家 = site.yml blog.work_tag）。 */
   workTag?: string
 }) {
   const rise = index === undefined ? undefined : ({ ['--i']: index } as CSSProperties)
-  if (skin === 'case') {
-    return (
-      <Link to={entry.to} className="card" style={rise}>
-        {entry.cover ? (
-          <span className="cover">
-            <img src={entry.cover} alt={entry.title} loading="lazy" decoding="async" />
-          </span>
-        ) : (
-          <span className="cover cover-ph" data-tone={String(tone)} aria-hidden="true">
-            <Seal variant="mark" />
-          </span>
-        )}
-        <h3>{entry.title}</h3>
-        {entry.description ? <p>{entry.description}</p> : null}
-      </Link>
-    )
-  }
   // 类型标记是分流指令、构建期已从 tags 里剔除，故此处直接展示；作品改用 site.yml 的中文标签打头
   const own = entry.tags
   const all = entry.kind === 'work' && workTag ? [workTag, ...own] : own
   const tags = tagsMax > 0 ? all.slice(0, tagsMax) : all
+  // 日期取「最后更新」优先：updated 缺省才回落发布日（站内无历史版本，「改过几次」不可知）
+  const stamp = entry.updated ?? entry.date
   return (
-    <Link to={entry.to} className="arc-card" style={rise}>
+    <Link to={entry.to} className="card" style={rise}>
       {entry.cover ? (
-        <span className="arc-cover arc-cover-img">
+        <span className="card-cover">
+          {/* 封面是装饰（卡的链接名由标题文字给），故 alt 留空，免读屏重复念一遍 */}
           <img src={entry.cover} alt="" loading="lazy" decoding="async" />
         </span>
       ) : (
-        <span className="arc-cover cover-ph" data-tone={String(tone)} aria-hidden="true">
+        <span className="card-cover cover-ph" data-tone={String(tone)} aria-hidden="true">
           <Seal variant="mark" />
         </span>
       )}
-      <div className="arc-body">
-        <h3 className="arc-title">{entry.title}</h3>
-        <ul className="arc-tags">
-          {tags.map((t) => (
-            <li key={t}>{t}</li>
-          ))}
-        </ul>
-        {date ? <time className="arc-date">{entry.date}</time> : null}
+      <div className="card-body">
+        <h3 className="card-title">{entry.title}</h3>
+        {entry.description ? <p className="card-desc">{entry.description}</p> : null}
+        {tags.length > 0 ? (
+          <ul className="card-tags">
+            {tags.map((t) => (
+              <li key={t}>{t}</li>
+            ))}
+          </ul>
+        ) : null}
+        {date ? (
+          <time className="card-date" dateTime={stamp}>
+            {stamp}
+          </time>
+        ) : null}
       </div>
     </Link>
   )

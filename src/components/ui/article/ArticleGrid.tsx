@@ -9,7 +9,7 @@ function pinRank(e: ArticleEntry): [number, number] {
 }
 
 /**
- * 归档网格：/blog 列表页与首页造境段共用。
+ * 归档网格：/blog 列表页与首页造境段共用（卡片＝全站唯一的 ArticleCard，两页同源）。
  *
  * 排序契约：先按 swiper_index 置顶，再按 top_group_index，最后按日期（方向由 cfg.order 决定）；
  * 同组内按索引升序。limit 为真时截断。
@@ -48,10 +48,10 @@ export default function ArticleGrid({
           <li key={entry.slug}>
             <ArticleCard
               entry={entry}
-              skin="arc"
               index={Math.min(i, 12)}
               tone={i % COVER_TONES}
-              date={cfg?.show_date}
+              // 归档网格里日期受 site.yml blog.show_date 管（缺省/删＝不出）；观山卡没有这个开关，恒出
+              date={cfg?.show_date === true}
               tagsMax={cfg?.tags_max}
               workTag={workTag}
             />

@@ -1,8 +1,7 @@
-/* 造境 /blog 归档卡片网格与文章详情；另持「封面占位皮肤」.cover-ph——与观山共用一套（2026-09-16）。 */
+/* 全站唯一的文章卡（.card）与 /blog 归档网格；另持「封面占位皮肤」.cover-ph——观山卡与归档卡自此同一张卡（2026-09-19 统一）。 */
 .archive {
   --arc-w: 100%;
-  --arc-gap: clamp(14px, 1.5vw, 20px); /* 卡片间隙唯一真源 */
-  --arc-pad: clamp(12px, 1.3vw, 16px); /* 卡片内边距唯一真源 */
+  --arc-gap: clamp(14px, 1.5vw, 20px); /* 归档网格间隙唯一真源 */
   max-width: var(--arc-w);
   margin-inline: auto;
 }
@@ -27,7 +26,11 @@
 .arc-grid > li {
   display: flex; /* 让卡片铺满整格，同排等高 */
 }
-.arc-card {
+/* ── 文章卡（2026-09-19 统一）：/blog 与 /portfolio 同一张卡、同一套槽位 ──
+   槽位固定为「封面 → 标题 → 提要 → 标签 → 日期」，皮肤（底 + 发丝界 + 圆角）全站只有这一份。
+   两页剩下的差别全是**容器几何**：/blog 走 .arc-grid（1/2/3 列等宽网格），/portfolio 走 .portfolio
+   （两列瀑布流、偶数卡封面 4:3、题字大一档）——那些覆写在 portfolio.css 里，本片不重复。 */
+.card {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -41,27 +44,46 @@
     transform var(--t) var(--ease),
     border-color var(--t) var(--ease);
 }
-.arc-card:hover {
+.card:hover {
   transform: translateY(-4px);
   border-color: color-mix(in srgb, var(--ink-3) 70%, transparent);
 }
-.arc-card:focus-visible {
+.card:focus-visible {
   outline: 2px solid var(--seal); /* 全站唯一朱框 */
   outline-offset: 2px;
 }
+/* 封面槽：真图与占位色块共用这一块几何（16:9 基准；观山偶数卡的 4:3 在 portfolio.css 覆写）。
+   底边发丝线＝封面与卡文的分界，与卡自身的发丝界同一语言。 */
+.card-cover {
+  flex: none;
+  aspect-ratio: 16/9;
+  background-color: var(--cover);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-3);
+  border-bottom: 1px solid rgba(20, 22, 26, 0.08);
+  overflow: hidden;
+}
+.card-cover img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 /* 列表页进场级联（2026-09-16）：与 /about 同一条 rise-in；--i 由 ArticleCard 逐项给（封顶 12）。
    只挂在 .blog-list 下——首页造境段用的是同一组件，不该跟着动。 */
-.blog-list .arc-card {
+.blog-list .card {
   animation: rise-in 560ms var(--ease) backwards;
   animation-delay: calc(var(--i, 0) * 50ms);
 }
 @media (prefers-reduced-motion: reduce) {
-  .blog-list .arc-card {
+  .blog-list .card {
     animation: none;
   }
 }
-/* 封面占位皮肤（唯一真源）：屏上「色块 + 噪纹」只此一份，/blog 归档卡与 /portfolio 观山卡共用；
-   宽高比等几何由各页容器类（.arc-cover / .cover）自持。本片晚于 portfolio.css ⇒ 同权时覆盖 .cover 的浅米底。 */
+/* 封面占位皮肤（唯一真源）：屏上「色块 + 噪纹」只此一份，观山卡与归档卡共用；
+   宽高比等几何由 .card-cover（本片上方）自持；本片晚于它 ⇒ 同权时盖掉 --cover 的浅米底。 */
 .cover-ph {
   display: flex;
   align-items: center;
@@ -92,28 +114,17 @@
 .cover-ph[data-tone='4'] {
   background-color: color-mix(in srgb, #5f7d78 var(--cover-mix), transparent);
 }
-.arc-cover {
-  flex: none;
-  aspect-ratio: 16/9;
-}
-.arc-cover-img {
-  background-color: var(--cover);
-}
-.arc-cover-img img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.arc-body {
+/* 卡文槽：题 → 提要 → 标签 → 日期。提要与标签缺省就不占位（作品常常没有标签，题与日期照出）；
+   日期 margin-top:auto 沉底——同排卡片的日期落在同一条基线上，这正是「整齐」的来源。 */
+.card-body {
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 8px;
   min-width: 0;
-  padding: var(--arc-pad);
+  padding: var(--card-pad);
 }
-.arc-title {
+.card-title {
   font-family: var(--font-song);
   font-weight: 700;
   font-size: clamp(15px, 1.5vw, 19px);
@@ -128,7 +139,13 @@
   line-clamp: 2;
   overflow: hidden;
 }
-.arc-tags {
+.card-desc {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--ink-3);
+}
+.card-tags {
   list-style: none;
   display: flex;
   flex-wrap: wrap;
@@ -136,7 +153,7 @@
   margin: 0;
   padding: 0;
 }
-.arc-tags li {
+.card-tags li {
   font-size: 12px;
   letter-spacing: 0.1em;
   color: var(--ink-2);
@@ -145,7 +162,7 @@
   border-radius: 2px;
   padding: 1px 9px;
 }
-.arc-date {
+.card-date {
   margin-top: auto;
   font-family: var(--font-mono);
   font-size: 12px;
