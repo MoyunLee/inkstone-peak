@@ -8,7 +8,7 @@ const linkShape = z.object({ label: z.string(), to: z.string() }).strict()
 /** a11y 话术键白名单：必须与 src/lib/types/site.ts 的 A11yKey 对齐（改键名要两处一起改，否则组件取不到文案）。 */
 const A11Y_KEYS = [
   'nav_label', 'tabs_label', 'seal_copy_hint', 'brand_label',
-  'case_period', 'case_embeds', 'case_aside_label',
+  'case_period', 'case_embeds',
   'detail_cta', 'detail_aria', 'carousel_prev', 'carousel_next',
   'about_seal_label', 'about_tags_label', 'about_timeline_label',
   'post_date', 'post_updated', 'post_categories', 'post_toc_label',
@@ -62,12 +62,9 @@ export const siteSchema = z.object({
       }),
   ).min(1) }, ).strict(),
   // ── Portfolio（观山顶部轮播：成员由作品 front-matter 声明，这里只限张数）──
+  // 作品详情页目录默认值曾住本节的 toc.*，2026-09-21 随统一壳子退役——两型同走 Post Settings 的 toc.*。
   portfolio: z.object({
     carousel: z.object({ max_slides: z.number().int().positive().optional(), interval_ms: z.number().int().positive().optional() }).strict().optional(),
-    toc: z
-      .object({ enable: z.boolean().optional(), number: z.boolean().optional(), style_simple: z.boolean().optional() })
-      .strict()
-      .optional(),
   }).strict().optional(),
   // ── Blog（归档列表与卡片）──
   blog: z.object({

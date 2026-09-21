@@ -91,12 +91,8 @@ portfolio:
   carousel:
     max_slides: 4
     interval_ms: 5000     # 自动播间隔（毫秒；缺省/删键=5000）。有图≥2 张且未 reduced-motion 才自动播
-  # 作品详情页的目录默认（2026-09-16 统一渲染层）：博客走 Post Settings 的 toc.*，
-  # 两型共用**同一条渲染规则**，只是默认值分家——保住案例页既有观感；改 true 即与博客一致。
-  toc:
-    enable: true          # 详情页出目录（有 h2/h3 才出）
-    number: false         # 目录与正文标题是否编号（博客侧 site.yml toc.number 现为 true）
-    style_simple: false   # 简洁模式（扁平内联）
+  # 作品详情页**不再有自己的目录默认值**（原 portfolio.toc 已于 2026-09-21 退役）：
+  # 统一壳子下两型走同一节 Post Settings 的 toc.*，作品 front-matter 仍可逐篇覆盖。
 
 # --------------------------------------
 # Blog（造境 /blog = 全站文章中心库：博文 + 作品都在这里；卡片与列表控制台）
@@ -130,7 +126,7 @@ post_meta:
     tags: true          # 显示 front-matter tags
     label: true         # 显示「更新于 / 分类」这类行首词（false=只出值）
 
-# 文章目录（Butterfly toc）
+# 文章目录（Butterfly toc）——作品与博文**共用这一套默认值**（原 portfolio.toc 分家已退役）
 toc:
   post: true            # 详情页出目录（文章有 h2/h3 才出，没标题不出）
   number: true          # 目录与正文标题同时编号
@@ -293,9 +289,8 @@ a11y:
   skip_link_label: 跳到正文                     # 键盘用户第一个焦点位（指向 <main id="main-content">）
   seal_copy_hint: 点击复制邮箱                   # 页脚大印 title/aria-label
   brand_label: 杜康 · 返回首页                   # 顶栏徽章 aria-label（title 取 site.title）
-  case_period: 周期                             # 案例页 meta 条题词
-  case_embeds: 视频                              # 案例页第三方嵌入分节标题（C 路线 iframe）
-  case_aside_label: 作品信息                     # 案例页右侧信息栏可访问名
+  case_period: 周期                             # 元信息行与侧栏行的「周期」题词（作品专属项）
+  case_embeds: 视频                              # 第三方嵌入分节标题（C 路线 iframe）
   detail_cta: 查看详细                           # 四段标题行按钮文字
   detail_aria: 查看「{ink}」详情页                # 同上 aria-label 模板，{ink} 运行时替换为段雅名
   carousel_prev: 上一张                           # 轮播左箭头 aria-label

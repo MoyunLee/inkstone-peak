@@ -1,7 +1,7 @@
 ---
 title: 本站 site.yml 全字段速查：每个键怎么配，什么时候可以删
 date: "2026-09-16"
-updated: "2026-09-20"
+updated: "2026-09-21"
 tags: [写作, 配置, 建站]
 categories: [站务]
 keywords: site.yml,配置,建站,Butterfly,zod,缺省即隐藏,构建期校验
@@ -29,7 +29,7 @@ toc_number: false     # 本文标题自带编号（## 一、/ ### 3.1），再�
 | `nav` | ❌ 不能 | 每条 5 个字段全给 | 双导航 / 路由白名单 / 预渲染页面清单 |
 | `page_meta` | ✅ 可整节删 | — | 子页 `<title>` 专名 |
 | `home` | ❌ 不能 | `sections` ≥1 段；每段 `id` + （`heading` 或 `heading_lines` ≤2 行） | 首页五段 |
-| `portfolio` | ✅ 可整节删 | — | 观山轮播张数 / 作品详情目录 |
+| `portfolio` | ✅ 可整节删 | — | 观山轮播张数 |
 | `blog` | ✅ 可整节删 | — | 归档列表 / 首页造境段 / 卡片标签 |
 | `cover` `top_img` `post_meta` `toc` `post_copyright` `comments` `math` `aplayer` `code_blocks` `aside` | ✅ 十节都可整节删 | — | 文章详情的站点级默认值（Post Settings） |
 | `heatmap` | ✅ 可整节删 | 给了就要给全 9 键 | 首页造境段与 `/blog` 的热力图 |
@@ -106,9 +106,8 @@ page_meta:
 |---|---|---|
 | `carousel.max_slides` | 可选 | 删键/整节删 = **不限张数**；候选多于上限时只呈现前 N（构建期给提醒，不阻断） |
 | `carousel.interval_ms` | 可选 | 缺省/删 = `5000` 毫秒 |
-| `toc.enable` | 可选 | 作品详情页目录；缺省 = 回落 Post Settings 的 `toc.post` |
-| `toc.number` | 可选 | 作品目录编号；**缺省/删 = `false`**（博客侧默认 `true`，两型默认值分家） |
-| `toc.style_simple` | 可选 | 作品目录简洁模式；缺省/删 = `false` |
+
+> 本节曾另有 `toc.enable / toc.number / toc.style_simple` 三键（作品目录默认值与博文分家）——2026-09-21 统一壳子后整组退役：**两型同走 Post Settings 的 `toc.*`**，作品仍可逐篇用 front-matter 的 `toc` / `toc_number` / `toc_style_simple` 覆盖。
 
 注意：**轮播成员不在这里点名**——由各作品 front-matter 的 `carousel: true` 且**有 `cover`** 决定，这里只管「最多几张、多久换一张」。
 
@@ -119,7 +118,7 @@ page_meta:
 | `order` | `desc` / `asc` | 缺省 `desc`（新文章在前） |
 | `tags_max` | 正整数 | 删键 = 不限量 |
 | `preview_max` | 正整数 | 缺省 `6`（首页造境段预览卡上限，超出的不渲染、不占 DOM） |
-| `work_tag` | 字符串 | 作品在归档卡上的中文标签；删键 = 卡片不加这枚标签 |
+| `work_tag` | 字符串 | 作品在归档卡与作品详情页（元信息行 / 侧栏标签胶囊）上的中文标签；删键 = 两处都不加这枚标签 |
 
 注意：**卡面那行日期不归本节管**。卡片统一后日期是结构元素、恒出（值 = `updated` 优先，缺省回落 `date`）——原来的 `show_date` 开关已退役，本节没有它。
 
@@ -132,10 +131,10 @@ page_meta:
 | `cover.enable` | 视为开 | `false` = 全站强制色块，无视逐篇 `cover` |
 | `top_img.enable` | 视为开 | `false` = 全站禁顶部大图 |
 | `post_meta.post.date_type` | `both` | `created` 只出发布 / `updated` 只出更新（缺则回落发布）/ `both` 都出 |
-| `post_meta.post.categories` | `true` | 详情页 meta 是否出分类 |
-| `post_meta.post.tags` | `true` | 是否出标签 |
-| `post_meta.post.label` | `true` | 是否出「更新于 / 分类」这类行首词 |
-| `toc.post` | `true` | 详情页出目录（有 h2/h3 才出） |
+| `post_meta.post.categories` | `true` | 侧栏是否出「分类」行（作品 / 博文同一套开关） |
+| `post_meta.post.tags` | `true` | 侧栏那排标签胶囊是否出 |
+| `post_meta.post.label` | `true` | 是否出「发布 / 更新于 / 分类 / 周期」这类行首词 |
+| `toc.post` | `true` | 详情页出目录（有 h2/h3 才出；**作品同这一套**） |
 | `toc.number` | `true` | 目录与正文标题同时编号 |
 | `toc.style_simple` | `false` | 简洁模式（扁平内联） |
 | `post_copyright.enable` | `false` | 版权模块开关 |
@@ -150,7 +149,7 @@ page_meta:
 | `aplayer.enable` | `false` | 音乐播放器开关 |
 | `aplayer.per_page` | `true` | 同 math 的逐篇语义 |
 | `code_blocks.shrink` | `false` | 代码框默认折叠 |
-| `aside.enable` | **`false`** | ⚠ 整节删掉文章就**没有右侧信息栏**；本站现配 `true` |
+| `aside.enable` | **`false`** | ⚠ 整节删掉文章就**没有右侧信息栏**（提要与元信息只剩标题下的回落行）；本站现配 `true` |
 
 ### 3.8 `heatmap`（可整节省；给了就要给全）
 
@@ -276,14 +275,14 @@ columns:
 
 `line`（提示语）+ `cta`（`{ label, to }`）。同一套文案生成 `dist/404.html` 并注入 noindex。
 
-### 3.13 `a11y`（可整节省；27 键全可选）
+### 3.13 `a11y`（可整节省；26 键全可选）
 
-缺键 = 不输出该属性；但键名仍走 strict 白名单，**拼错照样报错**。27 键按用途分四组：
+缺键 = 不输出该属性；但键名仍走 strict 白名单，**拼错照样报错**。26 键按用途分四组：
 
 - 布局：`nav_label` `tabs_label` `brand_label` `seal_copy_hint` `skip_link_label`
-- 案例与按钮：`case_period` `case_embeds` `case_aside_label` `detail_cta` `detail_aria`（支持 `{ink}`）`carousel_prev` `carousel_next`
+- 详情页与按钮：`case_period`（周期题词）`case_embeds`（嵌入分节标题）`detail_cta` `detail_aria`（支持 `{ink}`）`carousel_prev` `carousel_next`
 - 关于：`about_seal_label` `about_tags_label` `about_timeline_label`
-- 博客：`post_date` `post_updated` `post_categories` `post_toc_label` `post_aside_label` `post_comments_label` `post_copyright_heading` `post_copyright_author` `post_copyright_link` `post_copyright_notice` `post_code_expand` `post_code_collapse`
+- 详情页共用：`post_date` `post_updated` `post_categories` `post_toc_label` `post_aside_label`（两型同一枚侧栏可访问名）`post_comments_label` `post_copyright_heading` `post_copyright_author` `post_copyright_link` `post_copyright_notice` `post_code_expand` `post_code_collapse`
 
 ## 四、删了会怎样（速查）
 
@@ -291,7 +290,7 @@ columns:
 |---|---|
 | `site.tagline` | 无影响（当前无消费者） |
 | `page_meta.<某页>` | 该页 `<title>` 回落 `site.title` |
-| `portfolio` 整节 | 轮播不限张数、间隔 5000ms、作品目录用通用默认 |
+| `portfolio` 整节 | 轮播不限张数、间隔 5000ms |
 | `blog` 整节 | 新在前 / 卡不显示日期 / 标签不限 / 首页预览 6 张 / 不出「作品」标签 |
 | `heatmap` 整节 | 首页造境段与 `/blog` 的热力图整块不出 |
 | `about` 任一文案键 | 对应那一行 / 那一块不出 |
@@ -300,7 +299,7 @@ columns:
 | `about.location` | 坐标卡的 `{city}` 填空（卡片仍在） |
 | `about.anchors` | 不再校验 `/about#碎片`（页面无变化） |
 | Post Settings 任一节 | 走第三节「内置缺省」列 |
-| `aside` 整节 | 文章不出右侧信息栏 |
+| `aside` 整节 | 文章不出右侧信息栏卡片（提要与日期 / 分类 / 标签回落到标题下那一行） |
 | `footer.demo_note` | 页脚右下小字消失 |
 | `about.place_coord` | 坐标卡右下角坐标消失 |
 | `a11y` 任一键 | 该 aria / 可见小字不输出 |

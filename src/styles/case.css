@@ -51,29 +51,8 @@
   font-size: 0.86em;
   letter-spacing: 0.05em;
 }
-/* ── 详情页统一：案例页与文章页共用同一套骨架（.bd-layout / .bd-main / .post-aside）──
-   正文栏宽度由 .bd-layout 的栅格给（版心 − 288），封面独占整个版心；这里只留案例页自己的尺度。 */
-.portfolio-detail .meta-bar {
-  list-style: none;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 26px;
-  padding: 0;
-  color: var(--ink-2);
-  font-size: 14px;
-}
-.portfolio-detail h1 {
-  font-size: clamp(28px, 4vw, 44px);
-  line-height: 1.35; /* 标题不该继承正文的 1.75 行高 */
-  letter-spacing: 0.08em;
-  margin-bottom: 0.45em;
-}
-.portfolio-detail .case-lead {
-  font-size: 17px;
-  line-height: 1.9;
-  color: var(--ink-2);
-  margin-block: 0 1.5em;
-}
+/* ── 详情页统一：案例页与文章页共用同一套骨架（.bd-layout / .bd-head / .bd-body / .bd-hero / .post-aside）
+   ——标题区、顶图槽、元信息、正文栏宽度全在 post.css，案例页在这里只剩嵌入与外链两块的尺度。 ── */
 /* ── C 路线·视频嵌入：16/9 定比容器；用 div 不用 section（全局 section 带首页段落规格）── */
 .embeds {
   max-width: var(--prose-max);

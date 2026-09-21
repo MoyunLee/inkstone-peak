@@ -110,7 +110,7 @@ export interface AboutCfg {
 /** a11y 话术键全集：必须与 scripts/content/schemas/site.ts 的 A11Y_KEYS 对齐。 */
 export type A11yKey =
   | 'nav_label' | 'tabs_label' | 'seal_copy_hint' | 'brand_label'
-  | 'case_period' | 'case_embeds' | 'case_aside_label'
+  | 'case_period' | 'case_embeds'
   | 'detail_cta' | 'detail_aria' | 'carousel_prev' | 'carousel_next'
   | 'about_seal_label' | 'about_tags_label' | 'about_timeline_label'
   | 'post_date' | 'post_updated' | 'post_categories' | 'post_toc_label'
@@ -136,8 +136,6 @@ export interface SiteData {
   /** 观山顶部轮播：成员由作品 front-matter 的 `carousel` 声明，这里只限最多几张（缺省/删键=不限）。 */
   portfolio?: {
     carousel?: { max_slides?: number; interval_ms?: number }
-    /** 作品详情页的目录默认（博客走 Post Settings 的 toc.*；两型共用同一条渲染规则，默认值分家）。 */
-    toc?: { enable?: boolean; number?: boolean; style_simple?: boolean }
   }
   blog?: BlogCfg
   // ── Post Settings：构建期已合并 front-matter，此处仅 post_meta / comments.provider 运行时读取。

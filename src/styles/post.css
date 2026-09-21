@@ -1,34 +1,84 @@
-/* 文章详情扩展（顶图/目录/侧栏/版权/代码折叠；开关关时 DOM 不存在） */
+/* 详情页骨架（作品 / 博文同源：顶图 / 标题区 / 目录 / 侧栏 / 版权 / 代码折叠；开关关时 DOM 不存在） */
 
-/* ── 顶图：21/9，独占整个版心（与轮播图同宽） ── */
-.bd-hero { margin: 0 0 2.2em; }
-.bd-hero img { display: block; width: 100%; aspect-ratio: 21 / 9; object-fit: cover; border-radius: var(--card-radius); }
+/* ── 顶图槽（两型同源）：16/9 定比媒件块，独占整个版心（与轮播图同宽）。
+   图与视频一视同仁——媒件是视频就 <video>、是图就 <img>，比例同一档、不裁两侧。
+   圆角：方角（2026-09-20 用户裁定案例页顶图不圆角；2026-09-21 统一后两型同此，见 Dev_Docs 90 §3），
+   底边压一条发丝界把媒件与纸面分开。 */
+.bd-hero {
+  margin: 0 0 2.2em;
+  aspect-ratio: 16 / 9;
+  background: var(--cover);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid rgba(20, 22, 26, 0.08);
+  overflow: hidden;
+}
+.bd-hero img,
+.bd-hero video { display: block; width: 100%; height: 100%; object-fit: cover; }
 
-/* ── 详情两栏：aside 关时单栏（DOM 里也没有 aside 节点） ──
-   整块铺满版心（= 轮播图同宽）：正文栏 1fr、间距 48、侧栏 240。
-   开侧栏时正文即「版心 − 288」，与观山详情的正文栏同宽同左边界。 */
+/* ── 标题区（两型同源）：详情页唯一 h1，尺度取原博文那一档 ── */
+.bd-head h1 {
+  font-size: clamp(26px, 3.6vw, 42px);
+  line-height: 1.35; /* 标题不继承正文的 1.75 行高 */
+  letter-spacing: 0.06em;
+  margin-bottom: 0.5em;
+}
+
+/* ── 详情两栏：窄屏单列、≥1024 两栏 ──
+   DOM 顺序恒为「标题区 .bd-head → 侧栏 .post-aside → 正文 .bd-body」，窄屏单列即是这个顺序
+   （标题 → 信息卡与目录 → 正文，2026-09-21 用户指定）；宽屏用命名栅格区把侧栏整列右移，
+   标题区与正文区同占左列。侧栏关掉时（data-aside=false）单列照旧，DOM 里也没有 aside 节点。
+   整块铺满版心（= 轮播图同宽）：正文栏 1fr、间距 48、侧栏 240；开侧栏时正文即「版心 − 288」，
+   与观山详情的正文栏同宽同左边界。 */
 .bd-layout { display: grid; grid-template-columns: minmax(0, 1fr); }
-.bd-main { min-width: 0; }
-/* 正文撑满正文栏（默认 .prose 的 544 阅读宽在这里放开）——博客与观山详情共用 */
-.bd-main .prose { max-width: none; }
+.bd-head,
+.bd-body { min-width: 0; }
+/* 正文撑满正文栏（默认 .prose 的 544 阅读宽在这里放开）——两型共用 */
+.bd-body .prose { max-width: none; }
 /* preBody 末块（.ext-links / .embeds）的 margin-bottom 都是 0，
    正文首段 margin-top 也是 0——正文以 <p> 开头时会与上块贴死（实测：末块 ↓ prose = 0px）。
    给正文补一档与 .bd-rule 同高的上距：它与首个子元素的上距折叠取大，所以
    正文以 h2 开头（pearl，2.2em）或前面是 .bd-rule（博文，1.3em）时观感零变化。 */
-.bd-main .prose { margin-top: 1.3em; }
+.bd-body .prose { margin-top: 1.3em; }
 @media (min-width: 1024px) {
-  .bd-layout[data-aside='true'] { grid-template-columns: minmax(0, 1fr) 240px; gap: 48px; align-items: start; }
+  .bd-layout[data-aside='true'] {
+    grid-template-columns: minmax(0, 1fr) 240px;
+    grid-template-areas: 'head side' 'body side';
+    column-gap: 48px;
+    align-items: start;
+  }
+  .bd-layout[data-aside='true'] > .bd-head { grid-area: head; }
+  .bd-layout[data-aside='true'] > .bd-body { grid-area: body; }
+  .bd-layout[data-aside='true'] > .post-aside { grid-area: side; }
+}
+
+/* ── 题头：标题之下只有一条发丝线 ──
+   提要与元信息都收进了侧栏（.pa-desc / .pa-rows / .pa-tags）——两处同时出就是重复。
+   唯一的例外是关掉侧栏（aside: false）的篇目：元信息回落到这里。 */
+/* 回落的元信息行：日期 / 分类 / 周期（作品）/ 标签——开关住 site.yml post_meta.post，
+   整行（含「一项都出不了就不出」）由 articleMeta 组装；.bd-rule 的上距与它折叠。 */
+.bd-meta {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 32px;
+  margin: 0 0 2.4em;
+  padding: 0;
+  color: var(--ink-3);
+  font-size: 13px;
+  letter-spacing: 0.12em;
 }
 
 /* ── 标题下的发丝分割线 ──
-   设计总则「分隔用 1px 发丝线，不加装饰框」。上方间距由 h1 自身的 margin-bottom 给
-   （.blog-detail .5em / .portfolio-detail .45em），本类只管线本身与下方节奏。 */
+   设计总则「分隔用 1px 发丝线，不加装饰框」。上方间距由 h1 自身的 margin-bottom（0.5em）给，
+   本类只管线本身与下方节奏。 */
 .bd-rule {
   height: 2px; /* 与顶栏激活下划线、目录左线同厚（2px），比发丝线重一档 */
   border: 0;
   background: color-mix(in srgb, var(--ink-3) 45%, transparent);
-  /* margin-top 与上一个块的 margin-bottom 折叠取大：博文接 .bd-meta(2.4em) → 31px；
-     观山接 .meta-bar(margin 0) → 这里给的 1.5em。 */
+  /* margin-top 与上一个块的 margin-bottom 折叠取大：常态直接接 h1 → 这里给的 1.5em；
+     关掉侧栏的篇目接回落的 .bd-meta(2.4em) → 31px。 */
   margin: 1.5em 0 1.3em;
 }
 
@@ -71,8 +121,9 @@
 [data-toc-number='true'] .prose h3::before { content: counter(prose-h2) '.' counter(prose-h3) ' '; color: var(--ink-3); }
 .prose :is(h1, h2, h3, h4, h5, h6) { scroll-margin-top: calc(var(--nav-h) + 16px); }
 
-/* ── 强调色：只染链接与引用侧线，不铺面（印朱面积纪律） ── */
-.blog-detail .prose a,
+/* ── 强调色：只染链接与引用侧线，不铺面（印朱面积纪律）──
+   两型同源（原来只写了 .blog-detail，作品页正文链接落回正文色——2026-09-21 一并收口）。 */
+.bd-body .prose a,
 .post-copyright a { color: var(--post-accent, var(--seal)); }
 /* 引用块左线同目录左线一式：与朱点同色（原回落 --ink-4 落灰）。只染线不染字——引文仍 --ink-3。 */
 .prose blockquote { margin: 1.2em 0; padding: 0 1.1em; border-left: 2px solid var(--post-accent, var(--seal)); color: var(--ink-3); }
@@ -90,9 +141,21 @@
 .cs-btn { position: absolute; right: 10px; bottom: 10px; font: inherit; font-size: 12px; letter-spacing: 0.08em; color: var(--paper); background: color-mix(in srgb, var(--ink) 70%, transparent); border: 1px solid color-mix(in srgb, var(--paper) 40%, transparent); border-radius: 999px; padding: 3px 12px; cursor: pointer; }
 .cs-btn:hover { background: color-mix(in srgb, var(--ink) 88%, transparent); }
 
-/* ── 侧栏（aside） ── */
+/* ── 侧栏（aside）：信息卡 + 卡外目录 ──
+   卡只框信息（署名 / 提要 / 行 / 标签）：纸色微底 + 1px 发丝界 + 圆角，与版权模块同一套卡片语言。
+   目录自成一块（自己的强调色左线 + 纸色微底，见 .post-toc）——不与信息同框：目录条目多时它要自己滚，
+   同框会把整张卡一起顶高。元信息（日期 / 分类 / 标签）自此只住这张卡。 */
 .post-aside { font-size: 13px; }
+.pa-card {
+  padding: 18px 18px 20px;
+  border: 1px solid color-mix(in srgb, var(--ink-4) 60%, transparent);
+  border-radius: var(--card-radius);
+  background: color-mix(in srgb, var(--card) 60%, transparent);
+}
 .pa-author { margin: 0 0 14px; font-family: var(--font-song); font-size: 16px; letter-spacing: 0.08em; color: var(--ink); }
+/* 提要段（front-matter 的 description）：署名之下、元信息行之上；没写即整段不出。
+   字号继承 .post-aside 的 13px 小字档，但它是文章级内容而非元信息，故取 --ink-2 而不是 --ink-3。 */
+.pa-desc { margin: 0 0 14px; line-height: 1.75; color: var(--ink-2); }
 .pa-rows { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
 .pa-rows li { display: flex; gap: 10px; color: var(--ink-2); }
 .pa-rows b { flex: none; font-weight: 400; color: var(--ink-3); letter-spacing: 0.1em; }
@@ -102,7 +165,7 @@
    原先只有 `position: sticky`：aside 高过视口时它是「整体钉住」的，
    露不出来的末尾条目永远够不着（文章标题一多，目录下半截就消失）。
    flex 链的必要性：.post-aside 限高 → .post-aside-inner 可收缩（min-height:0）
-   → .post-toc 才拿到确定高度去 overflow-y。署名/元信息行/标签 flex:none，保持不动。 */
+   → .post-toc 才拿到确定高度去 overflow-y。信息卡（.pa-card）flex:none，保持不动。 */
 @media (min-width: 1024px) {
   .post-aside {
     position: sticky;
@@ -116,7 +179,7 @@
     flex-direction: column;
     min-height: 0;
   }
-  .post-aside-inner > :not(.post-toc) {
+  .post-aside-inner > .pa-card {
     flex: none;
   }
   .post-aside-inner > .post-toc {

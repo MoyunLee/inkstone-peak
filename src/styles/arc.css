@@ -170,25 +170,6 @@
   color: var(--ink-3);
 }
 
-/* ---------- /blog/:slug 文章详情 ---------- */
-/* 版心不再在这里限宽（原 960px 把正文栏挤成 384px）；正文/侧栏宽度由 .bd-layout 定，见 post.css */
-.blog-detail h1 {
-  font-size: clamp(26px, 3.6vw, 42px);
-  line-height: 1.35; /* 标题不继承正文的 1.75 行高 */
-  letter-spacing: 0.06em;
-  margin-bottom: 0.5em;
-}
-.bd-meta {
-  list-style: none;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 32px;
-  margin: 0 0 2.4em;
-  padding: 0;
-  color: var(--ink-3);
-  font-size: 13px;
-  letter-spacing: 0.12em;
-}
 .notfound {
   min-height: 100svh;
   display: flex;

@@ -219,7 +219,7 @@ export function build(report = true): boolean {
   // front-matter × site.yml Post Settings → 有效值钉进 posts.json（运行层零默认值推理）
   // 统一渲染层（2026-09-16）：**两型都算全套 Post Settings**（aside / toc / 版权 / 代码框 / 主色…），
   // 渲染层因此不再分型做默认值推理——作品与博文的差别只剩「作品专属字段」。
-  // 目录默认值分家：博文走 site.yml toc.*，作品走 portfolio.toc.*（规则同一条，只默认值不同，保持案例页既有观感）。
+  // 目录默认值不分家（2026-09-21 统一壳子）：两型同走 site.yml toc.*，逐篇 front-matter 仍可覆盖。
   const items = entries.map((e) => {
     const d = e.data
     const isWork = d.tags.includes(PORTFOLIO_TAG)
@@ -230,12 +230,6 @@ export function build(report = true): boolean {
     }
     const to = isWork ? `${detailBase('portfolio', '/portfolio')}/${e.slug}` : `${detailBase('blog', '/blog')}/${e.slug}`
     const settings = resolvePost(to, d, e.headings, siteData)
-    if (isWork) {
-      const pt = siteData.portfolio?.toc
-      settings.toc = d.toc ?? pt?.enable ?? settings.toc
-      settings.toc_number = d.toc_number ?? pt?.number ?? false
-      settings.toc_style_simple = d.toc_style_simple ?? pt?.style_simple ?? false
-    }
     // 双份编号守卫：标题自带编号（「一、」「3.1 」）× 自动编号 = 目录与正文各出两套数字。
     // 实测案例：2026-09-17 site-yml-guide（## 一、… + ### 3.1 …，而 toc.number 默认开）。
     if (settings.toc_number) {

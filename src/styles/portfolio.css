@@ -34,32 +34,6 @@
     animation: none;
   }
 }
-/* .cover = 详情页顶图/视频槽（图与视频一视同仁）；无图时与 .cover-ph 合用，
-   皮肤（色块 + 噪纹）定义在 arc.css，此处只管几何与图的底。
-   列表卡片的封面槽另有其类（.card-cover，arc.css）——详情页顶图与卡片封面互不牵连。 */
-.cover {
-  aspect-ratio: 16/9;
-  background: var(--cover);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--ink-3);
-  border-bottom: 1px solid rgba(20, 22, 26, 0.08);
-  letter-spacing: 0.2em;
-  font-size: 13px;
-  overflow: hidden;
-}
-.cover img,
-.cover video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-/* 详情页顶图/视频槽与标题的距离：对齐博文 .bd-hero 的 2.2em@16px。只挂在详情页的直系 hero 上。 */
-.portfolio-detail > .cover {
-  margin-bottom: 2.2rem;
-}
 .portfolio-page {
   gap: clamp(20px, 2.6vw, 44px);
 }
