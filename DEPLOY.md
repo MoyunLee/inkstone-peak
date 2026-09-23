@@ -60,16 +60,16 @@ npm run checklist # 上线检查表：🔴 必须为 0
 
 | 头 | 值 | 为什么是这个值 |
 |---|---|---|
-| `Content-Security-Policy` | `default-src 'self'` · `script-src 'self'` · `style-src 'self' 'unsafe-inline'` · `img-src 'self' data:` · `font-src 'self'` · `connect-src 'self'` · `object-src 'none'` · `base-uri 'self'` · `form-action 'none'` · `frame-ancestors 'none'` · `frame-src` = 嵌入白名单六平台 · `upgrade-insecure-requests` | 全站**无内联脚本、无第三方脚本**，故能收得很紧；`style-src` 必须留 `'unsafe-inline'`（React 的内联 `style` 属性：`--i` 级联、`--post-accent`、侧栏朱点 `top`）。`frame-src` 必须**列全** `EMBED_HOSTS`，否则站内播放器被自己挡掉 |
+| `Content-Security-Policy` | `default-src 'self'` · `script-src 'self'` · `style-src 'self' 'unsafe-inline'` · `img-src 'self' data:` · `font-src 'self'` · `connect-src 'self'` · `object-src 'none'` · `base-uri 'self'` · `form-action 'none'` · `frame-ancestors *`（**允许被友链站内嵌**，2026-09-23 用户令）· `frame-src` = 嵌入白名单六平台 · `upgrade-insecure-requests` | 全站**无内联脚本、无第三方脚本**，故能收得很紧；`style-src` 必须留 `'unsafe-inline'`（React 的内联 `style` 属性：`--i` 级联、`--post-accent`、侧栏朱点 `top`）。`frame-src` 必须**列全** `EMBED_HOSTS`，否则站内播放器被自己挡掉 |
 | `Strict-Transport-Security` | `max-age=63072000; includeSubDomains` | 强制 HTTPS |
 | `X-Content-Type-Options` | `nosniff` | 禁 MIME 嗅探 |
 | `Referrer-Policy` | `strict-origin-when-cross-origin` | 外跳只带源（iframe 元素自带的 `referrerPolicy` 不受影响） |
-| `X-Frame-Options` | `DENY` | 点击劫持（与 `frame-ancestors 'none'` 双保险） |
+| `X-Frame-Options` | **不发** | 与「开放被嵌」配套：老浏览器只认 XFO，同时发 `DENY` 就会把友链的 iframe 挡在门外（自相矛盾）。要回到锁死形态：CSP 改 `frame-ancestors 'none'` + 这里发 `DENY` |
 | `Permissions-Policy` | `camera=(), microphone=(), geolocation=(), payment=(), usb=()` | 关掉用不到的浏览器能力 |
 
-缓存：`/assets/*`（Vite 内容哈希）`public, max-age=31536000, immutable`；`/images|media/*`（**非哈希**，换素材要能立刻生效）`public, max-age=3600, must-revalidate`。
+缓存：`/assets/*`（Vite 内容哈希）`public, max-age=31536000, immutable`；`/images|media/*`（**非哈希**）`public, max-age=0, must-revalidate` —— 换成素材**立刻全网生效**（每次回源带 ETag 复验，304 很便宜；Vercel 每次部署也会换掉边缘副本）。
 
-**内容侧闸门** `scripts/gate-headers.ts`（在 `npm run gate` 里，故 `npm run build` 与 CI 都会跑）：六件套齐备 · `frame-src` 与 `scripts/content/schemas/shared.ts` 的 `EMBED_HOSTS` **逐一相符**（多一个少一个都报错——防「内容层放行新平台、CSP 把它挡在门外」的静默失效）· 点击劫持双保险在 · `script-src` 不许出现 `'unsafe-inline'` · `/assets/*` 缓存声明在。
+**内容侧闸门** `scripts/gate-headers.ts`（在 `npm run gate` 里，故 `npm run build` 与 CI 都会跑）：六件套齐备 · `frame-src` 与 `scripts/content/schemas/shared.ts` 的 `EMBED_HOSTS` **逐一相符**（多一个少一个都报错——防「内容层放行新平台、CSP 把它挡在门外」的静默失效）· 被嵌策略**自洽**（两种模式：锁死 `frame-ancestors 'none'` + XFO `DENY`；可被嵌 `frame-ancestors *` 且**不发** XFO）· `script-src` 不许出现 `'unsafe-inline'` · `/assets/*` 必须 immutable、`/images|media/*` **必须不是** immutable。
 
 > ⚠ `vercel.json` 必须是**无 BOM** 的 UTF-8（PowerShell `Set-Content -Encoding UTF8` 会插 BOM → `JSON.parse` 直接炸）；闸门会以「vercel.json 读不出来」拦住。
 

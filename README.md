@@ -86,7 +86,7 @@ tags: [写作]
 
 - `dist/404.html` 会被 Vercel 自动用作 404 页；`/portfolio` 这类目录索引无需额外配置。
 - 托管方必须支持**目录索引**；SPA 回退式托管会让非首页首帧先闪首页内容，预渲染白做。
-- ✅ **安全响应头已配置**（2026-09-23）：仓库根 `vercel.json` 的 `headers` 声明 CSP / HSTS / X-Frame-Options / nosniff / Referrer-Policy / Permissions-Policy 与缓存策略；内容侧由 `scripts/gate-headers.ts` 核对（进 `npm run gate`），本地复验 `.shots/serve-with-headers.mjs` + `.shots/probe-csp-sweep.mjs`。
+- ✅ **安全响应头已配置**（2026-09-23）：仓库根 `vercel.json` 的 `headers` 声明 CSP / HSTS / X-Frame-Options / nosniff / Referrer-Policy / Permissions-Policy 与缓存策略；内容侧由 `scripts/gate-headers.ts` 核对（进 `npm run gate`）。被嵌策略为 `frame-ancestors *`（允许友链站内嵌，故不发 X-Frame-Options）；本地复验 `.shots/serve-with-headers.mjs` + `.shots/probe-csp-sweep.mjs` + `.shots/probe-embed-allowed.mjs`。
 - 绑域名只需改 `site.yml` 的 `site.url` 一行再重新构建（canonical / sitemap / rss 都由它派生）。
 - 更细的说明见 `DEPLOY.md`。
 
