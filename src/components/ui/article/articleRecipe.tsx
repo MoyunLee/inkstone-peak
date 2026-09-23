@@ -1,12 +1,13 @@
 /* 详情页内容配方（2026-09-21 统一壳子）：**作品与博文共用这一份**。
    题头（元信息行）、侧栏（提要 / 行 / 标签）、以及顶图 / 嵌入 / 版权三个槽，全在这里按数据算——
-   外壳 ArticleDetail 只按顺序落位，**不认识 kind**；两型的差别只剩「显示标签」与作品专属数据
-   （video / period / embeds / links，缺省即不出）。
+   外壳 ArticleDetail 只按顺序落位，**不认识 kind**；两型的差别只剩「显示标签」与 `period`（案例页展示口径）——
+   links / video / embeds 是两型通用的内容槽，缺省即不出。
 
    收口前两页各写一份配方：博文没提要、没嵌入槽与版权槽，作品没日期与分类，
    同一条 front-matter 长出两套页面。 */
 import type { ReactNode } from 'react'
-import type { ArticleEntry, WorkArticle } from '../../../lib/types/content'
+import { EMBED_ATTRS } from '../../../lib/data/embed'
+import type { ArticleEntry, PortfolioEmbed, WorkArticle } from '../../../lib/types/content'
 import type { SiteData } from '../../../lib/types/site'
 import PostCopyright from '../blog/PostCopyright'
 import VideoHero from '../VideoHero'
@@ -19,7 +20,7 @@ interface DateItem {
   text: string
 }
 
-/** 作品专属字段的取法：博文契约里没有这几个键，一律按空处理——kind 判断只出现在本文件。 */
+/** 作品专属字段（现只剩 period）的取法：博文契约里没有这个键，一律按空处理——kind 判断只出现在本文件。 */
 function workPart(entry: ArticleEntry): Partial<WorkArticle> {
   return entry.kind === 'work' ? entry : {}
 }
@@ -140,10 +141,26 @@ export function articleAsideTags(entry: ArticleEntry, site: SiteData): string[] 
 }
 
 /**
- * 顶部槽（两型同源）：**有视频出视频 → 有图出图 → 都没有就不出**（缺省即隐藏，不留空壳）。
+ * C 路线嵌入的 iframe 母版：**属性唯一定义在 lib/data/embed.ts**（构建期正文渲染也读同一份），
+ * 顶部槽与嵌入分节共用——默认拒绝 allow-top-navigation（防被嵌页把整站顶走），播放器所需能力显式放行。
  *
- * 作品的载体是视频 / 封面图，博文是 top_img——但规则只有这一条：`top_img` 已在构建期含
- * 「缺省回落 cover」与「显式 false 关闭」的三态处理，故两型都读它即可。
+ * @param e 一条嵌入（label 作可访问名）。
+ * @example
+ * {embedFrame(entry.embeds[0])}
+ */
+function embedFrame(e: PortfolioEmbed): ReactNode {
+  return <iframe src={e.url} title={e.label} {...EMBED_ATTRS} />
+}
+
+/**
+ * 顶部槽（两型同源）：**有自托管视频出视频 → 声明了嵌入占顶时出第一条嵌入 → 有图出图 → 都没有就不出**
+ * （缺省即隐藏，不留空壳）。
+ *
+ * 三个来源都是 16/9 定比、独占版心的媒件块（皮肤见 post.css 的 .bd-hero），与观山轮播同宽。
+ * 嵌入占顶是**显式开关**（front-matter `embed_hero: true`，缺省关）：不声明时嵌入一律留在正文前的
+ * 「视频」分节——「加个视频」不该悄悄把正文挤出首屏。占顶那条**不在正文前重复一份**
+ * （articlePreBody 会跳过已被顶部槽用掉的那条）；有自托管视频时视频优先，嵌入全留分节。
+ * `top_img` 已在构建期含「缺省回落 cover」与「显式 false 关闭」的三态处理，故两型都读它即可。
  * 视频播放失败由 VideoHero 兜底换封面图；封面也没有时不渲染任何东西。
  *
  * @param entry 文章事实。
@@ -151,7 +168,7 @@ export function articleAsideTags(entry: ArticleEntry, site: SiteData): string[] 
  * {articleHero(entry)}
  */
 export function articleHero(entry: ArticleEntry): ReactNode {
-  const video = workPart(entry).video
+  const video = entry.video
   if (video?.src) {
     return (
       <div className="bd-hero">
@@ -166,6 +183,8 @@ export function articleHero(entry: ArticleEntry): ReactNode {
       </div>
     )
   }
+  const top = entry.embed_hero === true ? entry.embeds?.[0] : undefined
+  if (top) return <div className="bd-hero">{embedFrame(top)}</div>
   if (!entry.top_img) return null
   return (
     <figure className="bd-hero">
@@ -178,15 +197,19 @@ export function articleHero(entry: ArticleEntry): ReactNode {
 /**
  * 正文之前的块（两型同源）：第三方嵌入 + 外链——两样都没有就整块不出。
  *
+ * 顶部槽吃掉的那条在这里去掉：只有「声明了 `embed_hero: true` 且没有自托管视频」时顶部槽才占第一条；
+ * 分节标题读 site.yml 的 a11y.case_embeds（缺省不出标题）。
+ *
  * @param entry 文章事实。
  * @param site 整份站点数据（读 a11y 的分节标题）。
  * @example
  * {articlePreBody(entry, site)}
  */
 export function articlePreBody(entry: ArticleEntry, site: SiteData): ReactNode {
-  const w = workPart(entry)
-  const embeds = w.embeds ?? []
-  const links = w.links ?? []
+  const all = entry.embeds ?? []
+  // 顶部槽用掉的那条在这里去掉：只有「声明了 embed_hero 且没有自托管视频」时顶部槽才吃掉第一条
+  const embeds = entry.embed_hero === true && !entry.video?.src ? all.slice(1) : all
+  const links = entry.links ?? []
   if (embeds.length === 0 && links.length === 0) return null
   return (
     <>
@@ -195,18 +218,7 @@ export function articlePreBody(entry: ArticleEntry, site: SiteData): ReactNode {
           {site.a11y.case_embeds ? <h2>{site.a11y.case_embeds}</h2> : null}
           <ul>
             {embeds.map((e) => (
-              <li key={e.url}>
-                <iframe
-                  src={e.url}
-                  title={e.label}
-                  loading="lazy"
-                  allowFullScreen
-                  referrerPolicy="no-referrer-when-downgrade"
-                  allow="encrypted-media; picture-in-picture; fullscreen"
-                  // 默认拒绝 allow-top-navigation（防被嵌页把整站顶走）；播放器所需能力显式放行
-                  sandbox="allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox"
-                />
-              </li>
+              <li key={e.url}>{embedFrame(e)}</li>
             ))}
           </ul>
         </div>

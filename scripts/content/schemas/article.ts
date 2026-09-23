@@ -38,11 +38,10 @@ export const articleSchema = z
     // 发布开关：draft=true 的文章不进 posts.json（不出页面 / sitemap / rss），只在构建日志里报数
     draft: z.boolean().optional(),
 
-    // ── 作品字段（全可选，缺省即不渲染）──
-    // 提要复用通用 `description`（见下方）；`period` 只是案例页展示口径。
-    period: z.coerce.string().optional(), // YAML 会把 `2026.09` 读成数字 → 统一转字符串
+    // ── 内容槽（两型通用·全可选，缺省即不渲染）──
+    // A 路线·外链：任何时长，点链接跳去平台
     links: z.array(z.object({ label: z.string(), url: z.string() }).strict()).optional(),
-    // B 路线·自托管视频：占案例页封面槽位
+    // B 路线·自托管视频：占顶部槽位（两型同一套壳子）
     video: z
       .object({
         src: mediaRef('video.src').nullable(),
@@ -52,8 +51,14 @@ export const articleSchema = z
       })
       .strict()
       .optional(),
-    // C 路线·第三方播放器嵌入：仅白名单平台
+    // C 路线·第三方播放器嵌入：仅白名单平台（博文与作品同权）
     embeds: z.array(z.object({ label: z.string(), url: z.string() }).strict()).optional(),
+    // 嵌入占顶开关：true = 第一条嵌入占顶部槽（缺省 false = 嵌入全部留在正文前的「视频」分节）
+    embed_hero: z.boolean().optional(),
+
+    // ── 作品字段（全可选，缺省即不渲染）──
+    // 提要复用通用 `description`（见下方）；`period` 只是案例页展示口径。
+    period: z.coerce.string().optional(), // YAML 会把 `2026.09` 读成数字 → 统一转字符串
     // 观山顶部轮播（只对作品有意义；缺省不上）
     carousel: z.boolean().optional(),
 
@@ -103,7 +108,7 @@ export const articleSchema = z
       }
     }
     // C 路线嵌入三闸：① 必须 https ② B 站页面地址当场教换成播放器地址
-    // ③ 其余 host 必须命中白名单（纯静态站无 CSP，注入面在内容层收口）
+    // ③ 其余 host 必须命中白名单（注入面两段收口：内容层白名单 + 托管侧 CSP 的 frame-src，见根目录 vercel.json）
     for (const [k, e] of (d.embeds ?? []).entries()) {
       if (!/^https:\/\//.test(e.url)) {
         ctx.addIssue({ code: 'custom', path: ['embeds', k, 'url'], message: `「${e.url}」必须以 https:// 开头——http 播放器会被浏览器按"混合内容"直接拦掉` })

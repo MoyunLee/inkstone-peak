@@ -9,8 +9,44 @@ export type { ArticleEntry, PostArticle, WorkArticle } from '../types/content'
 // as unknown as 只因 JSON 导入会把字面量拓宽成 string；schema 漂移由 scripts/content 的类型对账在 tsc 阶段拦下。
 export const posts = postsJson as unknown as ArticleEntry[]
 
-/** /portfolio 视图：构建期判定为作品的那些（判据 = posts.json 的 kind，运行层唯一依据）。 */
-export const works = posts.filter((p): p is WorkArticle => p.kind === 'work')
+/**
+ * 置顶序（**唯一排序契约**）：/blog 归档网格与 /portfolio 收藏（列表 + 顶部轮播）共用同一份——
+ * `swiper_index` 优先，其次 `top_group_index`，两个都没设(`null`)的排最后；同组内按索引升序。
+ *
+ * @param e 文章事实。
+ * @example
+ * // 想让某件作品在观山轮播排第一：它的 front-matter 写 swiper_index: 1
+ */
+export function pinRank(e: ArticleEntry): [number, number] {
+  if (e.swiper_index !== null) return [0, e.swiper_index]
+  if (e.top_group_index !== null) return [1, e.top_group_index]
+  return [2, 0]
+}
+
+/**
+ * 同一份置顶契约下的完整比较：置顶组 → 组内索引 → 日期（方向由调用方给）。
+ *
+ * @param a 左
+ * @param b 右
+ * @param dir 日期方向；默认倒序（新的在前）
+ * @example
+ * entries.slice().sort((a, b) => compareArticles(a, b, 'desc'))
+ */
+export function compareArticles(a: ArticleEntry, b: ArticleEntry, dir: 'desc' | 'asc' = 'desc'): number {
+  const ra = pinRank(a)
+  const rb = pinRank(b)
+  if (ra[0] !== rb[0]) return ra[0] - rb[0]
+  if (ra[0] !== 2 && ra[1] !== rb[1]) return ra[1] - rb[1]
+  return dir === 'asc' ? a.date.localeCompare(b.date) : b.date.localeCompare(a.date)
+}
+
+/**
+ * /portfolio 视图：构建期判定为作品的那些（判据 = posts.json 的 kind，运行层唯一依据）。
+ *
+ * 顺序＝上面那份置顶契约 + `date` 倒序；**顶部轮播、观山列表、首页观山段共用这一个数组**，故三者恒同序
+ * （轮播取其中声明了 `carousel: true` 且有 `cover` 的前 `max_slides` 张）。
+ */
+export const works = posts.filter((p): p is WorkArticle => p.kind === 'work').sort((a, b) => compareArticles(a, b, 'desc'))
 
 /** /blog 视图：**全量**（含作品）——/blog 是中心库，作品只是带标记的一类。 */
 export const articles: ArticleEntry[] = posts

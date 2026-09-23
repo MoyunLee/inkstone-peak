@@ -2,6 +2,8 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import MarkdownIt from 'markdown-it'
+import { BILI_PAGE_HOSTS, EMBED_HOSTS, hostOf } from './schemas/shared.ts'
+import { embedIframeHtml, escapeHtml } from '../../src/lib/data/embed.ts'
 
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..')
 export const P = (...segs: string[]): string => path.join(ROOT, ...segs)
@@ -16,6 +18,12 @@ export interface Heading {
   level: number
   id: string
   text: string
+}
+
+/** 渲染期收集袋：标题清单（喂 TOC）+ 正文嵌入的诊断（构建期连同文件名报错）。 */
+export interface RenderEnv {
+  headings: Heading[]
+  problems: string[]
 }
 
 // 标题锚点：h1..h6 生成稳定 id，清单塞进 env.headings
@@ -46,11 +54,60 @@ RENDER.core.ruler.push('heading_anchor', (state) => {
   return true
 })
 
-/** 渲染正文并回带标题清单（博客详情 TOC 的唯一事实源）。 */
-export function renderBody(src: string): { html: string; headings: Heading[] } {
-  const env: { headings: Heading[] } = { headings: [] }
+// ── 正文内嵌视频（C 路线的正文内形态）：块级 `@[标签](播放器地址)`，独立成行 ──
+//   html:false 的安全不变量照旧不动（见上方注释）：这一条是**自定义语法**，不是放行原始 HTML。
+//   构建期就校验（与 front-matter 的 embeds 同三道闸：https / B 站页面地址教换 / host 白名单），
+//   并渲染成与「视频」分节**同一套 markup**（.embeds），故零新增 CSS、零前端 JS、预渲染照旧带播放器。
+const BODY_EMBED_RE = /^@\[([^\]]*)\]\(([^)\s]+)\)$/
+
+/** 正文嵌入的三道闸（与 front-matter embeds 同口径）；返回 null = 合法。 */
+function bodyEmbedProblem(label: string, url: string): string | null {
+  if (!label) return '正文嵌入「' + url + '」缺标签：写成 @[B 站 · 12集合集](' + url + ')——标签是 iframe 的可访问名（title）'
+  if (!/^https:\/\//.test(url)) return '正文嵌入「' + url + '」必须以 https:// 开头——http 播放器会被浏览器按"混合内容"直接拦掉'
+  const host = hostOf(url)
+  if (BILI_PAGE_HOSTS.has(host)) {
+    return '正文嵌入「' + url + '」是 B 站页面地址，嵌不进 iframe；换成播放器地址：https://player.bilibili.com/player.html?bvid=BV号&autoplay=0&high_quality=1'
+  }
+  if (!EMBED_HOSTS.has(host)) {
+    return '正文嵌入「' + (host || url) + '」不在嵌入白名单内（仅允许：' + [...EMBED_HOSTS].join('、') + '）；确需新增平台→在 scripts/content/schemas/shared.ts 的 EMBED_HOSTS 加一行'
+  }
+  return null
+}
+
+RENDER.block.ruler.before('paragraph', 'body_embed', (state, startLine, _endLine, silent) => {
+  const pos = state.bMarks[startLine]! + state.tShift[startLine]!
+  const max = state.eMarks[startLine]!
+  const line = state.src.slice(pos, max).trim()
+  const m = BODY_EMBED_RE.exec(line)
+  if (!m) return false
+  if (silent) return true
+  const label = (m[1] ?? '').trim()
+  const url = (m[2] ?? '').trim()
+  const token = state.push('body_embed', 'div', 0)
+  token.map = [startLine, startLine + 1]
+  const problem = bodyEmbedProblem(label, url)
+  if (problem) {
+    ;(state.env as RenderEnv).problems?.push(problem)
+    token.meta = { invalid: true, src: line }
+  } else {
+    token.meta = { url, label }
+  }
+  state.line = startLine + 1
+  return true
+})
+
+RENDER.renderer.rules.body_embed = (tokens, idx) => {
+  const meta = tokens[idx]?.meta as { url?: string; label?: string; invalid?: boolean; src?: string } | undefined
+  // 校验没过：正文原样出文本，构建期已记 issue（构建会失败，不会把坏块交付出去）
+  if (!meta || meta.invalid) return '<p>' + escapeHtml(meta?.src ?? '') + '</p>'
+  return '<div class="embeds"><ul><li>' + embedIframeHtml(meta.url ?? '', meta.label ?? '') + '</li></ul></div>'
+}
+
+/** 渲染正文并回带标题清单（博客详情 TOC 的唯一事实源）与嵌入诊断。 */
+export function renderBody(src: string): { html: string; headings: Heading[]; problems: string[] } {
+  const env: RenderEnv = { headings: [], problems: [] }
   const html = RENDER.render(src, env)
-  return { html, headings: env.headings }
+  return { html, headings: env.headings, problems: env.problems }
 }
 
 // ── source/ 素材：磁盘母版位置 ↔ 对外交付 URL 的单一映射 ──

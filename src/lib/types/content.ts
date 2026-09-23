@@ -1,6 +1,7 @@
 // 事实集合的类型契约（posts / about 两份生成 JSON）。
 // 2026-09-16 通用化 + 统一渲染层：单一文章契约——一份数据结构，kind 由构建期从 tags 里的标记判定；
-// 两型都带**全套 Post Settings 有效值**（构建期已解析，运行层零默认值推理），差别只剩「作品专属字段」。
+// 两型都带**全套 Post Settings 有效值**与**三个内容槽**（links / video / embeds，构建期已解析、运行层零默认值推理），
+// 差别只剩 `period` / `carousel` 两项作品字段。
 
 export interface TocItem {
   level: number
@@ -8,6 +9,7 @@ export interface TocItem {
   text: string
 }
 
+/** 顶部槽的自托管视频（B 路线）；两型通用。 */
 export interface PortfolioVideo {
   src: string | null
   poster?: string | null
@@ -15,6 +17,7 @@ export interface PortfolioVideo {
   caption?: string
 }
 
+/** 第三方播放器嵌入的一条（C 路线）；两型通用，host 须在构建期白名单内。 */
 export interface PortfolioEmbed {
   label: string
   url: string
@@ -41,6 +44,16 @@ export interface ArticleCommon {
   /** 正文标题清单（构建期抽，喂详情页目录）。 */
   tocItems: TocItem[]
   bodyHtml: string
+
+  // ── 内容槽（两型通用，缺省即不渲染那一块；构建期与 kind 无关地带出）──
+  /** A 路线·外链：任何时长，点链接跳去平台。 */
+  links?: { label: string; url: string }[]
+  /** B 路线·自托管视频：占顶部槽位（有视频出视频 → 有图出图 → 都没有不出）。 */
+  video?: PortfolioVideo
+  /** C 路线·第三方播放器嵌入：正文前一行一块（iframe 白名单已校验）。 */
+  embeds?: PortfolioEmbed[]
+  /** 嵌入占顶：true = 第一条嵌入占顶部槽；缺省 false = 全留在正文前分节。 */
+  embed_hero?: boolean
 
   // ── Post Settings 有效值（front-matter × site.yml 构建期合并；两型同源）──
   updated: string | null
@@ -70,14 +83,11 @@ export interface WorkArticle extends ArticleCommon {
   kind: 'work'
   /** 项目周期（案例页 meta 条展示口径）；可选，缺省不出行。 */
   period?: string
-  links?: { label: string; url: string }[]
-  video?: PortfolioVideo
-  embeds?: PortfolioEmbed[]
   /** 观山顶部轮播：true=上（纯图，须有 cover）。 */
   carousel: boolean
 }
 
-/** 博文：无专属字段——契约面即 ArticleCommon。 */
+/** 博文：除通用内容槽（links / video / embeds）外无专属字段——契约面即 ArticleCommon。 */
 export interface PostArticle extends ArticleCommon {
   kind: 'post'
 }

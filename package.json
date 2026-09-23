@@ -20,7 +20,7 @@
     "feeds": "node scripts/feeds.ts",
     "media": "node scripts/media.ts",
     "assets": "node scripts/assets.ts",
-    "gate": "node scripts/gate-cn.ts && node scripts/gate-debug.ts",
+    "gate": "node scripts/gate-cn.ts && node scripts/gate-debug.ts && node scripts/gate-headers.ts",
     "checklist": "node scripts/checklist.ts",
     "glyphs": "node scripts/glyphs.ts"
   },

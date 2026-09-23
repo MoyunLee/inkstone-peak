@@ -54,11 +54,26 @@ npm run checklist # 上线检查表：🔴 必须为 0
    - ⚠ 构建环境跑不了 sharp 的场合（极少见）：只把 `assets`（唯一吃 sharp 的一步）拆出去——本地 `npm run assets` 后提交 `source/site/*`，云端 Build Command 改 `npm run content && npm run media && npm run gate && tsc --noEmit && vite build && npm run ssr && npm run prerender && npm run feeds`。
      `media` **不含 sharp**（纯媒体闸：体积/编码/faststart + MP4 头解析），留在链上做交付前校验；图片/视频的搬运由 `vite.config.ts` 的 `staticFromSource` 插件负责（dev 直供 `source/`、build 直写 `dist/`）。
 
-### 安全响应头（**当前未配置**）
+### 安全响应头（**2026-09-23 已落地**）
 
-> ⚠ 2026-09-18：安全响应头机制整体移除——原生成器与配套静态闸门已退役，`npm run build` 不再产出任何响应头文件。
-> 定稿后按新形态加回：**托管侧声明**（Vercel 走根目录 `vercel.json` 的 `headers`）+ **内容侧闸门**（沿用 `gate:csp` 式静态核对）。
-> 在此之前整站没有 CSP / HSTS / X-Frame-Options / `nosniff` / Referrer-Policy / Permissions-Policy 等响应头，`/assets/*` 也没有 immutable 缓存声明。
+声明处 = 仓库根 **`vercel.json`** 的 `headers`（Vercel 静态托管直接吃；`npm run build` 仍**不产**任何响应头文件）。
+
+| 头 | 值 | 为什么是这个值 |
+|---|---|---|
+| `Content-Security-Policy` | `default-src 'self'` · `script-src 'self'` · `style-src 'self' 'unsafe-inline'` · `img-src 'self' data:` · `font-src 'self'` · `connect-src 'self'` · `object-src 'none'` · `base-uri 'self'` · `form-action 'none'` · `frame-ancestors 'none'` · `frame-src` = 嵌入白名单六平台 · `upgrade-insecure-requests` | 全站**无内联脚本、无第三方脚本**，故能收得很紧；`style-src` 必须留 `'unsafe-inline'`（React 的内联 `style` 属性：`--i` 级联、`--post-accent`、侧栏朱点 `top`）。`frame-src` 必须**列全** `EMBED_HOSTS`，否则站内播放器被自己挡掉 |
+| `Strict-Transport-Security` | `max-age=63072000; includeSubDomains` | 强制 HTTPS |
+| `X-Content-Type-Options` | `nosniff` | 禁 MIME 嗅探 |
+| `Referrer-Policy` | `strict-origin-when-cross-origin` | 外跳只带源（iframe 元素自带的 `referrerPolicy` 不受影响） |
+| `X-Frame-Options` | `DENY` | 点击劫持（与 `frame-ancestors 'none'` 双保险） |
+| `Permissions-Policy` | `camera=(), microphone=(), geolocation=(), payment=(), usb=()` | 关掉用不到的浏览器能力 |
+
+缓存：`/assets/*`（Vite 内容哈希）`public, max-age=31536000, immutable`；`/images|media/*`（**非哈希**，换素材要能立刻生效）`public, max-age=3600, must-revalidate`。
+
+**内容侧闸门** `scripts/gate-headers.ts`（在 `npm run gate` 里，故 `npm run build` 与 CI 都会跑）：六件套齐备 · `frame-src` 与 `scripts/content/schemas/shared.ts` 的 `EMBED_HOSTS` **逐一相符**（多一个少一个都报错——防「内容层放行新平台、CSP 把它挡在门外」的静默失效）· 点击劫持双保险在 · `script-src` 不许出现 `'unsafe-inline'` · `/assets/*` 缓存声明在。
+
+> ⚠ `vercel.json` 必须是**无 BOM** 的 UTF-8（PowerShell `Set-Content -Encoding UTF8` 会插 BOM → `JSON.parse` 直接炸）；闸门会以「vercel.json 读不出来」拦住。
+
+本地复验（不吃托管）：`node .shots/serve-with-headers.mjs 4189` 按 `vercel.json` 的真实响应头供 `dist`，再用 `node .shots/probe-csp-sweep.mjs http://127.0.0.1:4189` 扫全路由控制台报错（CSP 违规会以 `Refused to …` 现形）。
 
 ## 3. SPA 路由与 404
 
@@ -112,7 +127,7 @@ npm run checklist # 上线检查表：🔴 必须为 0
 
 ## 7. 视频上传（三路线，2026-09-12 落地）
 
-案例页支持三种视频形态，**可同时用**，都写在 `source/posts/<slug>.md`（tags 含 `portfolio` 标记）的 frontmatter 里：
+文章页支持三种视频形态（`links` / `video` / `embeds` **两型通用**，博文与作品同权），**可同时用**，都写在 `source/posts/<slug>.md` 的 frontmatter 里：
 
 | 路线 | 字段 | 文件在哪 | 观众体验 | 适用 |
 |---|---|---|---|---|
@@ -174,6 +189,7 @@ embeds:
 - **必须是播放器地址**，不是视频页地址。粘 `https://www.bilibili.com/video/BV...` 会被构建**当场击落**并打印可照抄的模板。
 - host 须在 `scripts/content/schemas/shared.ts` 的 `EMBED_HOSTS` 白名单内（B站 / 优酷 / 腾讯视频 / 抖音开放平台 / YouTube / Vimeo）。**新增平台 = 加一行**。
 - 必须 `https`（http 会被浏览器按"混合内容"拦掉）。`bvid` 取视频页 URL 的 `BV...` 段；`autoplay=0` 避免多个嵌入同时出声。
+- **嵌入缺省只走正文前的「视频」分节**；要让第一条占据顶部槽（16/9 定比、独占版心——与自托管 `video:` 同一槽位）就写 `embed_hero: true`，此时该条不在分节重复。有自托管视频时视频优先。
 
 ### A 外链
 

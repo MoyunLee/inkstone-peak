@@ -86,7 +86,7 @@ home:
 #   ① 谁能上 → 作品自己的 front-matter：source/posts/<slug>.md 写 carousel: true（false 或缺省=不上）；
 #   ② 最多放几张 → 本节的 carousel.max_slides（删键或不写=不限）。
 #   轮播是**纯图**：只有「carousel: true 且写了 cover」的作品才进得去，画面里不出任何文字；
-#   顺序=作品 period 倒序，与下方列表同序。
+#   顺序=与下方列表同序 = 全站唯一置顶契约（swiper_index → top_group_index → date 倒序）；period 只做展示，不参与排序。
 portfolio:
   carousel:
     max_slides: 4
@@ -247,7 +247,7 @@ about:
 # 联系方式（页脚栏4 与「联系我」按钮的唯一数据源）
 contact:
   email: 2106996916@qq.com
-  douyin:   { platform: 抖音, value: 重生1985, url: "https://v.douyin.com/IgjCV-dLEFA/" }
+  douyin:   { platform: 抖音, value: 重回1985, url: "https://v.douyin.com/IgjCV-dLEFA/" }
   bilibili: { platform: B 站, value: null, url: null, pending: 筹建中 }   # url=null → 不渲染成链接（诚实优先，不留死链；有真地址就填，否则维持「筹建中」）
 
 # S5 传音 · 结构化页脚

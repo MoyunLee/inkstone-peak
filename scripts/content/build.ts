@@ -66,6 +66,8 @@ export function build(report = true): boolean {
     }
     // 正文与两套详情页同一条渲染路径：占位样式化 + 回带标题清单喂右侧目录
     const built = renderBody(parsed.content)
+    // 正文内嵌视频的三道闸（paths.ts 的 body_embed 规则收集）——与 front-matter embeds 同等对待：硬报错
+    for (const p of built.problems) issue(file, '正文嵌入', p)
     entries.push({ slug: f.name, data: d, bodyHtml: markPlaceholders(built.html), headings: built.headings })
   }
 
@@ -86,6 +88,10 @@ export function build(report = true): boolean {
       ['video.poster', d.video?.poster],
     ]
     for (const [field, url] of slots) {
+      // 混合内容：https 站点上的 http 素材会被浏览器直接拦掉（不是「慢」，是根本不显示）
+      if (typeof url === 'string' && /^http:\/\//i.test(url)) {
+        warn(`${fileOf.get(e.slug) ?? e.slug} › ${field}：「${url}」是 http 地址——https 站点会按混合内容拦掉它（换 https，或把母版放进 source/images|video 走站内地址）`)
+      }
       if (typeof url !== 'string' || url.startsWith('http')) continue
       const mp = masterPathFor(url)
       if (mp === null) {
@@ -253,6 +259,12 @@ export function build(report = true): boolean {
       // 运行层因此完全不需要知道那个词（身份看 kind、展示看这枚 tags），配置与常量的双源从根上消失。
       tags: d.tags.filter((t) => t !== PORTFOLIO_TAG),
       bodyHtml: e.bodyHtml,
+      // 内容槽**两型通用**（2026-09-23）：嵌入 / 外链 / 自托管视频不再按 kind 剥掉——
+      // 详情页本就是同一套壳子，博文同样能挂播放器；period / carousel 才是作品专属。
+      links: d.links,
+      video: d.video,
+      embeds: d.embeds,
+      embed_hero: d.embed_hero,
       ...settings, // 含 resolvePost 回带的 tocItems
     }
     if (!isWork) return base
@@ -262,9 +274,6 @@ export function build(report = true): boolean {
       ...base,
       cover: typeof d.cover === 'string' ? d.cover : null,
       period: d.period,
-      links: d.links,
-      video: d.video,
-      embeds: d.embeds,
       carousel: d.carousel === true,
     }
   })

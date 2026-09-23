@@ -239,7 +239,7 @@ about:
 ```yaml
 contact:
   email: someone@example.com
-  douyin:   { platform: 抖音, value: 重生1985, url: "https://v.douyin.com/xxxx/" }
+  douyin:   { platform: 抖音, value: 重回1985, url: "https://v.douyin.com/xxxx/" }
   bilibili: { platform: B 站, value: null, url: null, pending: 筹建中 }
 ```
 

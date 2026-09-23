@@ -48,8 +48,10 @@ function collectPresent(items: readonly NavLink[]): PresentSets {
 /**
  * 双导航（顶栏 + 侧栏）共享的状态源：给出当前激活项与点击拦截函数。
  *
- * 内部是一条滚动监听引擎（IntersectionObserver + MutationObserver），遵守两条不变量：
- * ① 加载期不改写 URL，只由真实用户行为解禁；② `main >` 作用域让详情页天然免疫首页段联动。
+ * 内部是一条滚动监听引擎（IntersectionObserver + MutationObserver），遵守三条不变量：
+ * ① 加载期不改写 URL，只由真实用户行为解禁；② `main >` 作用域让详情页天然免疫首页段联动；
+ * ③ 点击律只吞「已在本页」的点击：详情页条目（isDetailPage）以**落在它自己的列表页**为判据，
+ *    故 /portfolio/<slug> 里点「观山」是回列表，不是一次被吞掉的空点击。
  * 同一页面只能调用一次——状态是模块级单例（spyModule + 订阅表）。
  *
  * @param items 导航条目，按 site.yml 的 nav 顺序给（Header / SideTabs 都传 useSite().nav）。
@@ -183,10 +185,12 @@ export function useNavState(items: NavLink[]): NavState {
     const key = 'nav:' + n.ink
     if (swallow(key)) return true // 250ms 连击一律吞
     if (n.isDetailPage) {
-      const pin = n.detailPrefix ?? route
-      if ((location.pathname + hash).startsWith(pin)) {
+      // 「已在本页」的判据 = **落在该导航自己的落地页上**（如 /portfolio），不是前缀命中：
+      // 前缀命中把详情页（/portfolio/<slug>）也算进来，于是详情页里点「观山」被吞成一次
+      // 什么都不做的点击（用户读到的是「导航点不动」）。详情页该做的是回列表。
+      if (location.pathname === pathOf(route)) {
         stamp(key)
-        window.scrollTo({ top: 0, behavior }) // 本页=当前详情页 → 平滑回顶
+        window.scrollTo({ top: 0, behavior }) // 已在列表页 → 平滑回顶
         return true
       }
       stamp(key)
