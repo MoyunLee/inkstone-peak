@@ -117,6 +117,7 @@ export type A11yKey =
   | 'post_aside_label' | 'post_comments_label' | 'post_copyright_heading' | 'post_copyright_author'
   | 'post_copyright_link' | 'post_copyright_notice' | 'post_code_expand' | 'post_code_collapse'
   | 'skip_link_label' | 'lightbox_label' | 'lightbox_close'
+  | 'embed_play' | 'embed_external' | 'embed_failed' | 'video_retry' | 'video_open_native'
 
 export type A11yCfg = Partial<Record<A11yKey, string>>
 

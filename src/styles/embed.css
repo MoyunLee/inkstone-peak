@@ -1,0 +1,87 @@
+/* ── 嵌入海报（EmbedHero）与自托管视频失败态（VideoHero）──
+   为什么单独一片：第三方 iframe 在部分手机自带浏览器里会被整块拦掉，16/9 槽位于是**空白**；
+   自托管视频在慢链路上会 error，旧实现把它悄悄换成一张静态图，用户既不知道发生了什么也没法再试。
+   两条兜底都做成「封面 + 明确出口」：海报中央三角=在本站播，右下角 chip=去平台看；
+   视频失败态给「重试」与「用系统播放器打开」。皮肤守纸墨纪律：三角、边框、文字走纸色，不加圆角花活。 */
+.em,
+.vh { position: relative; width: 100%; height: 100%; background: var(--cover); overflow: hidden; }
+/* 分节里的嵌入与顶图槽同框：都是 16/9，但分节那处没有外层定比壳，得自己撑 */
+.embeds .em,
+.embeds .vh { aspect-ratio: 16 / 9; height: auto; }
+.em-cover,
+.vh-cover { display: block; width: 100%; height: 100%; object-fit: cover; }
+.em-play {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: rgba(20, 22, 26, 0.14);
+  cursor: pointer;
+}
+.em-play::after {
+  content: '';
+  position: absolute;
+  width: 76px;
+  height: 76px;
+  border: 1px solid rgba(247, 244, 238, 0.72);
+  border-radius: 50%;
+  transition: border-color var(--t) var(--ease), transform var(--t) var(--ease);
+}
+.em-play:hover::after,
+.em-play:focus-visible::after { border-color: var(--paper); transform: scale(1.06); }
+.em-tri {
+  width: 0;
+  height: 0;
+  margin-left: 5px;
+  border-left: 20px solid var(--paper);
+  border-top: 13px solid transparent;
+  border-bottom: 13px solid transparent;
+  filter: drop-shadow(0 1px 8px rgba(0, 0, 0, 0.5));
+}
+.vh-act {
+  display: inline-block;
+  padding: 5px 11px;
+  font-size: 12.5px;
+  letter-spacing: 0.08em;
+  color: var(--paper);
+  text-decoration: none;
+  border: 1px solid rgba(247, 244, 238, 0.45);
+  background: rgba(20, 22, 26, 0.45);
+  cursor: pointer;
+  transition: border-color var(--t) var(--ease), background var(--t) var(--ease);
+}
+.vh-act:hover { border-color: var(--paper); background: rgba(20, 22, 26, 0.72); }
+/* ── 框下出口（触摸设备常驻）：手机上的兜底门。放框外是因为 iframe 被拦时浏览器照样报 load，
+   框角浮层判不出「播放器到底出没出画面」；框下这行不遮播放器控件、两种状态下都在。 ── */
+.bd-hero.has-below { margin-bottom: 0.7em; }
+.em-below { margin: 0 0 2.2em; text-align: right; font-size: 13px; letter-spacing: 0.08em; }
+.embeds .em-below { margin: 8px 0 0; }
+.em-below a { color: var(--ink-2); text-decoration: none; padding-bottom: 2px; border-bottom: 1px solid color-mix(in srgb, var(--ink-3) 45%, transparent); transition: color var(--t) var(--ease), border-color var(--t) var(--ease); }
+.em-below a:hover { color: var(--seal); border-bottom-color: var(--seal); }
+.em-note {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 46px;
+  margin: 0;
+  text-align: center;
+  font-size: 12.5px;
+  letter-spacing: 0.08em;
+  color: rgba(247, 244, 238, 0.92);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.7);
+}
+.vh-acts {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  padding: 12px;
+  background: linear-gradient(to top, rgba(20, 22, 26, 0.55), transparent);
+}

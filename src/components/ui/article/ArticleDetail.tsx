@@ -52,7 +52,7 @@ export default function ArticleDetail({ entry }: { entry: ArticleEntry }) {
         style={style}
         data-toc-number={entry.toc_number ? 'true' : 'false'}
       >
-        {articleHero(entry)}
+        {articleHero(entry, site)}
         {/* DOM 顺序恒为「标题区 → 侧栏 → 正文」：窄屏单列时正是想要的阅读顺序（标题 → 信息卡与目录 → 正文），
             宽屏靠 .bd-layout 的命名栅格区把侧栏整列右移（见 post.css）。 */}
         <article className="bd-layout" data-aside={entry.aside ? 'true' : 'false'}>

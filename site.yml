@@ -313,6 +313,11 @@ a11y:
   post_code_collapse: 收起                          # 代码框展开时按钮文字
   lightbox_label: 查看大图                          # 点图放大层的可访问名（role=dialog）
   lightbox_close: 关闭大图                          # 放大层关闭按钮 aria-label
+  embed_play: 点此播放                              # 嵌入海报上播放按钮的 aria-label（触摸设备先出海报）
+  embed_external: 新窗口观看                        # 海报右下角出口（去平台页/App 看，手机上的兜底）
+  embed_failed: 播放器没加载出来，可在新窗口观看        # 播放器迟迟不 load 时贴在海报上的说明
+  video_retry: 重试                                 # 自托管视频失败态的重试按钮（重新挂载 <video>）
+  video_open_native: 用系统播放器打开                # 自托管视频失败态的出口（直开 mp4，交给系统播放器）
 
 # 刻意【不放在本文件】的三样，避免双主：
 #   · 粒子物理/淡出曲线/崩缺半径/160ms 令牌 → src/styles/ + src/fx/ink-field.ts

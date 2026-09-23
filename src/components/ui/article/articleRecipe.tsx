@@ -6,7 +6,7 @@
    收口前两页各写一份配方：博文没提要、没嵌入槽与版权槽，作品没日期与分类，
    同一条 front-matter 长出两套页面。 */
 import type { ReactNode } from 'react'
-import { EMBED_ATTRS, EMBED_ATTRS_HERO } from '../../../lib/data/embed'
+import EmbedHero from '../EmbedHero'
 import type { ArticleEntry, PortfolioEmbed, WorkArticle } from '../../../lib/types/content'
 import type { SiteData } from '../../../lib/types/site'
 import PostCopyright from '../blog/PostCopyright'
@@ -141,15 +141,32 @@ export function articleAsideTags(entry: ArticleEntry, site: SiteData): string[] 
 }
 
 /**
- * C 路线嵌入的 iframe 母版：**属性唯一定义在 lib/data/embed.ts**（构建期正文渲染也读同一份），
- * 顶部槽与嵌入分节共用——默认拒绝 allow-top-navigation（防被嵌页把整站顶走），播放器所需能力显式放行。
+ * C 路线嵌入位：顶部槽与嵌入分节共用**同一个组件** EmbedHero（iframe 属性唯一定义仍住 lib/data/embed.ts）。
+ *
+ * 手机先出海报、点一下才装播放器；放不出来时给「新窗口观看」出口——理由见 EmbedHero 的注释。
  *
  * @param e 一条嵌入（label 作可访问名）。
+ * @param site 站点数据（取 a11y 的三句嵌入话术）。
+ * @param opts hero=顶图槽（eager）；cover=海报图；external=出口地址（优先平台页）。
  * @example
- * {embedFrame(entry.embeds[0])}
+ * {embedFrame(entry.embeds[0], site, { hero: true, cover: entry.cover })}
  */
-function embedFrame(e: PortfolioEmbed, hero = false): ReactNode {
-  return <iframe src={e.url} title={e.label} {...(hero ? EMBED_ATTRS_HERO : EMBED_ATTRS)} />
+function embedFrame(
+  e: PortfolioEmbed,
+  site: SiteData,
+  opts?: { hero?: boolean; cover?: string | null; external?: string | null },
+): ReactNode {
+  const a = site.a11y
+  return (
+    <EmbedHero
+      url={e.url}
+      label={e.label}
+      cover={opts?.cover ?? null}
+      external={opts?.external ?? null}
+      hero={opts?.hero === true}
+      texts={{ play: a.embed_play ?? '', external: a.embed_external ?? '', failed: a.embed_failed ?? '' }}
+    />
+  )
 }
 
 /**
@@ -164,10 +181,11 @@ function embedFrame(e: PortfolioEmbed, hero = false): ReactNode {
  * 视频播放失败由 VideoHero 兜底换封面图；封面也没有时不渲染任何东西。
  *
  * @param entry 文章事实。
+ * @param site 站点数据（a11y 的视频/嵌入话术）。
  * @example
- * {articleHero(entry)}
+ * {articleHero(entry, site)}
  */
-export function articleHero(entry: ArticleEntry): ReactNode {
+export function articleHero(entry: ArticleEntry, site: SiteData): ReactNode {
   const video = entry.video
   if (video?.src) {
     return (
@@ -179,12 +197,18 @@ export function articleHero(entry: ArticleEntry): ReactNode {
           controls={video.controls === true}
           label={video.caption}
           title={entry.title}
+          retryLabel={site.a11y.video_retry}
+          openLabel={site.a11y.video_open_native}
         />
       </div>
     )
   }
   const top = entry.embed_hero === true ? entry.embeds?.[0] : undefined
-  if (top) return <div className="bd-hero">{embedFrame(top, true)}</div>
+  if (top) {
+    // 海报用文章封面；出口优先平台页（手机上通常直接唤起 App），没有才回落播放器地址。
+    // .bd-hero 定比壳与框下出口都由 EmbedHero 自己渲染（出口必须在壳**外面**才不会被 overflow 裁掉）
+    return embedFrame(top, site, { hero: true, cover: entry.cover ?? entry.top_img, external: entry.links?.[0]?.url ?? null })
+  }
   if (!entry.top_img) return null
   return (
     <figure className="bd-hero">
@@ -218,7 +242,7 @@ export function articlePreBody(entry: ArticleEntry, site: SiteData): ReactNode {
           {site.a11y.case_embeds ? <h2>{site.a11y.case_embeds}</h2> : null}
           <ul>
             {embeds.map((e) => (
-              <li key={e.url}>{embedFrame(e)}</li>
+              <li key={e.url}>{embedFrame(e, site, { external: entry.links?.[0]?.url ?? null })}</li>
             ))}
           </ul>
         </div>
