@@ -24,10 +24,19 @@ const KINDS: { dir: string; url: string }[] = [
 const warnings: string[] = []
 const errors: string[] = []
 
+/** 被跳过的工具残留（名字含 ~ 或以 . 开头）：备份 / 临时文件不是交付件，别当正片发布。 */
+const skipped: string[] = []
+
 function walk(dir: string, base = ''): string[] {
   const out: string[] = []
   if (!existsSync(dir)) return out
   for (const name of readdirSync(dir)) {
+    // ★2026-09-23：~1 这类后缀是导出/备份工具留下的临时文件——实测混进过一个无音轨、无 faststart 的旧副本
+    // （source/video/18th-ada~1.mp4），被当正片扫进 dist 并随部署上传。它们不是交付件：跳过并记账，末尾报一行。
+    if (name.startsWith('.') || name.includes('~')) {
+      skipped.push(base ? base + '/' + name : name)
+      continue
+    }
     const abs = path.join(dir, name)
     const rel = base ? base + '/' + name : name
     if (statSync(abs).isDirectory()) out.push(...walk(abs, rel))
@@ -147,6 +156,7 @@ function main(): void {
     process.exit(1)
   }
   info('Checked ' + total + ' media files')
+  if (skipped.length > 0) info('Skipped ' + skipped.length + ' backup/temp file(s): ' + skipped.join(', '))
   // 有事才出声：编码 / faststart 这类质量提醒不阻塞构建，但也不能消失（明细在 npm run checklist）
   if (warnings.length > 0) console.log(`⚠ ${warnings.length} 条素材提醒见 npm run checklist`)
 }
