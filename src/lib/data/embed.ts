@@ -1,13 +1,23 @@
 // 第三方嵌入 iframe 的属性母版（**唯一家**）：构建期正文渲染（scripts/content/paths.ts）与运行层 JSX
-// （components/ui/article/articleRecipe.tsx）共用同一份——sandbox 白名单这类安全属性一旦长在两处，收口就名存实亡。
+// （components/ui/article/articleRecipe.tsx）共用同一份——权限属性一旦长在两处，收口就名存实亡。
 // 它不是数据源（数据是 .content/posts.json），只是「嵌入长什么样」的唯一事实源，故与 content.ts 同目录放着。
+//
+// ★2026-09-23 撤 sandbox（用户报「移动端视频一律播不了」）：
+//   WebKit 的 MSE 在带 sandbox 的 iframe 里被误挡（bugs.webkit.org 252755，状态仍是 NEW，Safari 桌面/iPad 均可复现），
+//   而 B 站这类播放器靠 MediaSource + blob: 起播——于是同一个嵌入「电脑能放、手机（Safari/WebKit）不能放」。
+//   旧值 sandbox=allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox
+//   正是那堵墙；而它并不决定「能嵌哪些站」——那件事由 CSP 的 frame-src 白名单单点决定（见 vercel.json + gate-headers）。
+//   撤掉后：嵌入方与普通第三方 iframe 同权，allow 仍按播放器所需能力逐项放行，referrerPolicy 不动。
 export const EMBED_ATTRS = {
   loading: 'lazy',
   allowFullScreen: true,
   referrerPolicy: 'no-referrer-when-downgrade',
-  allow: 'encrypted-media; picture-in-picture; fullscreen',
-  sandbox: 'allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox',
+  // autoplay 是 Permissions Policy 里的一项：不发就默认拒绝，播放器点播后自播会被静默拦掉（移动端尤甚）
+  allow: 'autoplay; encrypted-media; picture-in-picture; fullscreen',
 } as const
+
+/** 顶部槽用属性：首屏媒件必须立刻加载——lazy 会把它排到空闲之后，慢链路（移动端）上等于「点了半天没反应」。 */
+export const EMBED_ATTRS_HERO = { ...EMBED_ATTRS, loading: 'eager' } as const
 
 /** 同一份属性 → HTML 属性串（构建期字符串渲染用；camelCase 映射回 HTML 属性名，布尔项写空值）。 */
 export function embedAttrString(): string {
@@ -16,7 +26,6 @@ export function embedAttrString(): string {
     'allowfullscreen',
     'referrerpolicy="' + EMBED_ATTRS.referrerPolicy + '"',
     'allow="' + EMBED_ATTRS.allow + '"',
-    'sandbox="' + EMBED_ATTRS.sandbox + '"',
   ].join(' ')
 }
 

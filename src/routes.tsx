@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { Route, Routes, useLocation } from 'react-router-dom'
 import { unlockAllNav } from './lib/nav/navlock'
 import RouteMeta from './components/layout/RouteMeta'
+import Lightbox from './components/ui/Lightbox'
 import Home from './pages/Home'
 import PortfolioList from './pages/PortfolioList'
 import PortfolioDetail from './pages/PortfolioDetail'
@@ -44,6 +45,7 @@ export default function AppRoutes() {
       <ScrollReset />
       <RouteMeta />
       <DropPrerender />
+      <Lightbox />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/portfolio" element={<PortfolioList />} />

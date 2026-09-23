@@ -311,6 +311,8 @@ a11y:
   post_copyright_notice: 版权声明                    # 版权模块声明行标签
   post_code_expand: 展开全部                        # 代码框折叠时按钮文字
   post_code_collapse: 收起                          # 代码框展开时按钮文字
+  lightbox_label: 查看大图                          # 点图放大层的可访问名（role=dialog）
+  lightbox_close: 关闭大图                          # 放大层关闭按钮 aria-label
 
 # 刻意【不放在本文件】的三样，避免双主：
 #   · 粒子物理/淡出曲线/崩缺半径/160ms 令牌 → src/styles/ + src/fx/ink-field.ts

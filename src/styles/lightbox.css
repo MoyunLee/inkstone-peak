@@ -1,0 +1,79 @@
+/* ── 点图放大层（lightbox，2026-09-23 新增）──
+   全站唯一「一张图单独看」的地方：顶图槽与正文里的图可点开；链接里的封面（卡片 / 轮播）不进来——
+   那些图的点击语义是「去详情页」，抢过来会毁掉列表的导航。判定在 Lightbox.tsx 的 pickImage，此处只管长相。
+   皮肤守纸墨纪律：底是浓墨罩，控件只用发丝线与纸色，唯图本身带一档投影（它是内容，不是装饰）。 */
+html[data-lb] {
+  overflow: hidden;
+  padding-right: var(--lb-pad, 0px); /* 锁滚动会吃掉滚动条，补回同宽，免整站横跳一帧 */
+}
+.lb {
+  position: fixed;
+  inset: 0;
+  z-index: 100; /* 高于顶栏/题签/进度条的 30，全站唯一的百位层 */
+  background: rgba(20, 22, 26, 0.92);
+  overscroll-behavior: contain;
+  animation: lb-in var(--t) var(--ease);
+}
+.lb-stage {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: none; /* 单指手势归 JS（点=缩放、拖=平移、下滑=关），双指捏合也自己算 */
+}
+.lb-img {
+  max-width: 92vw;
+  max-height: 88svh; /* 禁 100vh，站内一律 svh */
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  transform-origin: center center;
+  transition: transform var(--t) var(--ease);
+  cursor: zoom-in;
+  user-select: none;
+  -webkit-user-drag: none;
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
+}
+.lb-img[data-zoomed='true'] {
+  cursor: zoom-out;
+}
+.lb-img[data-drag='true'] {
+  transition: none; /* 跟手期间不许补间，否则拖起来发飘 */
+}
+.lb-close {
+  position: absolute;
+  top: calc(env(safe-area-inset-top, 0px) + 16px);
+  right: calc(env(safe-area-inset-right, 0px) + 16px);
+  z-index: 1;
+  width: 44px; /* 触摸靶不小于 44 */
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(247, 244, 238, 0.3);
+  background: transparent;
+  color: var(--paper);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color var(--t) var(--ease), color var(--t) var(--ease);
+}
+.lb-close:hover,
+.lb-close:focus-visible {
+  border-color: var(--paper);
+  color: #fff;
+}
+@keyframes lb-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lb { animation: none; }
+  .lb-img { transition: none; }
+}
+/* 可点开的图给「放大镜」光标：顶图槽与正文图正好是委托里放行的那两类 */
+.bd-hero img,
+.prose img:not(a img) {
+  cursor: zoom-in;
+}

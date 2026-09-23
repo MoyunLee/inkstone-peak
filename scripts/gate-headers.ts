@@ -2,10 +2,11 @@
 // 为什么需要：CSP 写在托管侧（Vercel headers），而"允许嵌哪些平台"写在 scripts/content/schemas/shared.ts 的
 // EMBED_HOSTS。两处分家就会出现「内容层放行了新平台、CSP 把它挡在门外」的静默失效（页面只是不出播放器）。
 //
-// 检查六项：
+// 检查七项：
 //   ① 五件套响应头齐备 ② frame-src 恰好覆盖 EMBED_HOSTS（多一个少一个都报）
 //   ③ 被嵌策略**自洽**（两种模式，见下）④ script-src 不许 'unsafe-inline'
 //   ⑤ object-src 'none' ⑥ 缓存声明：/assets/* 必须 immutable；/images|media/* 必须**不是** immutable
+//   ⑦ 嵌入属性母版（src/lib/data/embed.ts）不许给 iframe 加 sandbox——见该项处的注释
 // 被嵌策略两模式（2026-09-23 用户令：为友链开放被嵌）：
 //   A 锁死 = frame-ancestors 'none' + X-Frame-Options: DENY
 //   B 可被嵌 = frame-ancestors *（或域名清单）且**不发** X-Frame-Options——发了就自相矛盾：
@@ -69,6 +70,18 @@ const mediaCache = all.find((h) => h.key === 'Cache-Control' && h.source === '/(
 if (!mediaCache) fails.push('缺 /images|media/* 的缓存声明')
 else if (/immutable/.test(mediaCache)) fails.push('/images|media/* 不许 immutable（路径不带哈希，标了它换素材将永远不生效）——要立刻生效用 max-age=0, must-revalidate')
 
+// ⑦ 嵌入 iframe 不许带 sandbox（代码里不行；注释里解释原因是可以的）
+// 为什么是硬闸：WebKit 的 MSE 在带 sandbox 的 iframe 里被误挡（bugs.webkit.org 252755，状态 NEW），
+// 而 B 站这类播放器靠 MediaSource + blob: 起播——2026-09-23「移动端视频一律播不了」正是它。
+// 改回去等于让同一个嵌入「电脑能放、手机不能放」，且不报任何错，只有用户看得出来。
+const embedCode = readFileSync(P('src/lib/data/embed.ts'), 'utf8')
+  .split(/\r?\n/)
+  .filter((l) => { const t = l.trimStart(); return !t.startsWith('//') && !t.startsWith('*') && !t.startsWith('/*') })
+  .join('\n')
+if (/sandbox/i.test(embedCode)) {
+  fails.push('src/lib/data/embed.ts 给嵌入 iframe 加了 sandbox——WebKit 会连 MSE 一起挡掉（252755），移动端视频播不了；能力放行一律走 allow')
+}
+
 if (fails.length > 0) {
   console.error('✗ 响应头闸：' + fails.length + ' 项不合格')
   for (const f of fails) console.error('   ▸ ' + f)
@@ -76,5 +89,5 @@ if (fails.length > 0) {
 }
 console.log(
   '✓ 响应头闸：五件套齐备 · frame-src 与 EMBED_HOSTS 一致（' + EMBED_HOSTS.size + ' 个平台）· 被嵌策略 ' + mode +
-    ' · 缓存 /assets/* immutable、/images|media/* ' + mediaCache,
+    ' · 缓存 /assets/* immutable、/images|media/* ' + mediaCache + ' · 嵌入 iframe 无 sandbox',
 )

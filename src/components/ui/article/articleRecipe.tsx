@@ -6,7 +6,7 @@
    收口前两页各写一份配方：博文没提要、没嵌入槽与版权槽，作品没日期与分类，
    同一条 front-matter 长出两套页面。 */
 import type { ReactNode } from 'react'
-import { EMBED_ATTRS } from '../../../lib/data/embed'
+import { EMBED_ATTRS, EMBED_ATTRS_HERO } from '../../../lib/data/embed'
 import type { ArticleEntry, PortfolioEmbed, WorkArticle } from '../../../lib/types/content'
 import type { SiteData } from '../../../lib/types/site'
 import PostCopyright from '../blog/PostCopyright'
@@ -148,8 +148,8 @@ export function articleAsideTags(entry: ArticleEntry, site: SiteData): string[] 
  * @example
  * {embedFrame(entry.embeds[0])}
  */
-function embedFrame(e: PortfolioEmbed): ReactNode {
-  return <iframe src={e.url} title={e.label} {...EMBED_ATTRS} />
+function embedFrame(e: PortfolioEmbed, hero = false): ReactNode {
+  return <iframe src={e.url} title={e.label} {...(hero ? EMBED_ATTRS_HERO : EMBED_ATTRS)} />
 }
 
 /**
@@ -184,7 +184,7 @@ export function articleHero(entry: ArticleEntry): ReactNode {
     )
   }
   const top = entry.embed_hero === true ? entry.embeds?.[0] : undefined
-  if (top) return <div className="bd-hero">{embedFrame(top)}</div>
+  if (top) return <div className="bd-hero">{embedFrame(top, true)}</div>
   if (!entry.top_img) return null
   return (
     <figure className="bd-hero">

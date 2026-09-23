@@ -44,7 +44,7 @@ links:
 
 ## 三、站内为什么用嵌入，而不是自己托管
 
-本站的视频路线有三条——外链 / 自托管 / 嵌入，这条片走的是**嵌入**：iframe 指向 B 站的播放器地址，`autoplay=0`，进入视口才加载（`loading="lazy"`），sandbox 按播放器所需能力白名单放行。
+本站的视频路线有三条——外链 / 自托管 / 嵌入，这条片走的是**嵌入**：iframe 指向 B 站的播放器地址，`autoplay=0`，能力按 `allow` 白名单逐项放行（`autoplay` / `encrypted-media` / `picture-in-picture` / `fullscreen`）；占顶这一条立刻加载，分节里那几条进视口才加载（`loading="lazy"`）。**唯独不给 sandbox**：WebKit 在带 sandbox 的 iframe 里读不到 MediaSource（WebKit bug 252755，2023 年报的，至今未修），而 B 站这类播放器靠 MSE + `blob:` 起播——加了它，同一个嵌入就变成「电脑能放、手机点不动」。
 
 理由是尺寸与链路算出来的，不是偏好：
 
