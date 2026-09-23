@@ -1,15 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 import { EMBED_ATTRS, EMBED_ATTRS_HERO } from '../../lib/data/embed'
 
-/** 播放器多久没 load 就当「这台浏览器 / 这条链路放不出来」，退回海报（毫秒）。 */
+/** 桌面端播放器多久没 load 就当放不出来，退回海报 + 说明里的出口（毫秒）。 */
 const GIVE_UP_MS = 15000
 
 /**
  * 触摸设备（手机 / 平板）判定。
  *
- * 用 maxTouchPoints 而不是媒体查询：手机自带浏览器里 `(hover: none)` 有报错的先例，
- * 而 maxTouchPoints 在哪儿都诚实。服务端（预渲染）无 window → 一律当作非触摸，
- * 于是**爬虫与桌面拿到的是带 iframe 的版本**，手机在客户端首次渲染就换成海报 + 框下出口。
+ * 用 maxTouchPoints 而不是媒体查询：手机自带浏览器里 `(hover: none)` 有报错的先例。
+ * 服务端（预渲染）无 window → 一律当作非触摸，于是**爬虫与桌面拿到的是带 iframe 的版本**。
  *
  * @returns true = 触摸设备。
  */
@@ -19,17 +18,14 @@ function isTouch(): boolean {
 }
 
 /**
- * 嵌入位（顶图槽与嵌入分节共用）：**手机先出海报，框下常驻一行出口**。
+ * 嵌入位（顶图槽与嵌入分节共用）：**手机上封面即入口（点它去平台），桌面才在本站装播放器**。
  *
- * 为什么不是直接塞 iframe（2026-09-23 用户报「手机完全播放不了、图也没有」后改）：
- *   ① 封面是我们自己的图，一定画得出来；第三方 iframe 在部分手机自带浏览器里整块拦掉——
- *      于是那 16/9 槽位是**空白**，用户既看不到内容也不知道还能怎么办；
- *   ② 播放器文档几百 KB，慢链路上要等很久才出画面，先出海报至少先给一张脸；
- *   ③ 点一下是**真实用户手势**，播放器起播与授权都更顺。
- *
- * 出口为什么在**框下**而不是框角浮层：iframe 被拦时浏览器照样会报 load（Chromium 会载入错误页），
- * 靠事件判「播放器到底出没出画面」判不出来（实测 `.em-out-live` 版本 0.6s 就误判成就绪）。
- * 框下这一行不遮播放器控件、两种状态下都在，是唯一可靠的兜底——手机点它通常直接唤起 App。
+ * 为什么分家（2026-09-23 用户手机实测两轮后定案）：
+ *   手机自带浏览器会把第三方 iframe **整块拦掉**——16/9 槽位空白，既看不到内容也不知道还能怎么办；
+ *   实测确认：封面（我们自己的图）画得出来、出口能唤起 App，唯独站内播放器一个像素都进不来。
+ *   于是手机这一档不再装作「本站能播」：封面 + 播放环 + 「新窗口观看」是**同一个链接**，点哪儿都去平台页
+ *   （手机上通常直接唤起 App）。宁可少一个能力，也不给用户一个点了没反应的播放器。
+ * 桌面不受影响：直接出 iframe；真放不出来（15s 没 load）才退回海报，说明里带出口。
  *
  * @param url 播放器地址（已过白名单）。
  * @param label 可访问名（iframe title）。
@@ -55,34 +51,48 @@ export default function EmbedHero({
   texts: { play: string; external: string; failed: string }
   hero?: boolean
 }) {
-  // 触摸与否一次算定（客户端首渲即可判；服务端按非触摸走，爬虫拿到的仍是 iframe 版）
+  // 触摸与否一次算定（客户端首渲即可判；服务端按非触摸走）
   const [touch] = useState<boolean>(() => isTouch())
   const [armed, setArmed] = useState<boolean>(() => !isTouch())
   const [failed, setFailed] = useState(false)
   const ok = useRef(false)
   const out = external ?? url
 
-  // 装了播放器还不 load：判它放不出来，退回海报（只有用户点过才计时，桌面不受影响）
+  // 只有桌面这一档会装播放器，故只有它需要「迟迟不 load」的兜底
   useEffect(() => {
-    if (!armed || failed) return
+    if (touch || !armed || failed) return
     const t = window.setTimeout(() => { if (!ok.current) setFailed(true) }, GIVE_UP_MS)
     return () => window.clearTimeout(t)
-  }, [armed, failed])
+  }, [touch, armed, failed])
 
-  const box = !armed || failed ? (
+  const poster = (
     <div className="em">
       {cover ? <img className="em-cover" src={cover} alt="" decoding="async" /> : <span className="em-cover" aria-hidden="true" />}
-      <button
-        type="button"
-        className="em-play"
-        aria-label={texts.play}
-        onClick={() => { ok.current = false; setFailed(false); setArmed(true) }}
-      >
-        <span className="em-tri" aria-hidden="true" />
-      </button>
-      {failed ? <p className="em-note">{texts.failed}</p> : null}
+      {touch ? (
+        <a className="em-play" href={out} target="_blank" rel="noopener noreferrer">
+          <span className="em-orb"><span className="em-tri" aria-hidden="true" /></span>
+          <span className="em-cta">{texts.external}</span>
+        </a>
+      ) : (
+        <button
+          type="button"
+          className="em-play"
+          aria-label={texts.play}
+          onClick={() => { ok.current = false; setFailed(false); setArmed(true) }}
+        >
+          <span className="em-orb"><span className="em-tri" aria-hidden="true" /></span>
+        </button>
+      )}
+      {!touch && failed ? (
+        <p className="em-note">
+          {texts.failed}{' '}
+          <a href={out} target="_blank" rel="noopener noreferrer">{texts.external}</a>
+        </p>
+      ) : null}
     </div>
-  ) : (
+  )
+
+  const box = !armed || failed ? poster : (
     <iframe
       src={url}
       title={label}
@@ -91,14 +101,5 @@ export default function EmbedHero({
     />
   )
 
-  return (
-    <>
-      {hero ? <div className={'bd-hero' + (touch ? ' has-below' : '')}>{box}</div> : box}
-      {touch ? (
-        <p className="em-below">
-          <a href={out} target="_blank" rel="noopener noreferrer">{texts.external}</a>
-        </p>
-      ) : null}
-    </>
-  )
+  return hero ? <div className="bd-hero">{box}</div> : box
 }
