@@ -1,7 +1,7 @@
 ---
 title: 本站 site.yml 全字段速查：每个键怎么配，什么时候可以删
 date: "2026-09-16"
-updated: "2026-09-21"
+updated: "2026-09-24"
 tags: [写作, 配置, 建站]
 categories: [站务]
 keywords: site.yml,配置,建站,Butterfly,zod,缺省即隐藏,构建期校验
@@ -35,7 +35,7 @@ toc_number: false     # 本文标题自带编号（## 一、/ ### 3.1），再�
 | `heatmap` | ✅ 可整节删 | 给了就要给全 9 键 | 首页造境段与 `/blog` 的热力图 |
 | `about` | ❌ 不能 | **仅 `hero_title`** | `/about` 便当盒（话术 + 事实） |
 | `contact` | ❌ 不能 | `email` | 页脚联系方式栏 |
-| `footer` | ❌ 不能 | `cta` `columns` `brand_bio` `portfolio_links` `seal_text` `copyright` | 页脚 / 首页传音段 / favicon 印文 |
+| `footer` | ❌ 不能 | `columns` `seal_text` `copyright`（`brand_bio` 2026-09-23 起可省） | 页脚 / 首页传音段 / favicon 印文 |
 | `notfound` | ❌ 不能 | `line` `cta` | 404 页 |
 | `a11y` | ✅ 可整节删 | —（27 键全可选） | 全站 aria 与可见小字 |
 
@@ -240,19 +240,20 @@ about:
 contact:
   email: someone@example.com
   douyin:   { platform: 抖音, value: 重回1985, url: "https://v.douyin.com/xxxx/" }
+  github:   { platform: GitHub, value: inkstone-peak, url: "https://github.com/MoyunLee/inkstone-peak" }
   bilibili: { platform: B 站, value: null, url: null, pending: 筹建中 }
 ```
 
 `url: null` 时渲染成灰字、不留死链；`url` 若给了就必须是合法 `http(s)`。
 
+卡面文字 = `platform · value`（本站现有三行：`抖音 · 重回1985` / `GitHub · inkstone-peak` / `B 站 · 筹建中`，**数组顺序即渲染顺序**，故「筹建中」这类灰字行排在最后）。加一行 = 在 `contact` 下加一个键，页脚「联系」栏自动出现，组件零改动。
+
 ### 3.11 `footer`（必填节）
 
 | 键 | 必填 | 说明 |
 |---|---|---|
-| `cta` | ✅ | `{ label, arrow?, to }`，首页传音段的行动按钮 |
 | `columns` | ✅ | 栏目数组（见下） |
-| `brand_bio` | ✅ | 页脚简介；**求职意向/地域口径的全站唯一落点** |
-| `portfolio_links` | ✅ | `[{ label, to }]` 链接表，栏目可按名字引用 |
+| `brand_bio` | 可选 | 栏1 印章下方的简介段；**曾承载求职意向/地域口径的全站唯一落点**。删键＝整段不渲染、印章照常居中（本站 2026-09-23 已删，原句以注释留底在 `site.yml`） |
 | `seal_text` | ✅ | 印文；页脚大印与**构建期生成**的 favicon / apple-touch-icon 都用它 |
 | `copyright` | ✅ | 版权行 |
 | `demo_note` | 可选 | 演示站小字；发布前删，`checklist` 会提醒 |
@@ -261,13 +262,16 @@ contact:
 
 ```yaml
 columns:
-  - { id: brand,     title: null }              # 特例：印章 + brand_bio，无栏题
+  - { id: brand,     title: null }              # 特例：居中印章（brand_bio 可省），无栏题
   - { id: site,      title: 站内, from: nav }    # 从 nav 自动生成，加页面自动出现
-  - { id: portfolio, title: 创作, links: portfolio_links }  # 引用 footer 下的链接表
   - { id: social,    title: 联系, from: contact }            # 从 contact 自动生成
+  # 想再加一栏就照这样内联写（示例：作品 / 流程 / 关于我）：
+  # - { id: portfolio, title: 创作, links: [ { label: 作品, to: /portfolio }, { label: 流程, to: /blog }, { label: 关于我, to: /about } ] }
 ```
 
-规则：`id === brand` 是特殊栏；**非 brand 栏必须给 `from`（`nav` / `contact`）或 `links`（footer 下链接表键名，或内联 `[{ label, to }]`）之一**，两者都没有 = 构建失败。
+列数不用管 CSS：`.foot-cols` 的中间轨道数由组件按 `columns.length − 2` 现算，**增删栏位只改这里**。
+
+规则：`id === brand` 是特殊栏；**非 brand 栏必须给 `from`（`nav` / `contact`）或 `links`（内联 `[{ label, to }]`）之一**，两者都没有 = 构建失败。
 
 `to` 允许四类：**站内路由**（须命中从 `nav` 派生的白名单）· **`http(s)` 外链** · **`mailto:`** · **`source/site/` 下的静态件**（如 `/resume/du-kang.pdf`，构建期查落盘）。想挂简历 PDF 就走最后一类，没有专门的 `cv` 字段。
 
@@ -279,7 +283,7 @@ columns:
 
 缺键 = 不输出该属性；但键名仍走 strict 白名单，**拼错照样报错**。26 键按用途分四组：
 
-- 布局：`nav_label` `tabs_label` `brand_label` `seal_copy_hint` `skip_link_label`
+- 布局：`nav_label` `tabs_label` `brand_label` `seal_top_hint`（页脚大印：回到本页顶部）`skip_link_label`
 - 详情页与按钮：`case_period`（周期题词）`case_embeds`（嵌入分节标题）`detail_cta` `detail_aria`（支持 `{ink}`）`carousel_prev` `carousel_next`
 - 关于：`about_seal_label` `about_tags_label` `about_timeline_label`
 - 详情页共用：`post_date` `post_updated` `post_categories` `post_toc_label` `post_aside_label`（两型同一枚侧栏可访问名）`post_comments_label` `post_copyright_heading` `post_copyright_author` `post_copyright_link` `post_copyright_notice` `post_code_expand` `post_code_collapse`
@@ -324,7 +328,6 @@ columns:
 | 「…」必须是合法的绝对 http(s) URL | `site.url`（或某个社交 `url`） |
 | 「…」的 path 段未命中路由表（白名单：…） | 内链指向了不存在的站内路由——加页面请先在 `nav` 加一行 |
 | 非 brand 栏必须给 from 或 links | `footer.columns` 某栏两样都没给 |
-| 「…」不是 `footer` 下的链接表键名 | `columns[].links` 写了字符串，但该名字在 `footer` 下不存在 |
 | 组 id「…」重复 | `about.skill_groups[].id` 撞车 |
 | 横排断句标题最多两行 | `heading_lines` 超了 2 行 |
 | 未知键 / 类型错误 / 必填缺失 | strict 会直接点出键名，中文解释见 `scripts/content/diagnostics.ts` 的 `FIELD_CN` 表 |

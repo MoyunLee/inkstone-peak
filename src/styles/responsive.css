@@ -3,14 +3,10 @@
   .heading {
     gap: 10px;
   }
-  .head-act,
-  .head-acts .seal-btn {
+  .head-act {
     font-size: 13px;
     padding: 7px 14px;
     letter-spacing: 0.16em;
-  }
-  .foot-head .head-acts {
-    margin-top: 0;
   }
   .topbar {
     gap: clamp(12px, 3vw, 24px);

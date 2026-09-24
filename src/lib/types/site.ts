@@ -22,8 +22,8 @@ export interface FooterColumn {
   id: string
   title?: string | null
   from?: string
-  /** 键名字符串（引用 footer 下的链接表）或内联链接数组。 */
-  links?: string | SiteLink[]
+  /** 内联链接数组。 */
+  links?: SiteLink[]
 }
 
 export interface BlogCfg {
@@ -109,7 +109,7 @@ export interface AboutCfg {
 
 /** a11y 话术键全集：必须与 scripts/content/schemas/site.ts 的 A11Y_KEYS 对齐。 */
 export type A11yKey =
-  | 'nav_label' | 'tabs_label' | 'seal_copy_hint' | 'brand_label'
+  | 'nav_label' | 'tabs_label' | 'seal_top_hint' | 'brand_label'
   | 'case_period' | 'case_embeds'
   | 'detail_cta' | 'detail_aria' | 'carousel_prev' | 'carousel_next'
   | 'about_seal_label' | 'about_tags_label' | 'about_timeline_label'
@@ -154,10 +154,9 @@ export interface SiteData {
   about: AboutCfg
   contact: { email: string; [platform: string]: SocialLink | string }
   footer: {
-    cta: { label: string; arrow?: boolean; to: string }
     columns: FooterColumn[]
-    brand_bio: string
-    portfolio_links: SiteLink[]
+    /** 栏1 印章下方简介；可省（缺省即隐藏，印章居中）。 */
+    brand_bio?: string
     seal_text: string
     copyright: string
     demo_note?: string

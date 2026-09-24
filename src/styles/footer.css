@@ -13,11 +13,7 @@
   padding-inline: var(--gutter);
 }
 .foot-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: clamp(18px, 3vw, 44px);
-  flex-wrap: wrap;
+  /* 2026-09-24：题头右侧的「查看详细 / 联系我」两枚按钮整体移除 → 这里只剩题头本身 */
   margin-bottom: clamp(20px, 3.2vh, 36px);
 }
 .foot-head h2 {
@@ -33,27 +29,19 @@
   letter-spacing: 0.3em;
   margin: 0 0 12px;
 }
-.head-acts {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-left: auto;
-  align-self: center;
-}
-.head-acts .foot-cta {
-  margin-top: 0;
-}
-.foot-head .head-acts {
-  margin-top: 22px;
-}
 .foot-cols {
   display: grid;
-  /* 列数跟 site.yml footer.columns 走：首栏 brand 1.5fr、末栏 1.25fr、中间 repeat(--foot-rest)，4 栏即为 1.5/1/1/1.25。
+  /* 列数跟 site.yml footer.columns 走：首栏 brand 1.5fr、末栏 1.25fr、中间 repeat(--foot-rest)，3 栏即为 1.5/1/1.25。
      --foot-rest 由 SiteFooter 内联给出（= 列数 − 2，下限 0）——增删栏位不再改 CSS。 */
   grid-template-columns: 1.5fr repeat(var(--foot-rest, 2), 1fr) 1.25fr;
   column-gap: clamp(18px, 2.2vw, 36px);
   row-gap: clamp(26px, 3.6vh, 38px);
+}
+.fcol-brand {
+  /* 2026-09-24：印章竖向居中于本栏（＝对齐「站内」栏中段的观山～造境），横向也居中 */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 .fcol h3 {
   font-family: var(--font-kai);
@@ -96,14 +84,29 @@
   color: var(--ink-3);
 }
 .foot-brand {
-  display: inline-flex;
+  /* 大印是「回本页顶部」的按钮（2026-09-24）：宽度贴合印体 + 自动外边距居中，
+     按钮默认外观全部清零（否则会带系统底色/边框/内距），焦点框也因此贴着印走。 */
+  display: flex;
   align-items: center;
   gap: 14px;
+  width: fit-content;
+  margin-inline: auto;
   line-height: 0;
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  color: inherit;
+  cursor: pointer;
+}
+.foot-brand:focus-visible {
+  outline: 2px solid var(--seal);
+  outline-offset: 6px;
+  border-radius: 4px;
 }
 .big-seal {
-  width: 96px;
-  height: 96px;
+  width: 128px;   /* 2026-09-24 放大：96 → 128 */
+  height: 128px;
   flex: none;
   transform: rotate(-4deg); /* JS 轻震关键帧写死此角，不得改 */
   cursor: pointer;
@@ -142,17 +145,6 @@
   .foot-cols {
     grid-template-columns: 1fr;
     row-gap: 30px;
-  }
-  .foot-head {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-  .foot-cta {
-    margin-top: 0;
-    align-self: flex-start;
-  }
-  .foot-brand {
-    justify-content: center;
   }
   .foot-bar {
     flex-direction: column;

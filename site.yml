@@ -52,8 +52,9 @@ home:
   sections:
     - id: home
       heading_lines: [何以解忧？, 唯有杜康]      # 横排断句两行，句末标点保留（09-05 七轮定版；竖排方案作废）
-      cta:
-        - { label: 入山观展, to: /portfolio }  # 山门两枚=.seal-btn 族实例；2026 锚点改制 #featured→#portfolio
+      cta:                                     # 山门三枚=.seal-btn 族实例（顺序 = 导航序：观山 → 造境 → 观自）
+        - { label: 入山观展, to: /portfolio }  # 2026 锚点改制 #featured→#portfolio
+        - { label: 造境观文, to: /blog }        # 2026-09-24 新增（造境=笔墨札记）
         - { label: 阅杜康传, to: /about }        # "杜康传"=关于我
     # 通用化：本段=source/posts/ 里 tags 含 portfolio 标记的全部作品，与 /portfolio 列表同数据同顺序，没有「精选 N 件」这种挑选项。
     # 如何控制：① 给 source/posts/<slug>.md 的 tags 加/去 portfolio 标记 = 增删作品（首页与列表同步增删）；
@@ -229,7 +230,7 @@ about:
     - { game: 金铲铲之战, hours: 216 }
     - { game: 绝区零, hours: 152 }
     - { game: 缺氧, hours: 133 }
-  # 现居城市：填 place_note 的 {city}；与「求职目标城市」是两件事（后者唯一落点 = footer.brand_bio）。
+  # 现居城市：填 place_note 的 {city}；与「求职目标城市」是两件事（后者原住 footer.brand_bio，2026-09-23 随简介删）。
   location: 中国，河源市
   # /about 声明的锚点段（可整键删；给了须含 about + footer）：内链 /about#碎片 校验的事实源（构建期硬校验）。
   anchors: [about, footer]
@@ -242,33 +243,29 @@ about:
     - { id: inkstone, title: 砚 · 引擎与编程, desc: 引擎内演示验证，补脚本与编程基础,              tier: drybrush, tools: [Substance PBR, UE5, C 语言] }
 
 # --------------------------------------
-# Footer（页脚：联系方式 + 四栏）
+# Footer（页脚：联系方式 + 三栏）
 # --------------------------------------
-# 联系方式（页脚栏4 与「联系我」按钮的唯一数据源）
+# 联系方式（页脚「联系」栏的唯一数据源；原「联系我」按钮 2026-09-24 已移除）
 contact:
   email: 2106996916@qq.com
   douyin:   { platform: 抖音, value: 重回1985, url: "https://v.douyin.com/IgjCV-dLEFA/" }
+  github:   { platform: GitHub, value: inkstone-peak, url: "https://github.com/MoyunLee/inkstone-peak" }   # 本站源码仓库（公开）。卡面出「GitHub · inkstone-peak」；换仓库/改主页只动这一行
   bilibili: { platform: B 站, value: null, url: null, pending: 筹建中 }   # url=null → 不渲染成链接（诚实优先，不留死链；有真地址就填，否则维持「筹建中」）
 
 # S5 传音 · 结构化页脚
 footer:
-  cta: { label: 联系我, arrow: true, to: "mailto:2106996916@qq.com" }   # 圆角+钤印残缺框=.seal-btn 族
-  columns:                                      # 桌面四栏 / 640~1023 两栏 / <640 单列
-    # links 两种写法：① 键名字符串=引用 footer 下的链接表（如 portfolio_links）；② 内联 [{ label, to }] 现写现用。
+  # 2026-09-24 用户令：题头右侧「查看详细 → / 联系我 →」两枚按钮整体移除（footer.cta 随之退役）→ 页头只剩题头。
+  columns:                                      # 桌面三栏 / 640~1023 两栏 / <640 单列（列数自动进 --foot-rest，增删栏不改 CSS）
+    # links 写法：内联 [{ label, to }] 现写现用。
     # to 允许：站内路由（须命中 nav 白名单）· http(s) 外链 · mailto: · source/site/ 下的静态文件（如 /resume/xxx.pdf，构建期查落盘）。
-    - { id: brand,   title: null }              # 栏1：印章母版 + 简介（brand_bio，无栏题）
+    - { id: brand,   title: null }              # 栏1：印章母版（居中；brand_bio 已省，无栏题）
     - { id: site,    title: 站内, from: nav }    # ★读 nav 自动生成，加一段导航此处自动出现
-    - { id: portfolio, title: 创作, links: portfolio_links }
     - { id: social,  title: 联系, from: contact }
-  brand_bio: 杜康，游戏方向创作者。2027 春起可实习，穗 / 深 / 沪 / 京，接受远程合作。
-                                                # ↑ 求职意向行=全站唯一落点；别在组件里写第二处
-  portfolio_links:                              # 09-06 裁定：「项目」改词「流程」→ 三条全有真页且互不重复
-    - { label: 作品,   to: /portfolio }
-    - { label: 流程,   to: /blog }
-    - { label: 关于我, to: /about }
-    # 想挂简历 / 作品集 PDF：文件放进 site/source/site/（如 source/site/resume/du-kang.pdf），
-    # 再在 columns 里加一栏即可，例：
-    #   - { id: files, title: 资料, links: [ { label: 简历, to: /resume/du-kang.pdf } ] }
+    # 想再加一栏就照这样内联写：文件放进 site/source/site/（如 source/site/resume/du-kang.pdf），带扩展名的内链构建期查落盘。
+    # - { id: files, title: 资料, links: [ { label: 简历, to: /resume/du-kang.pdf } ] }
+  # brand_bio: 杜康，游戏方向创作者。2027 春起可实习，穗 / 深 / 沪 / 京，接受远程合作。
+  # ↑ 2026-09-23 用户令：栏1 简介整句删除、印章居中 → 本键删除（可省键，缺省即隐藏）。
+  #   这一行曾承载「求职意向 / 地域口径的全站唯一落点」；要恢复就取消上面的注释，别在组件里写第二处。
   seal_text: 杜康                               # 与顶栏 logo 同一枚印章母版；崩口/键线在组件里，不在此处
   copyright: © 2026 杜康
 
@@ -287,7 +284,7 @@ a11y:
   nav_label: 主导航
   tabs_label: 章节题签
   skip_link_label: 跳到正文                     # 键盘用户第一个焦点位（指向 <main id="main-content">）
-  seal_copy_hint: 点击复制邮箱                   # 页脚大印 title/aria-label
+  seal_top_hint: 回到本页顶部                    # 页脚大印 title/aria-label（点击平滑回顶；reduced-motion 下瞬时）
   brand_label: 杜康 · 返回首页                   # 顶栏徽章 aria-label（title 取 site.title）
   case_period: 周期                             # 元信息行与侧栏行的「周期」题词（作品专属项）
   case_embeds: 视频                              # 第三方嵌入分节标题（C 路线 iframe）

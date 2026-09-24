@@ -190,21 +190,14 @@ export function build(report = true): boolean {
     for (const [i, sec] of s.home.sections.entries()) {
       for (const [j, c] of (sec.cta ?? []).entries()) checkInternalLink(c.to, 'site.yml', `home.sections.${i}（${sec.id}）.cta.${j}.to`, linkCtx)
     }
-    checkInternalLink(s.footer.cta.to, 'site.yml', 'footer.cta.to', linkCtx)
-    for (const [k, l] of s.footer.portfolio_links.entries()) checkInternalLink(l.to, 'site.yml', `footer.portfolio_links.${k}.to`, linkCtx)
     checkInternalLink(s.notfound.cta.to, 'site.yml', 'notfound.cta.to', linkCtx)
     for (const [i, col] of s.footer.columns.entries()) {
       if (col.id === 'brand') continue
       if (!col.from && !col.links) {
-        issue('site.yml', `footer.columns.${i}`, '非 brand 栏必须给 from（nav/contact）或 links（footer 链接表键名 / 内联 [{label,to}]）之一')
+        issue('site.yml', `footer.columns.${i}`, '非 brand 栏必须给 from（nav/contact）或 links（内联 [{label,to}]）之一')
         continue
       }
-      if (typeof col.links === 'string' && !(col.links in s.footer)) {
-        issue('site.yml', `footer.columns.${i}.links`, `「${col.links}」不是 footer 下的链接表键名`)
-      }
-      if (Array.isArray(col.links)) {
-        for (const [j, l] of col.links.entries()) checkInternalLink(l.to, 'site.yml', `footer.columns.${i}.links.${j}.to`, linkCtx)
-      }
+      for (const [j, l] of (col.links ?? []).entries()) checkInternalLink(l.to, 'site.yml', `footer.columns.${i}.links.${j}.to`, linkCtx)
     }
     // 轮播张数上限：候选多于上限 → 只呈现前 N（提醒，不阻断）
     const maxSlides = s.portfolio?.carousel?.max_slides

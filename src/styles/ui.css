@@ -59,13 +59,6 @@
   margin-left: auto;
   align-self: center;
 }
-.foot-cta {
-  padding: 11px 24px;
-  font-size: 15px;
-  margin-top: 22px;
-  --chip: radial-gradient(circle 4px at 0% 0%, transparent 96%, #000 100%), radial-gradient(circle 3px at 58% -1px, transparent 96%, #000 100%),
-    radial-gradient(circle 4.5px at 100% 100%, transparent 96%, #000 100%), radial-gradient(circle 2.5px at 0% 72%, transparent 96%, #000 100%);
-}
 
 /* ---------- 段标题行公共 ---------- */
 .heading {

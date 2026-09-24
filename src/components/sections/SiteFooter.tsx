@@ -2,8 +2,6 @@
 import { Link, useLocation } from 'react-router-dom'
 import type { CSSProperties, MouseEvent } from 'react'
 import Seal from '../ui/Seal'
-import SealButton from '../ui/SealButton'
-import { lockNav, stamp, swallow } from '../../lib/nav/navlock'
 import { pathOf } from '../../lib/nav/nav-sync'
 import { useMotionSafe } from '../../lib/hooks/useMotionSafe'
 import { sectionById, useSite } from '../../lib/data/site'
@@ -44,39 +42,11 @@ export default function SiteFooter() {
   return (
     <footer id={sec?.id ?? 'footer'} className={`site-foot${isHomeSection ? ' as-section' : ''}`}>
       <div className="foot">
+        {/* 2026-09-24 用户令：页头两枚按钮（查看详细 → / 联系我 →）整体移除，页头只剩题头 */}
         <header className="foot-head">
           <div>
             {sec?.en ? <small>{sec.en}</small> : null}
             <h2>{sec?.heading}</h2>
-          </div>
-          <div className="head-acts">
-            {(() => {
-              const navEntry = site.nav.find((n) => n.module === 'footer' && n.route)
-              if (!navEntry?.route) return null
-              return (
-                <SealButton
-                  to={navEntry.route}
-                  ariaLabel={site.a11y.detail_aria?.replace('{ink}', navEntry.ink)}
-                  onNavGuard={() => {
-                    const key = 'detail:footer'
-                    if (swallow(key)) return false
-                    if (pathOf(navEntry.route as string) === pathname) {
-                      window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' })
-                      return false
-                    }
-                    stamp(key)
-                    lockNav(key)
-                    return true
-                  }}
-                >
-                  {site.a11y.detail_cta} <span aria-hidden="true">→</span>
-                </SealButton>
-              )
-            })()}
-            <SealButton to={f.cta.to} chip="foot">
-              {f.cta.label}
-              {f.cta.arrow ? <span aria-hidden="true"> →</span> : null}
-            </SealButton>
           </div>
         </header>
 
@@ -84,11 +54,12 @@ export default function SiteFooter() {
           {f.columns.map((col) => {
             if (col.id === 'brand') {
               return (
-                <div key={col.id} className="fcol">
-                  <a href={`mailto:${site.contact.email}`} className="foot-brand" title={site.a11y.seal_copy_hint} aria-label={site.a11y.seal_copy_hint}>
+                <div key={col.id} className="fcol fcol-brand">
+                  {/* 大印＝回本页顶部（2026-09-24 用户令；原为 mailto 写信，邮箱仍住在「联系」栏） */}
+                  <button type="button" className="foot-brand" onClick={scrollTop} title={site.a11y.seal_top_hint} aria-label={site.a11y.seal_top_hint}>
                     <Seal variant="foot" />
-                  </a>
-                  <p className="foot-bio">{f.brand_bio}</p>
+                  </button>
+                  {f.brand_bio ? <p className="foot-bio">{f.brand_bio}</p> : null}
                 </div>
               )
             }
@@ -136,11 +107,7 @@ export default function SiteFooter() {
                 </div>
               )
             }
-            const links: SiteLink[] | undefined = Array.isArray(col.links)
-              ? col.links
-              : col.links
-                ? (f as unknown as Record<string, SiteLink[] | undefined>)[col.links]
-                : undefined
+            const links: SiteLink[] | undefined = col.links
             return (
               <nav key={col.id} className="fcol" aria-label={col.title ?? undefined}>
                 {col.title ? <h3>{col.title}</h3> : null}

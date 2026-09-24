@@ -7,7 +7,7 @@ const linkShape = z.object({ label: z.string(), to: z.string() }).strict()
 // a11y 话术键全集：界面可见中文的唯一家；全部可选但仍是白名单（拼错键会被构建拦下）
 /** a11y 话术键白名单：必须与 src/lib/types/site.ts 的 A11yKey 对齐（改键名要两处一起改，否则组件取不到文案）。 */
 const A11Y_KEYS = [
-  'nav_label', 'tabs_label', 'seal_copy_hint', 'brand_label',
+  'nav_label', 'tabs_label', 'seal_top_hint', 'brand_label',
   'case_period', 'case_embeds',
   'detail_cta', 'detail_aria', 'carousel_prev', 'carousel_next',
   'about_seal_label', 'about_tags_label', 'about_timeline_label',
@@ -170,11 +170,9 @@ export const siteSchema = z.object({
   // ── Footer（联系方式 + 结构化页脚）──
   contact: z.object({ email: z.string() }).catchall(socialShape()),
   footer: z.object({
-    cta: z.object({ label: z.string(), arrow: z.boolean().optional(), to: z.string() }).strict(),
-    // links：键名字符串（引用本 footer 下的链接表）或内联 [{label,to}] 二选一
-    columns: z.array(z.object({ id: z.string(), title: urlOrNull.optional(), from: z.string().optional(), links: z.union([z.string(), z.array(linkShape)]).optional() }).strict()),
-    brand_bio: z.string(),
-    portfolio_links: z.array(linkShape),
+    // links：内联 [{label,to}]
+    columns: z.array(z.object({ id: z.string(), title: urlOrNull.optional(), from: z.string().optional(), links: z.array(linkShape).optional() }).strict()),
+    brand_bio: z.string().optional(),   // 2026-09-23 转可选：栏1 只留印章时整键省（缺省即隐藏）
     seal_text: z.string(),
     copyright: z.string(),
     demo_note: z.string().optional(),
