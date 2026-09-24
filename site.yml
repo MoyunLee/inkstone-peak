@@ -48,6 +48,8 @@ page_meta:
 # Index（首页五段：顺序权威）
 # --------------------------------------
 # 加一段 = 这里加一段 + src/site/sections.ts 注册一行 + nav 里挂 module 一行（题签/页脚栏2 自动生效）
+# intro / cta_detail 只对**走段标题行**的段（观山 / 造境 / 观自，经 Section → SectionHeading）有效；
+# 山门与传音自带题头，写这两个键 = 零消费者开关 → 构建期报错（事实源：sections.ts 的 selfHeadedSections）
 home:
   sections:
     - id: home
@@ -77,8 +79,8 @@ home:
     - id: footer                                 # 与 /footer 对应
       heading: 有想法了？来信相告。               # 09-06 页脚重构（原"传音入密"退役，只留 ink 词"传音"）
       en: FOOTER
-      intro: null
-      cta_detail: true
+      # 传音段自带题头（SiteFooter 的 .foot-head）⇒ 不走段标题行：intro / cta_detail 对它没有消费者，
+      # 2026-09-24 删除（此前一直挂着一个不生效的 cta_detail: true）。写了会被构建期拦下。
 
 # --------------------------------------
 # Portfolio（观山 /portfolio）

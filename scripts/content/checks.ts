@@ -19,6 +19,15 @@ export function sectionImplIds(): string[] {
   return ids
 }
 
+/** 自带题头的段（事实源 = src/site/sections.ts 的 selfHeadedSections）：不经段标题行，intro / cta_detail 无消费者。 */
+export function selfHeadedIds(): string[] {
+  const file = P('src', 'site', 'sections.ts')
+  if (!existsSync(file)) return []
+  const m = /selfHeadedSections[^=]*=\s*\[([^\]]*)\]/.exec(readFileSync(file, 'utf8'))
+  if (!m?.[1]) return []
+  return [...m[1].matchAll(/'([^']+)'|"([^"]+)"/g)].map((x) => (x[1] ?? x[2]) as string)
+}
+
 /** source/site/ 下的静态交付件（带扩展名）：不属路由表，改校落盘。 */
 const STATIC_ASSET_RE = /\.(pdf|zip|7z|txt|md|png|jpe?g|webp|gif|svg|ico|mp4|webm|mp3|wav|woff2?)$/i
 

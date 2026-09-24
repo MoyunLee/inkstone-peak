@@ -20,3 +20,7 @@ export const sectionComponents = {
 } as const
 
 export type SectionId = keyof typeof sectionComponents
+
+/** 自带题头的段：组件不经 Section → SectionHeading，故 `intro` / `cta_detail` 对它们无消费者
+ *  （山门由 Hero 出大字标题、传音由 SiteFooter 出 .foot-head）。构建期按这份清单拦「死开关」，见 build.ts。 */
+export const selfHeadedSections: readonly string[] = ['home', 'footer']

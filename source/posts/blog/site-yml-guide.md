@@ -94,9 +94,9 @@ page_meta:
 | `heading` | 二选一 | 单行标题 |
 | `heading_lines` | 二选一 | 横排断句标题，**最多 2 行** |
 | `en` | 可选 | 英文副题（可 `null`） |
-| `intro` | 可选 | 段引言（可 `null`） |
+| `intro` | 可选 | 段引言（可 `null`）；**只对走段标题行的段有效**（观山 / 造境 / 观自） |
 | `cta` | 可选 | 按钮数组 `[{ label, to }]` |
-| `cta_detail` | 可选 | 标题行「查看详细」开关，**缺省 true** |
+| `cta_detail` | 可选 | 标题行「查看详细」开关，**缺省 true**；同 `intro`——**山门与传音自带题头，写这两个键会被构建拦下**（零消费者开关） |
 
 当前实现的段 id 一共 5 个：`home` `portfolio` `blog` `about` `footer`。`heading` 与 `heading_lines` 至少给一个；两个都不给 = 校验失败。
 

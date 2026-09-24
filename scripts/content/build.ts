@@ -15,7 +15,7 @@ import { isHttpUrl } from './schemas/shared.ts'
 import { articleSchema, PORTFOLIO_TAG } from './schemas/article.ts'
 import { siteSchema } from './schemas/site.ts'
 import { beginReport, info, loadedIn } from '../quiet.ts'
-import { sectionImplIds, checkInternalLink } from './checks.ts'
+import { sectionImplIds, selfHeadedIds, checkInternalLink } from './checks.ts'
 import type { LinkCtx } from './checks.ts'
 import { markPlaceholders, normalizePlaceholders, readMdDir } from './loaders.ts'
 import { resolvePost } from './post.ts'
@@ -170,6 +170,18 @@ export function build(report = true): boolean {
     }
     for (const extra of impl) {
       if (!homeIds.includes(extra)) warn(`sections.ts 注册了 yml 里没有的段「${extra}」（渲染不到，仅提醒）`)
+    }
+    // intro / cta_detail 只对走段标题行（Section → SectionHeading）的段有效：
+    // 自带题头的段（山门 / 传音）写了就是零消费者开关——同「幽灵项」精神，直接构建失败。
+    const selfHeaded = selfHeadedIds()
+    for (const [i, sec] of s.home.sections.entries()) {
+      if (!selfHeaded.includes(sec.id)) continue
+      if (sec.cta_detail !== undefined) {
+        issue('site.yml', `home.sections.${i}（${sec.id}）.cta_detail`, `「${sec.id}」段自带题头（不走段标题行），此开关没有消费者 → 删键`)
+      }
+      if (sec.intro !== undefined) {
+        issue('site.yml', `home.sections.${i}（${sec.id}）.intro`, `「${sec.id}」段自带题头（不走段标题行），题引没有消费者 → 删键`)
+      }
     }
     const seenId = new Set<string>()
     for (const sec of s.home.sections) {
