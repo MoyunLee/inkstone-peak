@@ -1,7 +1,7 @@
 ---
 title: 本站 site.yml 全字段速查：每个键怎么配，什么时候可以删
 date: "2026-09-16"
-updated: "2026-09-24"
+updated: "2026-09-26"
 tags: [写作, 配置, 建站]
 categories: [站务]
 keywords: site.yml,配置,建站,Butterfly,zod,缺省即隐藏,构建期校验
@@ -241,12 +241,12 @@ contact:
   email: someone@example.com
   douyin:   { platform: 抖音, value: 重回1985, url: "https://v.douyin.com/xxxx/" }
   github:   { platform: GitHub, value: inkstone-peak, url: "https://github.com/MoyunLee/inkstone-peak" }
-  bilibili: { platform: B 站, value: null, url: null, pending: 筹建中 }
+  bilibili: { platform: B 站, value: 雨夜鱼龙舞yo, url: "https://space.bilibili.com/1800744550" }
 ```
 
-`url: null` 时渲染成灰字、不留死链；`url` 若给了就必须是合法 `http(s)`。
+`url: null` 时渲染成灰字、不留死链，灰字文案取 `pending`（如「筹建中」——本站现有三行社交（抖音 / GitHub / B 站）已全部填真地址，故当前无此类行；键留着，将来加新平台时可先用它占位）；`url` 若给了就必须是合法 `http(s)`。
 
-卡面文字 = `platform · value`（本站现有三行：`抖音 · 重回1985` / `GitHub · inkstone-peak` / `B 站 · 筹建中`，**数组顺序即渲染顺序**，故「筹建中」这类灰字行排在最后）。加一行 = 在 `contact` 下加一个键，页脚「联系」栏自动出现，组件零改动。
+卡面文字 = `platform · value`（本站现有三行：`抖音 · 重回1985` / `GitHub · inkstone-peak` / `B 站 · 雨夜鱼龙舞yo`，**数组顺序即渲染顺序**；`url: null` 的灰字行按惯例排在最后）。加一行 = 在 `contact` 下加一个键，页脚「联系」栏自动出现，组件零改动。
 
 ### 3.11 `footer`（必填节）
 

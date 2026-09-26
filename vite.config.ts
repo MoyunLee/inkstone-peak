@@ -1,5 +1,6 @@
 // Vite + React + Tailwind v4；纯静态无 SSR adapter，预渲染自管（scripts/pre-render.ts）
-import { cpSync, createReadStream, existsSync, readdirSync, statSync } from 'node:fs'
+import { cpSync, createReadStream, existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
+import type { ServerResponse } from 'node:http'
 import path from 'node:path'
 import process from 'node:process'
 import { defineConfig } from 'vite'
@@ -7,6 +8,8 @@ import type { Plugin, PreviewServer } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { VITE_VERBOSE } from './scripts/quiet.ts'
+import { masterUrlOf, variantWidthOf } from './scripts/srcset.ts'
+import type { ImageManifest } from './src/lib/types/images.ts'
 
 /**
  * URL 路径 → 安全的相对路径；返回 null = 非法/空（调用方自行决定放行还是 404）。
@@ -90,10 +93,53 @@ function previewDirIndex(): Plugin {
 }
 
 /**
+ * dev：封面多档的变体**不落 source/**（源目录保持「源即输入」），来一个请求现出一张。
+ *
+ * 变体与母版同名同目录（`x.webp` → `x.w480.webp`），故这里不必读清单——把名字还原成母版现出即可；
+ * 档位不在 TIERS 里的一律不当变体，保证 dev 与 build 发的是同一批文件（口径住 scripts/srcset.ts）。
+ *
+ * @returns true = 已经把响应写掉了；false = 不是本插件该管的（调用方自行放行或 404）。
+ */
+async function serveDerivedImage(res: ServerResponse, absMaster: string, w: number): Promise<boolean> {
+  const { TIERS, renderVariant } = await import('./scripts/srcset.ts')
+  if (!(TIERS as readonly number[]).includes(w)) return false
+  if (!existsSync(absMaster) || !statSync(absMaster).isFile()) return false
+  const buf = await renderVariant(absMaster, w)
+  res.setHeader('Content-Type', 'image/webp')
+  res.setHeader('Cache-Control', 'no-cache')
+  res.setHeader('Content-Length', String(buf.length))
+  res.end(buf)
+  return true
+}
+
+/**
+ * build：把清单（.content/images.json）承诺的档位写进 dist/，静默——成功即无声。
+ *
+ * 母版不见了就跳过那一张（清单是上一趟 media 出的，源可能刚被挪走）；sharp 真出错则直接抛：
+ * 出图坏了宁可中止构建，也不发一批对不上清单的产物。
+ */
+async function emitDerivedImages(root: string, outDir: string): Promise<void> {
+  const { MANIFEST_REL, renderVariant } = await import('./scripts/srcset.ts')
+  const manifestPath = path.resolve(root, MANIFEST_REL)
+  if (!existsSync(manifestPath)) return
+  const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as ImageManifest
+  for (const img of Object.values(manifest)) {
+    const absMaster = path.resolve(root, 'source', img.src.replace(/^\//, ''))
+    if (!existsSync(absMaster)) continue
+    for (const v of img.variants) {
+      const absOut = path.resolve(root, outDir, v.src.replace(/^\//, ''))
+      mkdirSync(path.dirname(absOut), { recursive: true })
+      writeFileSync(absOut, await renderVariant(absMaster, v.w))
+    }
+  }
+}
+
+/**
  * source/ 直供与直写（2026-09-16：public/ 暂存层取消，改由「源即输入」两段拼成）。
  *
- *   `source/site/**`   → `/**`           站点根静态件（favicon / apple-touch-icon / hero-base / mist / noise；
- *                                          手工件如简历 PDF 也放这里，URL 即 /resume/x.pdf）
+ *   `source/site/**`   → `/**`           站点根静态件（favicon / apple-touch-icon / hero-base / mist / noise
+ *                                          六件是 `npm run assets` 的产物、**不入仓**；手工件如简历 PDF 才入库，
+ *                                          放这里 URL 即 /resume/x.pdf）
  *                                          —— 这一段走 **Vite 原生 publicDir**（见下方 `publicDir: 'source/site'`）：
  *                                             dev 直接供、build 直接拷进 `dist/`，且 CSS 里的 `url(/noise.webp)` 被视为公共资源不再报警。
  *   `source/images/**` → `/images/**`      ┐ URL 与源目录不同名，publicDir 表达不了，由本插件搬运
@@ -142,7 +188,16 @@ function staticFromSource(): Plugin {
         const base = path.resolve(root, 'source', hit.from)
         const abs = path.resolve(base, ...rel.split('/'))
         if (abs !== base && !abs.startsWith(base + path.sep)) return next()
-        if (!existsSync(abs) || !statSync(abs).isFile()) return next()
+        if (!existsSync(abs) || !statSync(abs).isFile()) {
+          // 封面多档：变体不落 source/，dev 按需现出（见 scripts/srcset.ts）
+          const w = hit.from === 'images' ? variantWidthOf(pathname) : null
+          if (w === null) return next()
+          serveDerivedImage(res, path.resolve(base, ...masterUrlOf(rel).split('/')), w).then(
+            (sent) => { if (!sent) next() },
+            () => { if (!res.headersSent) { res.statusCode = 404; res.end() } },
+          )
+          return
+        }
         const size = statSync(abs).size
         res.setHeader('Content-Type', MIME[path.extname(abs).toLowerCase()] ?? 'application/octet-stream')
         res.setHeader('Cache-Control', 'no-cache')
@@ -165,7 +220,7 @@ function staticFromSource(): Plugin {
       })
     },
     // 静默搬运：成功即无声——cpSync 失败会直接抛错中止构建，不需要一行「直写 N 个文件」报平安。
-    closeBundle() {
+    async closeBundle() {
       if (isSsr) return
       for (const m of MIRRORS) {
         const from = path.resolve(root, 'source', m.from)
@@ -175,6 +230,8 @@ function staticFromSource(): Plugin {
           filter: (src) => !/\.md$/i.test(src),
         })
       }
+      // 母版先落地、变体再补齐——两批文件同处 /images/，故必须在上面那趟 cpSync 之后
+      await emitDerivedImages(root, outDir)
     },
   }
 }

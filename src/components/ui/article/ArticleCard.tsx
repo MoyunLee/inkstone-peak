@@ -1,6 +1,7 @@
 import type { CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
 import type { ArticleEntry } from '../../../lib/types/content'
+import RespImg from '../RespImg'
 import Seal from '../Seal'
 
 /** 占位色块轮换数：须与 arc.css 的 .cover-ph[data-tone='0..4'] 五档一致（改色只改 CSS）。 */
@@ -17,22 +18,26 @@ export const COVER_TONES = 5
  * 无封面时走 .cover-ph 色块占位（皮肤在 arc.css，五档 tone 由调用方按下标轮换）。
  *
  * @param entry 文章事实（作品 / 博文同一契约）。
+ * @param sizes 封面容器几何口径（CARD_SIZES_2 / CARD_SIZES_3）——卡片几何归容器，故由网格组件给。
  * @param index 列表序号 → 挂成 --i，供列表页进场级联的阶梯延迟；首页各段不挂该 CSS，故无副作用。
  * @param tone 无封面时的色块档位（0..COVER_TONES-1）。
  * @param tagsMax 标签上限；0 或省略 = 不限。
  * @param workTag 作品的中文标签（唯一家 = site.yml blog.work_tag）；只在归档网格里传。
  * @example
- * <ArticleCard entry={w} index={i} tone={i % COVER_TONES} />
- * <ArticleCard entry={a} tagsMax={cfg?.tags_max} workTag={workTag} />
+ * <ArticleCard entry={w} sizes={CARD_SIZES_2} index={i} tone={i % COVER_TONES} />
+ * <ArticleCard entry={a} sizes={CARD_SIZES_3} tagsMax={cfg?.tags_max} workTag={workTag} />
  */
 export default function ArticleCard({
   entry,
+  sizes,
   tone = 0,
   tagsMax = 0,
   workTag = '',
   index,
 }: {
   entry: ArticleEntry
+  /** 封面容器几何口径（CARD_SIZES_2 / CARD_SIZES_3）——卡片几何归容器，故由网格组件给。 */
+  sizes: string
   /** 列表内的序号 → 挂成 --i，供「列表页进场级联」的阶梯延迟（首页各段不挂该 CSS，故无副作用）。 */
   index?: number
   /** 无封面时的色块档位（0..4）；由调用方按序轮换。 */
@@ -54,7 +59,7 @@ export default function ArticleCard({
       {entry.cover ? (
         <span className="card-cover">
           {/* 封面是装饰（卡的链接名由标题文字给），故 alt 留空，免读屏重复念一遍 */}
-          <img src={entry.cover} alt="" loading="lazy" decoding="async" />
+          <RespImg src={entry.cover} sizes={sizes} />
         </span>
       ) : (
         <span className="card-cover cover-ph" data-tone={String(tone)} aria-hidden="true">

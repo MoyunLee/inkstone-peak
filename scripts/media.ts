@@ -1,11 +1,16 @@
 // source/ 媒体交付闸（2026-09-16 免暂存改造）：图片/视频不再经 public/ 镜像——
-// dev 由 vite.config.ts 的 staticFromSource 直供 source/、build 由它直接写进 dist；本步只做闸 + 落报告，不碰文件。
+// dev 由 vite.config.ts 的 staticFromSource 直供 source/、build 由它直接写进 dist；本步只做闸 + 落报告，不碰 source/ 里的文件。
 // 闸：单文件 ≤25MiB（托管单文件上限，保守取值）· 视频编码须浏览器安全 · mp4 须 faststart（moov 在 mdat 前）。
+// 落两份报告（都不进发布产物）：
+//   ① .content/media-report.json —— 闸的明细，素材质量提醒由 npm run checklist 播报；
+//   ② .content/images.json       —— 封面多档清单（2026-09-26 加）：档位口径与出图见 scripts/srcset.ts，
+//      变体文件由 vite 插件发（build 写进 dist/、dev 按需现出），故本步只出清单、不出图。
 import { existsSync, readFileSync, readdirSync, statSync, mkdirSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { info } from './quiet.ts'
+import { MANIFEST_REL, planImages } from './srcset.ts'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const SOURCE = path.join(ROOT, 'source')
@@ -89,7 +94,7 @@ function inspectMp4(buf: Buffer): { codec: string | null; faststart: boolean | n
   return { codec, faststart }
 }
 
-function main(): void {
+async function main(): Promise<void> {
   if (!existsSync(SOURCE)) {
     info('No source/ dir, skipped')
     return
@@ -144,6 +149,14 @@ function main(): void {
     }
   }
 
+  // 封面多档清单（2026-09-26）：本步顺手出这一份——它已经在走 source/images，不另开一步。
+  // 变体文件不在这里出：build 由 vite 插件写进 dist/、dev 由它按需现出（见 vite.config.ts 的 staticFromSource）。
+  const { manifest, unreadable } = await planImages(path.join(SOURCE, 'images'))
+  const manifestAbs = path.join(ROOT, MANIFEST_REL)
+  mkdirSync(path.dirname(manifestAbs), { recursive: true })
+  writeFileSync(manifestAbs, JSON.stringify(manifest, null, 2) + '\n', 'utf8')
+  for (const rel of unreadable) warnings.push(`source/images/${rel}：读不出宽高（不是有效栅格图？）→ 封面多档跳过它`)
+
   // 报告落盘 .content/（不进发布产物）
   mkdirSync(path.dirname(REPORT), { recursive: true })
   writeFileSync(REPORT, JSON.stringify({ generatedAt: new Date().toISOString(), urls: seen, warnings, errors }, null, 2) + '\n', 'utf8')
@@ -161,4 +174,4 @@ function main(): void {
   if (warnings.length > 0) console.log(`⚠ ${warnings.length} 条素材提醒见 npm run checklist`)
 }
 
-main()
+await main()

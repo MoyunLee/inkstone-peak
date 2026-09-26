@@ -17,4 +17,13 @@ dist/
 .ssr/
 
 # source/ 是母版唯一家（仓库只存这一份）：图片/视频由 vite 插件（vite.config.ts staticFromSource）
-# dev 直供、build 直接写进 dist，不再经 public/ 暂存。手工静态件（简历 PDF 等）直放 source/site/。
+# dev 直供、build 直接写进 dist，不再经 public/ 暂存。
+# 例外：source/site/ 里的这六件是 `npm run assets` 的**构建产物**，不入仓——
+# 配方 = scripts/assets.ts + site.yml 的 footer.seal_text + tokens.css 的令牌；改配置后重跑 assets 即可，
+# 仓库里没有副本可过期（dev 与 build 都会自动跑 assets）。手工静态件（简历 PDF 等）仍放这里并入库。
+source/site/noise.webp
+source/site/hero-base.png
+source/site/mist-a.png
+source/site/mist-b.png
+source/site/favicon.svg
+source/site/apple-touch-icon.png

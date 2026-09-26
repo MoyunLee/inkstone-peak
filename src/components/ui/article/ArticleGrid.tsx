@@ -1,4 +1,5 @@
 import { compareArticles } from '../../../lib/data/content'
+import { CARD_SIZES_3 } from '../../../lib/data/images'
 import type { ArticleEntry } from '../../../lib/types/content'
 import type { BlogCfg } from '../../../lib/types/site'
 import ArticleCard, { COVER_TONES } from './ArticleCard'
@@ -36,6 +37,7 @@ export default function ArticleGrid({
           <li key={entry.slug}>
             <ArticleCard
               entry={entry}
+              sizes={CARD_SIZES_3}
               index={Math.min(i, 12)}
               tone={i % COVER_TONES}
               tagsMax={cfg?.tags_max}

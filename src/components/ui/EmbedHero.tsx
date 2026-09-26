@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { EMBED_ATTRS, EMBED_ATTRS_HERO } from '../../lib/data/embed'
+import { HERO_SIZES } from '../../lib/data/images'
+import RespImg from './RespImg'
 
 /** 桌面端播放器多久没 load 就当放不出来，退回海报 + 说明里的出口（毫秒）。 */
 const GIVE_UP_MS = 15000
@@ -67,7 +69,7 @@ export default function EmbedHero({
 
   const poster = (
     <div className="em">
-      {cover ? <img className="em-cover" src={cover} alt="" decoding="async" /> : <span className="em-cover" aria-hidden="true" />}
+      {cover ? <RespImg className="em-cover" src={cover} sizes={HERO_SIZES} eager={hero} /> : <span className="em-cover" aria-hidden="true" />}
       {touch ? (
         <a className="em-play" href={out} target="_blank" rel="noopener noreferrer">
           <span className="em-orb"><span className="em-tri" aria-hidden="true" /></span>

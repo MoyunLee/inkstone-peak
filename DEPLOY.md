@@ -92,7 +92,7 @@ npm run checklist # 上线检查表：🔴 必须为 0
 
 - [ ] 手机**关 Wi-Fi 用流量**访问 Vercel 地址：首屏粒子山、滚动不掉帧（中端手机 60fps 口径）。
 - [ ] **逐个路由直访**：页面标题/描述正确、无控制台报错（★OG 卡片已于 2026-09-11 移除，微信/QQ 分享不再出卡片）。
-- [ ] `npm run checklist` 的 🟢 开关处理：`contact.bilibili` 补真地址或维持「筹建中」。
+- [x] ~~`npm run checklist` 的 🟢 开关处理：`contact.bilibili` 补真地址或维持「筹建中」~~ → **2026-09-26 已完成**：`contact.bilibili` 填真地址（`https://space.bilibili.com/1800744550`），页脚「联系」栏出「B 站 · 雨夜鱼龙舞yo」，🟢 归零。
 - [ ] 🟡 占位替换（不阻塞投递，素材来一张换一张）：案例封面 → `source/images/<slug>/cover.webp`（列表卡与案例页共用）。
 - [ ] 想挂简历 / 资料 PDF：文件放进 `site/source/site/`（如 `source/site/resume/du-kang.pdf`），再在 `site.yml` 的 `footer.columns` 加一栏，例：`{ id: files, title: 资料, links: [ { label: 简历, to: /resume/du-kang.pdf } ] }`——没有专门的简历字段，构建期会校文件是否落盘。
 - [ ] 换完任何素材：`npm run build` → 重新部署（push 即自动部署）。

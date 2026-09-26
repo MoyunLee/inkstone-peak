@@ -34,6 +34,14 @@
 .prose li {
   color: var(--ink-2);
 }
+/* 表格：min-content 必超正文栏（390px 视口实测：表 421 / 栏 288，且整页被撑到 464）——
+   套壳横向滚动，让表格自己滚，而不是把整页撑出版心（手机上还会连带整页被 shrink-to-fit 缩小）。
+   overscroll-behavior 挡住「横滑表格误触浏览器后退」；margin 对齐 .prose img 的 1.5em。 */
+.tbl-wrap {
+  overflow-x: auto;
+  margin: 1.5em 0;
+  overscroll-behavior-x: contain;
+}
 .prose table {
   border-collapse: collapse;
 }

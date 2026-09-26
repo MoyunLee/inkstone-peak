@@ -1,5 +1,6 @@
 import { useRef } from 'react'
 import type { WorkArticle } from '../../../lib/types/content'
+import { CARD_SIZES_2 } from '../../../lib/data/images'
 import { useMasonry } from '../../../lib/hooks/useMasonry'
 import ArticleCard, { COVER_TONES } from './ArticleCard'
 
@@ -20,7 +21,7 @@ export default function CaseGrid({ items, page = false }: { items: WorkArticle[]
   return (
     <div className={page ? 'portfolio portfolio-page' : 'portfolio'} ref={ref}>
       {items.map((w, i) => (
-        <ArticleCard key={w.slug} entry={w} index={Math.min(i, 12)} tone={i % COVER_TONES} />
+        <ArticleCard key={w.slug} entry={w} sizes={CARD_SIZES_2} index={Math.min(i, 12)} tone={i % COVER_TONES} />
       ))}
     </div>
   )

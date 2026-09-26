@@ -7,7 +7,7 @@
     "node": ">=23.6"
   },
   "scripts": {
-    "dev": "npm run media && vite",
+    "dev": "npm run media && npm run assets && vite",
     "preview": "vite preview --host 127.0.0.1",
     "build": "npm run content && npm run media && npm run assets && npm run gate && tsc --noEmit && vite build && npm run ssr && npm run prerender && npm run feeds",
     "build:quiet": "node scripts/build-quiet.ts",

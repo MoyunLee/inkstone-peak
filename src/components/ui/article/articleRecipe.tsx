@@ -8,7 +8,9 @@
 import type { ReactNode } from 'react'
 import EmbedHero from '../EmbedHero'
 import type { ArticleEntry, PortfolioEmbed, WorkArticle } from '../../../lib/types/content'
+import { HERO_SIZES } from '../../../lib/data/images'
 import type { SiteData } from '../../../lib/types/site'
+import RespImg from '../RespImg'
 import PostCopyright from '../blog/PostCopyright'
 import VideoHero from '../VideoHero'
 import type { AsideRow } from './ArticleAside'
@@ -213,7 +215,7 @@ export function articleHero(entry: ArticleEntry, site: SiteData): ReactNode {
   return (
     <figure className="bd-hero">
       {/* 顶图是装饰（标题已经给了名字），alt 留空免读屏重复念一遍 */}
-      <img src={entry.top_img} alt="" decoding="async" />
+      <RespImg src={entry.top_img} sizes={HERO_SIZES} eager />
     </figure>
   )
 }

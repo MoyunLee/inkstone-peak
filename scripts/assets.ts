@@ -1,14 +1,18 @@
 // 构建期素材：用 sharp 确定性生成 noise.webp / hero-base.png / mist-a|b.png / favicon.svg / apple-touch-icon.png。
 // 产物落 source/site/（站点根静态件的唯一家）：dev 由 vite 插件直供、build 直写 dist/——不再有 public/ 暂存层。
+// ⚠ 六件都是**构建产物，不入仓**（配方 = 本文件 + site.yml 的印文 + tokens.css 的令牌）：改配置后重跑本步即可，
+//   仓库里没有副本可过期。手工静态件（简历 PDF 等）才是 source/site/ 的入仓内容。见 .gitignore。
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import sharp from 'sharp'
+import yaml from 'js-yaml'
 import { sampleScene, fadeAt, OFF_W, OFF_H } from '../src/fx/scene-data.ts'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const P = (...segs: string[]): string => path.join(ROOT, ...segs)
+const SITE_YML = P('site.yml')
 
 // ① 生宣 noise（mulberry32 确定性伪随机）
 async function noiseWebp(): Promise<void> {
@@ -47,13 +51,15 @@ async function main(): Promise<void> {
 //    印文取 site.yml 的 footer.seal_text，色与字族取 tokens.css 的 --seal / --paper / --font-kai——
 //    与页面上的 Seal.tsx 同源：改印文或改印朱色，标签页图标自动跟上，不再各写各的。
 //    ★PNG 刻意不出字：SVG 里的 <text> 由**客户端**字体渲染（favicon 本就随机器走），
-//      而 PNG 是**提交进仓库的产物**，字体会随生成机器变（CI 上可能缺字变豆腐）→ PNG 只用几何底，跨机确定。
+//      而 PNG 要走 sharp 光栅化——带字就得靠本机字体，缺字变豆腐、字面也随机器变。
+//      只画几何底 ⇒ 产物逐字节确定，任何机器重跑都不产生假 diff。
 async function brandMarks(): Promise<void> {
-  if (!existsSync(P('.content', 'site.json'))) {
-    console.error('✗ 缺 .content/site.json——先跑 `npm run content`（印文来自 site.yml 的 footer.seal_text）')
+  // 读 site.yml 母版本身（早先读 .content/site.json，于是 dev 必须先跑 content；2026-09-26 改正源）
+  if (!existsSync(SITE_YML)) {
+    console.error('✗ 缺 site.yml——印文取它的 footer.seal_text')
     process.exit(1)
   }
-  const site = JSON.parse(readFileSync(P('.content', 'site.json'), 'utf8')) as { footer?: { seal_text?: string } }
+  const site = yaml.load(readFileSync(SITE_YML, 'utf8')) as { footer?: { seal_text?: string } }
   const tokens = readFileSync(P('src', 'styles', 'tokens.css'), 'utf8')
   const token = (name: string, fallback: string): string => {
     const m = new RegExp(`--${name}\\s*:\\s*([^;]+);`).exec(tokens)

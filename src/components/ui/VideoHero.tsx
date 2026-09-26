@@ -1,5 +1,7 @@
 import { useRef, useState } from 'react'
 import type { ReactNode } from 'react'
+import { HERO_SIZES } from '../../lib/data/images'
+import RespImg from './RespImg'
 
 /**
  * 视频位：放不出来就换成封面图 + 两个出口（**不再悄悄换成一张静态图**）。
@@ -59,7 +61,7 @@ export default function VideoHero({
     if (!still) return <>{fallback ?? null}</>
     return (
       <div className="vh">
-        <img className="vh-cover" src={still} alt={title} decoding="async" />
+        <RespImg className="vh-cover" src={still} sizes={HERO_SIZES} alt={title} eager />
         {src ? (
           <div className="vh-acts">
             <button

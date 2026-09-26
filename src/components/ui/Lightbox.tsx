@@ -135,7 +135,9 @@ export default function Lightbox() {
       if (!img) return
       e.preventDefault()
       openerRef.current = document.activeElement
-      setShot({ src: img.currentSrc || img.src, alt: img.alt || '' })
+      // 放大层要最大那一档：有 srcset 的图由 RespImg 把母版地址记在 data-full——
+      // currentSrc 给的是浏览器实际选中的小档，拿它放大等于「越点越糊」。
+      setShot({ src: img.dataset.full || img.currentSrc || img.src, alt: img.alt || '' })
     }
     document.addEventListener('click', onClick)
     return () => document.removeEventListener('click', onClick)

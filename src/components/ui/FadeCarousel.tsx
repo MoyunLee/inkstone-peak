@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useMotionSafe } from '../../lib/hooks/useMotionSafe'
+import { HERO_SIZES } from '../../lib/data/images'
+import RespImg from './RespImg'
 
 export interface CarouselItem {
   key: string
@@ -68,7 +70,7 @@ export default function FadeCarousel({
             tabIndex={i === idx ? 0 : -1}
             aria-label={it.title}
           >
-            {it.cover ? <img className="fc-img" src={it.cover} alt="" decoding="async" /> : null}
+            {it.cover ? <RespImg className="fc-img" src={it.cover} sizes={HERO_SIZES} eager /> : null}
           </Link>
         ))}
       </div>

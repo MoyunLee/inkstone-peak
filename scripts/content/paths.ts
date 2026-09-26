@@ -103,6 +103,14 @@ RENDER.renderer.rules.body_embed = (tokens, idx) => {
   return '<div class="embeds"><ul><li>' + embedIframeHtml(meta.url ?? '', meta.label ?? '') + '</li></ul></div>'
 }
 
+// ── 表格：构建期套一层横向滚动壳（.tbl-wrap） ──
+//   表格的 min-content 宽度天然超过正文栏（390px 视口实测：表 421px / 栏 288px）。不套壳时表格直接撑破版心、
+//   整页横向溢出；手机端还会触发 shrink-to-fit，把**整页连正文一起**缩小（实测 innerW 465 / 可视宽 390）。
+//   正文是直出 HTML（PostBody 的 dangerouslySetInnerHTML），运行层补不上这一层，只能在这里加。
+//   壳是纯容器，宽度随内容 —— 窄表照旧窄，不会被拉满。
+RENDER.renderer.rules.table_open = () => '<div class="tbl-wrap"><table>\n'
+RENDER.renderer.rules.table_close = () => '</table></div>\n'
+
 /** 渲染正文并回带标题清单（博客详情 TOC 的唯一事实源）与嵌入诊断。 */
 export function renderBody(src: string): { html: string; headings: Heading[]; problems: string[] } {
   const env: RenderEnv = { headings: [], problems: [] }
