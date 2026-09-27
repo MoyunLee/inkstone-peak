@@ -134,35 +134,45 @@ export const siteSchema = z.object({
     title_skill: z.string().optional(),
     label_career: z.string().optional(),
     title_career: z.string().optional(),
-    label_stats: z.string().optional(),
-    title_stats: z.string().optional(),
     label_place: z.string().optional(),
     title_place: z.string().optional(),
     place_note: z.string().optional(),
     place_avail: z.string().optional(),
     place_coord: z.string().optional(),
-    hours_unit: z.string().optional(),
     //  事实层（2026-09-16 由 content/about/about.md 整份并入）──
     timeline: z.array(z.object({ period: z.string().min(1), text: z.string().min(1) }).strict()).min(1).optional(),
-    gameLog: z.array(z.object({ game: z.string(), hours: z.number().int().nonnegative(), insight: z.string().optional() }).strict()).min(1).optional(),
+
     location: z.string().min(1).optional(),
     // /about 声明的锚点段（整键可省）：给了就必须含 about + footer（构建期硬校验）
     anchors: z.array(z.string()).optional(),
-    // 技能卡四组（唯一事实源）
-    skill_groups: z
+    // 技能卡「开启创造力」等级体系（唯一事实源，2026-09-27 立）：max=本档经验值上限，档位号=下标+1
+    skill_levels: z
+      .array(z.object({ name: z.string().min(1), max: z.number().int().positive() }).strict())
+      .min(1)
+      .superRefine((ls, ctx) => {
+        const seen = new Set<string>()
+        let prev = 0
+        for (const [i, l] of ls.entries()) {
+          if (seen.has(l.name)) ctx.addIssue({ code: 'custom', path: [i, 'name'], message: `等级名「${l.name}」重复（卡面按档位号取等级名，重名即两档同词）` })
+          seen.add(l.name)
+          if (l.max <= prev) ctx.addIssue({ code: 'custom', path: [i, 'max'], message: `max 必须严格递增（前一档 ${prev} → 本档 ${l.max}）：档位靠上界切分，等值或回退会让某档永远取不到` })
+          prev = l.max
+        }
+      })
+      .optional(),
+    // 技能卡平铺技能表（唯一事实源）；level 与 exp 是否同档是跨键规则，在 build.ts 校验（需读 skill_levels）
+    skills: z
       .array(z.object({
-        id: z.string().min(1),
-        title: z.string().min(1),
-        desc: z.string().min(1),
-        tier: z.string().min(1),
-        tools: z.array(z.string()).min(1),
+        name: z.string().min(1),
+        level: z.number().int().min(1),
+        exp: z.number().int().min(0),
       }).strict())
       .min(1)
-      .superRefine((gs, ctx) => {
+      .superRefine((ss, ctx) => {
         const seen = new Set<string>()
-        for (const g of gs) {
-          if (seen.has(g.id)) ctx.addIssue({ code: 'custom', path: [], message: `组 id「${g.id}」重复（React key 依赖唯一）` })
-          seen.add(g.id)
+        for (const [i, s] of ss.entries()) {
+          if (seen.has(s.name)) ctx.addIssue({ code: 'custom', path: [i, 'name'], message: `技能名「${s.name}」重复（平铺表以 name 作 React key，重名即两条同键）` })
+          seen.add(s.name)
         }
       })
       .optional(),

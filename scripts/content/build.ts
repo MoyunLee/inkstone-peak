@@ -164,6 +164,28 @@ export function build(report = true): boolean {
     for (const need of ['about', 'footer']) {
       if (s.about.anchors && !s.about.anchors.includes(need)) issue('site.yml', 'about.anchors', `声明了 anchors 就必须同时含 about 与 footer 双锚点（构建期硬校验），缺「${need}」`)
     }
+    // 技能等级 ↔ 经验值同档（2026-09-27）：档位由 skill_levels 的上界切分，而 level 与 exp 是两处各写 →
+    // 必然可能漂移（改了 exp 忘了改 level，卡面就会「Lv.2 却跑 700 经验」）。构建期钉死，报错直接给可落地的区间。
+    const levels = s.about.skill_levels ?? []
+    const list = s.about.skills ?? []
+    if (levels.length === 0) {
+      if (list.length > 0) issue('site.yml', 'about.skill_levels', '写了 about.skills 却没有 about.skill_levels：卡面没有等级名与档位区间可依（等级体系是技能卡的一部分）')
+    } else {
+      const expMax = levels[levels.length - 1]?.max ?? 0
+      for (const [si, sk] of list.entries()) {
+        const where = `about.skills.${si}`
+        if (sk.level > levels.length) {
+          issue('site.yml', where, `「${sk.name}」level=${sk.level} 超出 skill_levels 的 ${levels.length} 档（档位号 = 数组下标 + 1）`)
+          continue
+        }
+        if (sk.exp > expMax) issue('site.yml', where, `「${sk.name}」exp=${sk.exp} 超出满分 ${expMax}（= skill_levels 末档 max）；经验值 1000 封顶`)
+        const lower = (sk.level === 1 ? 0 : (levels[sk.level - 2]?.max ?? 0)) + 1
+        const upper = levels[sk.level - 1]?.max ?? 0
+        if (sk.exp < lower || sk.exp > upper) {
+          issue('site.yml', where, `「${sk.name}」level=${sk.level}（${levels[sk.level - 1]?.name ?? ''}）与 exp=${sk.exp} 不同档：该档区间是 ${lower}-${upper}（改 exp 或改 level，只能对一处）`)
+        }
+      }
+    }
     const impl = sectionImplIds()
     for (const [i, sec] of s.home.sections.entries()) {
       if (!impl.includes(sec.id)) issue('site.yml', `home.sections.${i}.id`, `「${sec.id}」在 src/site/sections.ts 无组件实现（幽灵项=构建失败，校验③）`)

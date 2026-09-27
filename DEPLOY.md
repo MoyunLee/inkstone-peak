@@ -110,7 +110,7 @@ npm run checklist # 上线检查表：🔴 必须为 0
 | 文章 | 作品 `source/posts/portfolio/<slug>.md` ｜ 博文 `source/posts/blog/<slug>.md`（还能继续嵌套任意层） | 作品 `/portfolio/<slug>` ｜ 博文 `/blog/<slug>` | scripts/content/ **递归读取** |
 | 图片 | `source/images/<slug>/x.webp` | `/images/<slug>/x.webp` | vite 插件 `staticFromSource`（dev 直供 / build 直写 dist） |
 | 视频 | `source/video/x.mp4` | `/media/video/x.mp4` | 同上 |
-| 关于页话术 + 事实（生涯/游戏阅历/坐标/锚点） | `site.yml` `about:` | `/about` | scripts/content/ 读取 |
+| 关于页话术 + 事实（生涯/坐标/技能/锚点） | `site.yml` `about:` | `/about` | scripts/content/ 读取 |
 | 话术/导航/页脚 | `site.yml` | 全站 | scripts/content/ 读取 |
 | 简历 / 资料 PDF | `source/site/resume/x.pdf` | `/resume/x.pdf` | vite 直出（由 `site.yml` 页脚链接指向）⚠ 见下 |
 

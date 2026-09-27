@@ -210,39 +210,47 @@ about:
   title_skill: 开启创造力
   label_career: 生涯
   title_career: 无限进步
-  label_stats: 数据
-  title_stats: 游戏阅历与拆解
   label_place: 坐标
   title_place: 我现在住在
   place_note: 现居 {city}                    # {city} 运行时替换为 about.location
   # place_avail: 接受穗 / 深 / 沪 / 京远程或实地实习   # 单起一行：与上行同句时窄卡会把「实习」二字挤到下一行
   # place_coord: 28.23°N / 112.94°E  # 长沙坐标，纯装饰（卡片右下角定位感）；删键即不出
-  hours_unit: h
+  
   # —— 事实层（2026-09-16 由 content/about/about.md 整份并入；唯一事实源）——
   # 生涯卡时间轴：period=左侧时段、text=右侧事件；数组顺序即从上到下；整块可省（删=生涯卡不出）。
   timeline:
     - { period: "2024 - 2027", text: 动漫制作技术专业（在读） }
     # - { period: "2025", text: 独立跑通三维角色管线 }
     # - { period: "2026", text: 执导 12 集 AI 短剧 }
-  # 数据卡「游戏阅历与拆解」：hours=小时数、insight=该游戏的收获解析（缺省=该条不出解析行）；整块可省。
-  gameLog:
-    - { game: 我的世界（MC）, hours: 1000, insight: 体素逻辑与程序化生成思维 }
-    - { game: 三角洲行动, hours: 876, insight: FPS 资产规范与性能优化 }
-    - { game: 王者荣耀, hours: 645, insight: MOBA 特效与动效拆解 }
-    - { game: 金铲铲之战, hours: 216 }
-    - { game: 绝区零, hours: 152 }
-    - { game: 缺氧, hours: 133 }
   # 现居城市：填 place_note 的 {city}；与「求职目标城市」是两件事（后者原住 footer.brand_bio，2026-09-23 随简介删）。
   location: 中国，河源市
   # /about 声明的锚点段（可整键删；给了须含 about + footer）：内链 /about#碎片 校验的事实源（构建期硬校验）。
   anchors: [about, footer]
-  # 技能卡「开启创造力」四组（**唯一事实源**：直接改本表即可）。
-  #   id=图标键（组件内映射 lucide 图标）；tier=墨档英文码，挂 data-tier 上色（浓墨/淡墨/清墨/飞白）
-  skill_groups:
-    - { id: brush,    title: 笔 · 建模雕刻,   desc: 独立跑通建模→UV→材质灯光→渲染出图闭环,        tier: mastered, tools: [3ds Max, ZBrush, C4D 动画] }
-    - { id: ink,      title: 墨 · 后期动效,   desc: 漫画分层、木偶绑定与剪辑合成，静态漫画做成动态叙事, tier: skilled,  tools: [PS, AE 木偶绑定, PR 剪辑] }
-    - { id: paper,    title: 纸 · AIGC 管线,  desc: 提示词迭代到图生视频，IP 管线无带教独立跑通,      tier: basic,    tools: [提示词工程, 即梦, 混元3D] }
-    - { id: inkstone, title: 砚 · 引擎与编程, desc: 引擎内演示验证，补脚本与编程基础,              tier: drybrush, tools: [Substance PBR, UE5, C 语言] }
+  # 技能卡「开启创造力」等级体系（**唯一事实源**，2026-09-27 立）。
+  #   max=本档经验值上限（累计口径），档位号 = 数组下标 + 1 → 卡面出 Lv.N；经验满分 = 末档 max（1000）。
+  #   等级名一律住这里：组件内零中文字面量（中文闸），加档只在本表尾部追加。
+  skill_levels:
+    - { name: 了解, max: 200 }
+    - { name: 熟悉, max: 400 }
+    - { name: 掌握, max: 600 }
+    - { name: 熟练, max: 800 }
+    - { name: 精通, max: 1000 }
+  # 技能卡「开启创造力」平铺技能表（**唯一事实源**：直接改本表即可；2026-09-27 由扁平胶囊 tools 改为 XP 条 skills）。
+  #   本轮用户令：分类组名（笔 · 建模雕刻 等）整体删除、技能名统一为软件名 → 四组结构拍平成本列表，数组顺序即渲染顺序。
+  #   level 须与 exp 同档（构建期硬校验，防等级/经验各说各话）；exp=作者自评 0-1000（1000 封顶），改数字即改卡面进度条与数字滚动终点。
+  skills:
+    - { name: 3dsmax, level: 4, exp: 760 }
+    - { name: ZBrush, level: 3, exp: 570 }
+    - { name: Cinema 4D, level: 3, exp: 520 }
+    - { name: After Effects, level: 4, exp: 700 }
+    - { name: Photoshop, level: 4, exp: 640 }
+    - { name: Premiere Pro, level: 3, exp: 560 }
+    - { name: 提示词工程, level: 3, exp: 540 }
+    - { name: 即梦, level: 2, exp: 380 }
+    - { name: 混元 3D, level: 2, exp: 300 }
+    - { name: Substance 3D Painter, level: 3, exp: 470 }
+    - { name: Unreal Engine, level: 2, exp: 340 }
+    - { name: C 语言, level: 1, exp: 180 }
 
 # --------------------------------------
 # Footer（页脚：联系方式 + 三栏）

@@ -83,28 +83,20 @@ export interface AboutCfg {
   title_skill?: string
   label_career?: string
   title_career?: string
-  label_stats?: string
-  title_stats?: string
   label_place?: string
   title_place?: string
   place_note?: string
   place_avail?: string
   place_coord?: string
-  hours_unit?: string
   /** 事实层（2026-09-16 由 content/about 并入）：生涯卡时间轴；缺省即隐藏。 */
   timeline?: { period: string; text: string }[]
-  /** 事实层：游戏阅历（数据卡 2×3）；缺省即隐藏。 */
-  gameLog?: { game: string; hours: number; insight?: string }[]
+
   /** 事实层：现居城市，填 place_note 的 {city}。 */
   location?: string
-  /** 技能卡四组；唯一事实源 = site.yml about.skill_groups（缺省即隐藏）。 */
-  skill_groups?: {
-    id: string
-    title: string
-    desc: string
-    tier: string
-    tools: string[]
-  }[]
+  /** 技能等级体系；唯一事实源 = site.yml about.skill_levels（缺省即隐藏）。max=本档经验值上界，档位号=数组下标+1。 */
+  skill_levels?: { name: string; max: number }[]
+  /** 技能卡平铺技能表；唯一事实源 = site.yml about.skills（缺省即隐藏，数组顺序即渲染顺序）。skills[].level 与 exp 同档由构建期硬校验保证。 */
+  skills?: { name: string; level: number; exp: number }[]
 }
 
 /** a11y 话术键全集：必须与 scripts/content/schemas/site.ts 的 A11Y_KEYS 对齐。 */

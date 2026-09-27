@@ -154,20 +154,4 @@
     font-size: 26px;
   }
 }
-[data-tier='mastered'] {
-  background: rgba(20, 22, 26, 0.82);
-  color: var(--paper);
-}
-[data-tier='skilled'] {
-  background: rgba(20, 22, 26, 0.55);
-  color: var(--paper);
-}
-[data-tier='basic'] {
-  background: rgba(20, 22, 26, 0.22);
-  color: var(--ink-2);
-}
-[data-tier='drybrush'] {
-  border: 1px dashed var(--ink-3);
-  color: var(--ink-3);
-}
 

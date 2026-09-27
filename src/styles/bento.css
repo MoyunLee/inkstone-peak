@@ -87,7 +87,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  background: rgba(255, 255, 255, 0.5);
+  background: var(--card-wash);
   border: 1px solid rgba(20, 22, 26, 0.09);
   border-radius: 4px;
   padding: clamp(18px, 2.2vw, 26px);
@@ -120,7 +120,7 @@
 }
 .bento-card:hover {
   border-color: color-mix(in srgb, var(--seal) 40%, transparent);
-  background: rgba(255, 255, 255, 0.66);
+  background: var(--card-wash-hover);
   box-shadow: 0 4px 20px rgba(20, 22, 26, 0.04);
 }
 
@@ -192,69 +192,146 @@
 }
 
 /* ---------- 第二行左：技能「开启创造力」 ---------- */
-/* 自适应：网格吃满卡片剩余高度（flex: 1），行按可用高度均分（1fr）——
-   左列被右列撑高时，四组摊开而不是把空白堆在卡底。 */
-.bento-skill-groups {
+/* 2026-09-27 二次定版（用户）：分类名与分类图标删除、技能名统一为软件名、行尾经验数值删除 ——
+   分组在界面上不再存在，整张卡就是一列软件条；数据层同步拍平（site.yml about.skills）。
+   故这里不再有 band 容器，也没有题头图标与数值列的规则。 */
+/* 大面积浅面（2026-09-27 用户令「背景过于突出」）：技能模块是全站最大一块浅色，
+   按全站卡面白洗的 52% 取淡（≈0.26），纸纹与噪点明显透出来，整块不再从页面上浮起来；
+   悬停只提淡档（≈0.38，而非全站卡的 0.66），避免巨幅面积整块闪一下。
+   卡面材料仍单源在 tokens.css，这里只调比例。 */
+.bento-skill {
+  background: color-mix(in srgb, var(--card-wash) 52%, transparent);
+}
+.bento-skill:hover {
+  background: color-mix(in srgb, var(--card-wash-hover) 58%, transparent);
+}
+/* ---------- 技能行：宽屏「名称｜档位签｜条」一行，窄屏退化为两行 ---------- */
+/* 进场位移、悬停上浮、条宽生长一律由 Framer（motion）写 inline style，见 skills/SkillCard.tsx。
+   这里**不留** transform / width 的 transition 与 :hover 位移：inline style 优先级更高，会把它压成死规则。
+   数值不再上行：经验值只由条长表达，读屏口径留在条自身的 aria-valuenow/valuemax 上。 */
+.skill-list {
   list-style: none;
   display: grid;
-  flex: 1 1 auto;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  grid-auto-rows: 1fr;
-  gap: clamp(14px, 1.8vw, 22px);
+  gap: 9px;
   margin: 0;
   padding: 0;
 }
-.bento-skill-group {
-  padding-left: 12px;
-  border-left: 2px solid color-mix(in srgb, var(--ink) 16%, transparent);
+/* 窄屏（<1024px）两行：名称 + 档位签一行，条一行；宽屏一行两列见下方 ≥1024px 媒体查询 */
+.skill-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
 }
-.bento-skill-name {
+.skill-card-head {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0 0 5px;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  min-width: 0;
+}
+.skill-card-name {
+  min-width: 0;
+  /* 2026-09-27 用户定：与卡题同支楷体（原先继承正文宋体）。实测「看着像另一种字体」的真因是
+     名字比全站正文更小更粗，而不是字族不同；改楷体后模块内只剩一种声音。
+     字重必须交回 400：KaiTi 只有一档，600 只会触发浏览器伪粗（边缘发糊）。 */
   font-family: var(--font-kai);
-  font-size: 15.5px;
-  letter-spacing: 0.1em;
+  font-weight: 400;
+  font-size: 14px;
+  letter-spacing: 0.06em;
 }
-.bento-skill-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+/* 等级签：与技能名同支楷体（模块内单一字体声音），悬停时轻微放大并转本档主色（纯装饰反馈） */
+.skill-card-level {
+  display: inline-block;
   flex: none;
-  width: 24px;
-  height: 24px;
-  border-radius: 3px;
-}
-.bento-skill-desc {
-  margin: 0 0 9px;
+  font-family: var(--font-kai);
   color: var(--ink-3);
   font-size: 11.5px;
-  line-height: 1.7;
   letter-spacing: 0.05em;
+  white-space: nowrap;
+  transition: transform var(--t) var(--ease), color var(--t) var(--ease);
 }
-.bento-pills {
-  list-style: none;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 7px;
-  margin: 0;
-  padding: 0;
+.skill-card:hover .skill-card-level {
+  transform: scale(1.06);
+  color: var(--lv, var(--ink-2));
 }
-.bento-pill {
-  background: rgba(20, 22, 26, 0.05);
-  border: 1px solid rgba(20, 22, 26, 0.06);
+.skill-track {
+  position: relative;
+  height: 6px;
   border-radius: 999px;
-  color: var(--ink-2);
-  padding: 4px 12px;
-  font-size: 12px;
-  letter-spacing: 0.05em;
-  transition: all var(--t) var(--ease);
+  background: color-mix(in srgb, var(--ink) 7%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 5%, transparent);
+  transition: box-shadow var(--t) var(--ease);
 }
-.bento-pill:hover {
-  background: var(--seal);
-  border-color: var(--seal);
-  color: var(--paper);
+/* 悬停发光：条槽外扩一圈本档色晕 */
+.skill-card:hover .skill-track {
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--ink) 5%, transparent),
+    0 0 10px color-mix(in srgb, var(--lv, var(--ink-3)) 26%, transparent);
+}
+/* 条身：宽度由 Framer 的 MotionValue 直接写 inline style（从 0 生长到 exp/满分）。
+   底色＝本档墨色（单色墨水阶，一档一色，无渐变）；上面那层是悬停扫过的流光。
+   流光走 background-image、墨色走 background-color，所以扫过时不会盖掉墨色；
+   背景层天然裁在盒内，故不必 overflow: hidden —— 留出这点余地，末端圆点光晕才能探出圆头。 */
+.skill-track-fill {
+  position: relative;
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background-color: var(--lv, var(--ink-3));
+  background-image: linear-gradient(100deg, transparent 35%, var(--sheen) 50%, transparent 65%);
+  background-size: 42% 100%;
+  background-position: -60% 0;
+  background-repeat: no-repeat;
+}
+.skill-card:hover .skill-track-fill {
+  animation: skill-sheen 900ms var(--ease) 1;
+}
+@keyframes skill-sheen {
+  from {
+    background-position: -60% 0;
+  }
+  to {
+    background-position: 160% 0;
+  }
+}
+/* 末端圆点 + 光晕：钉在条身右缘，跟着生长终点走 */
+.skill-track-fill::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 0;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--lv, var(--ink-3));
+  box-shadow: 0 0 7px color-mix(in srgb, var(--lv, var(--ink-3)) 65%, transparent);
+  transform: translate(45%, -50%);
+}
+/* 五档取色（2026-09-27）：一档一色，来自 tokens.css 的单色墨水阶；条身、末端圆点、光晕全取这一色。
+   作用域锁在 .bento-skill 内——data-level 这个属性名热力图也在用（heat.css）。 */
+.bento-skill [data-level='1'] {
+  --lv: var(--lv-1);
+}
+.bento-skill [data-level='2'] {
+  --lv: var(--lv-2);
+}
+.bento-skill [data-level='3'] {
+  --lv: var(--lv-3);
+}
+.bento-skill [data-level='4'] {
+  --lv: var(--lv-4);
+}
+.bento-skill [data-level='5'] {
+  --lv: var(--lv-5);
+}
+/* ≥1024px：一行到底 —— 名称列 260px 封顶（名称与档位签同处此列、签贴列尾），条吃掉剩余宽度。 */
+@media (min-width: 1024px) {
+  .skill-card {
+    grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
+    column-gap: 16px;
+  }
 }
 
 /* ---------- 第二行右：生涯时间轴 ---------- */
@@ -323,61 +400,6 @@
   color: var(--ink-2);
   font-size: 13.5px;
   line-height: 1.7;
-}
-
-/* ---------- 第三行左：数据「游戏阅历与拆解」2×3 网格 ---------- */
-/* 自适应：网格吃满卡片剩余高度（flex: 1），行按可用高度均分（1fr）——
-   单元格等高拉伸，配文行 min-height 已锁等高，故整块随卡伸缩而不破格。 */
-.bento-game-grid {
-  list-style: none;
-  display: grid;
-  flex: 1 1 auto;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  grid-auto-rows: 1fr;
-  gap: clamp(10px, 1.4vw, 16px);
-  margin: 0;
-  padding: 0;
-}
-@media (min-width: 640px) {
-  .bento-game-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-.bento-game {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 3px;
-  padding: 12px 14px;
-  border: 1px solid color-mix(in srgb, var(--ink-4) 60%, transparent);
-  border-radius: 3px;
-  background: color-mix(in srgb, var(--paper) 55%, transparent);
-}
-.bento-game-hours {
-  color: var(--ink);
-  font-family: var(--font-kai);
-  font-size: clamp(23px, 2.5vw, 31px);
-  line-height: 1.05;
-  font-variant-numeric: tabular-nums;
-}
-.bento-game-hours i {
-  margin-left: 2px;
-  color: var(--ink-3);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-style: normal;
-}
-.bento-game-name {
-  color: var(--ink);
-  font-size: 13.5px;
-  letter-spacing: 0.06em;
-}
-.bento-game-insight {
-  min-height: 1.6em;
-  color: var(--ink-3);
-  font-size: 11px;
-  line-height: 1.6;
-  letter-spacing: 0.04em;
 }
 
 /* ---------- 第三行右：坐标（水墨线条城市剪影） ---------- */
@@ -451,9 +473,6 @@
   .about-seal {
     width: 92px;
     height: 92px;
-  }
-  .bento-skill-groups {
-    grid-template-columns: 1fr;
   }
 }
 /* 加载级联与呼吸光晕是纯装饰：reduced-motion 下整体不挂载（只压 animation-duration 管不到 delay，会留空窗）。 */

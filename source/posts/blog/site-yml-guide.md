@@ -1,7 +1,7 @@
 ---
 title: 本站 site.yml 全字段速查：每个键怎么配，什么时候可以删
 date: "2026-09-16"
-updated: "2026-09-26"
+updated: "2026-09-27"
 tags: [写作, 配置, 建站]
 categories: [站务]
 keywords: site.yml,配置,建站,Butterfly,zod,缺省即隐藏,构建期校验
@@ -192,42 +192,47 @@ page_meta:
 | `title_skill` | 技能卡大字题 | 不出 |
 | `label_career` | 生涯卡左上小字 | 不出 |
 | `title_career` | 生涯卡大字题 | 不出 |
-| `label_stats` | 数据卡左上小字 | 不出 |
-| `title_stats` | 数据卡大字题 | 不出 |
 | `label_place` | 坐标卡左上小字 | 不出 |
 | `title_place` | 坐标卡大字题 | 不出 |
 | `place_note` | 坐标卡配文，支持 `{city}` | 该行不出；与 `place_avail` 同时缺则整块 meta 区不出 |
 | `place_avail` | 可实习城市 / 合作方式 | 该行不出 |
 | `place_coord` | 装饰坐标（纯装饰） | 不出 |
-| `hours_unit` | 时长单位后缀（本站 `h`） | 单位后缀不出 |
 
-还有一个**可整块省**的 `skill_groups`（技能卡四组，唯一事实源）：
+技能卡有两张表，唯一事实源都在 `about`：
+
+**① `skills`**——平铺技能表（2026-09-27 由四组 `skill_groups` 拍平；组名与组图标随之退役）。每行三键，**整块可省**：
 
 ```yaml
-skill_groups:
-  - id: brush        # 图标键：brush / ink / paper / inkstone 有内置图标，未知回落默认；组内唯一
-    title: 笔 · 建模雕刻
-    desc: 一句话定位
-    tier: mastered   # 自由英文码；本站约定 mastered/skilled/basic/drybrush → 浓墨/淡墨/清墨/飞白
-    tools: [3ds Max, ZBrush]
+skills:
+  - { name: 3dsmax, level: 4, exp: 760 }      # name=技能名（写软件名；全表唯一）
+  - { name: ZBrush, level: 3, exp: 570 }      # level=档位号 1-N（须与本行 exp 同档）
+  - { name: 提示词工程, level: 3, exp: 540 }  # exp=经验值 0-1000：决定条长，满分=末档 max
 ```
 
-整块删 = 技能卡整张不渲染；**给了就不能给空数组**，组内 `id` 不能重复，`tools` 至少一项。
+整块删 = 技能卡整张不渲染；**给了就不能给空数组**，技能名不能重复；`level` 与 `exp` 不同档**当场报错**（防「Lv.2 却跑 700 经验」）。
+
+**② `skill_levels`**——等级体系（档位名的唯一来源；组件内零中文字面量，加档只在表尾追加）：
+
+```yaml
+skill_levels:
+  - { name: 了解, max: 200 }    # max = 本档经验值上界（累计口径）
+  - { name: 熟悉, max: 400 }    # 档位号 = 数组下标 + 1 → 卡面出 Lv.N
+  - { name: 掌握, max: 600 }
+  - { name: 熟练, max: 800 }
+  - { name: 精通, max: 1000 }   # 经验满分 = 末档 max（1000）
+```
 
 **事实层**（2026-09-16 由 `content/about/about.md` 整份并入；`site/content/` 已删）——三块都**可整块省**，缺省即隐藏：
 
 | 键 | 说明 | 删了会怎样 |
 |---|---|---|
 | `timeline` | 生涯卡节点 `{ period, text }` 数组；**数组顺序即从上到下** | 生涯卡整张不出 |
-| `gameLog` | 数据卡 `{ game, hours, insight? }` 数组（`insight` 缺省 = 该条不出解析行） | 数据卡整张不出 |
 | `location` | 现居城市；填 `place_note` 的 `{city}` | `{city}` 填空，卡片照旧 |
 
 ```yaml
 about:
   timeline:
     - { period: "2024 - 2027", text: 动漫制作技术专业（在读） }
-  gameLog:
-    - { game: 我的世界（MC）, hours: 1000, insight: 体素逻辑与程序化生成思维 }
   location: 中国，长沙市
   anchors: [about, footer]
 ```
@@ -298,8 +303,8 @@ columns:
 | `blog` 整节 | 新在前 / 卡不显示日期 / 标签不限 / 首页预览 6 张 / 不出「作品」标签 |
 | `heatmap` 整节 | 首页造境段与 `/blog` 的热力图整块不出 |
 | `about` 任一文案键 | 对应那一行 / 那一块不出 |
-| `about.skill_groups` | 技能卡整张不出 |
-| `about.timeline` / `about.gameLog` | 生涯卡 / 数据卡整张不出 |
+| `about.skills` | 技能卡整张不出 |
+| `about.timeline` | 生涯卡整张不出 |
 | `about.location` | 坐标卡的 `{city}` 填空（卡片仍在） |
 | `about.anchors` | 不再校验 `/about#碎片`（页面无变化） |
 | Post Settings 任一节 | 走第三节「内置缺省」列 |
@@ -315,8 +320,8 @@ columns:
 - **`home.sections` 加一段**：三件事一起做——yml 加段、`src/site/sections.ts` 注册组件、`nav` 挂 `module`。
 - **`footer.seal_text`**：页脚大印与构建期生成的 favicon / apple-touch-icon 都用它，改完重跑 `npm run assets`。
 - **类型标记**：不在 `site.yml` 里配——「作品 / 博文」的判定住构建期（`scripts/content/schemas/article.ts` 的常量），运行层只看 `kind`；构建期还会把标记词从产物标签里剔除，所以卡片上不会露出 `portfolio`。
-- **`about.skill_groups`**：技能卡的唯一事实源，改表即改卡。
-- **`site.yml about` 的事实层**：`timeline` / `gameLog` / `location` / `anchors` 与话术同住 `about`（2026-09-16 由 `content/about/about.md` 整份并入，`site/content/` 已删）；`place_note` 的 `{city}` 由 `about.location` 填。
+- **`about.skills`**：技能卡的唯一事实源，改表即改卡（**技能名唯一**、`level` 与 `exp` 必须同档，构建期硬校验）。
+- **`site.yml about` 的事实层**：`timeline` / `location` / `anchors` 与话术同住 `about`（2026-09-16 由 `content/about/about.md` 整份并入，`site/content/` 已删）；`place_note` 的 `{city}` 由 `about.location` 填。
 
 ## 六、常见报错对照
 
@@ -328,7 +333,7 @@ columns:
 | 「…」必须是合法的绝对 http(s) URL | `site.url`（或某个社交 `url`） |
 | 「…」的 path 段未命中路由表（白名单：…） | 内链指向了不存在的站内路由——加页面请先在 `nav` 加一行 |
 | 非 brand 栏必须给 from 或 links | `footer.columns` 某栏两样都没给 |
-| 组 id「…」重复 | `about.skill_groups[].id` 撞车 |
+| 技能名「…」重复 | `about.skills[].name` 撞车（2026-09-27 起唯一性从「组 id」改到「技能名」） |
 | 横排断句标题最多两行 | `heading_lines` 超了 2 行 |
 | 未知键 / 类型错误 / 必填缺失 | strict 会直接点出键名，中文解释见 `scripts/content/diagnostics.ts` 的 `FIELD_CN` 表 |
 
