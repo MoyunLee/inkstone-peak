@@ -96,7 +96,7 @@ export interface AboutCfg {
   /** 技能等级体系；唯一事实源 = site.yml about.skill_levels（缺省即隐藏）。max=本档经验值上界，档位号=数组下标+1。 */
   skill_levels?: { name: string; max: number }[]
   /** 技能卡平铺技能表；唯一事实源 = site.yml about.skills（缺省即隐藏，数组顺序即渲染顺序）。skills[].level 与 exp 同档由构建期硬校验保证。 */
-  skills?: { name: string; level: number; exp: number }[]
+  skills?: { name: string; level: number; exp: number; icon?: string }[]
 }
 
 /** a11y 话术键全集：必须与 scripts/content/schemas/site.ts 的 A11Y_KEYS 对齐。 */

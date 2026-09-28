@@ -238,19 +238,20 @@ about:
   # 技能卡「开启创造力」平铺技能表（**唯一事实源**：直接改本表即可；2026-09-27 由扁平胶囊 tools 改为 XP 条 skills）。
   #   本轮用户令：分类组名（笔 · 建模雕刻 等）整体删除、技能名统一为软件名 → 四组结构拍平成本列表，数组顺序即渲染顺序。
   #   level 须与 exp 同档（构建期硬校验，防等级/经验各说各话）；exp=作者自评 0-1000（1000 封顶），改数字即改卡面进度条与数字滚动终点。
+  #   icon=行首方章里的「用途字形」：写 lucide 名（kebab），登记表在 components/about/skills/skillGlyph.ts，未知名回落 circle（纯装饰，不进读屏）。
   skills:
-    - { name: 3dsmax, level: 4, exp: 760 }
-    - { name: ZBrush, level: 3, exp: 570 }
-    - { name: Cinema 4D, level: 3, exp: 520 }
-    - { name: After Effects, level: 4, exp: 700 }
-    - { name: Photoshop, level: 4, exp: 640 }
-    - { name: Premiere Pro, level: 3, exp: 560 }
-    - { name: 提示词工程, level: 3, exp: 540 }
-    - { name: 即梦, level: 2, exp: 380 }
-    - { name: 混元 3D, level: 2, exp: 300 }
-    - { name: Substance 3D Painter, level: 3, exp: 470 }
-    - { name: Unreal Engine, level: 2, exp: 340 }
-    - { name: C 语言, level: 1, exp: 180 }
+    - { name: 3dsmax, level: 4, exp: 760, icon: box }
+    - { name: ZBrush, level: 3, exp: 570, icon: brush }
+    - { name: Cinema 4D, level: 3, exp: 520, icon: rotate-3d }
+    - { name: After Effects, level: 4, exp: 700, icon: sparkles }
+    - { name: Photoshop, level: 4, exp: 640, icon: image }
+    - { name: Premiere Pro, level: 3, exp: 560, icon: scissors }
+    - { name: 提示词工程, level: 3, exp: 540, icon: message-square }
+    - { name: 即梦, level: 2, exp: 380, icon: shapes }
+    - { name: 混元 3D, level: 2, exp: 300, icon: layers }
+    - { name: Substance 3D Painter, level: 3, exp: 470, icon: palette }
+    - { name: Unreal Engine, level: 2, exp: 340, icon: gamepad-2 }
+    - { name: C 语言, level: 1, exp: 180, icon: code }
 
 # --------------------------------------
 # Footer（页脚：联系方式 + 三栏）

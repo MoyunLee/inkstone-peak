@@ -8,6 +8,8 @@ export interface Skill {
   level: number
   /** 当前经验值 0-expMax。 */
   exp: number
+  /** 行首方章的用途字形键（lucide 名）；缺省/未知名由组件回落 circle。 */
+  icon?: string
 }
 
 /** 技能等级档：name=卡面等级名（中文唯一家 = site.yml），max=本档经验值上界。 */
@@ -42,7 +44,7 @@ export function skillExpMax(site: SiteData): number {
 
 /** 技能卡平铺技能表；唯一事实源 = site.yml about.skills（数组顺序即渲染顺序）。 */
 export function skills(site: SiteData): Skill[] {
-  return (site.about.skills ?? []).map((s) => ({ name: s.name, level: s.level, exp: s.exp }))
+  return (site.about.skills ?? []).map((s) => ({ name: s.name, level: s.level, exp: s.exp, icon: s.icon }))
 }
 
 /**

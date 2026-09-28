@@ -55,12 +55,12 @@ const FIELD_CN: Record<string, string> = {
   label_skill: '技能卡左上极小字', title_skill: '技能卡大字题', label_career: '生涯卡左上极小字', title_career: '生涯卡大字题',
   label_place: '坐标卡左上极小字', title_place: '坐标卡大字题',
   place_note: '坐标卡配文（{city} 运行时替换为 about.location）', place_avail: '坐标卡配文第二行（可实习城市/合作方式）', place_coord: '坐标卡装饰坐标（可删）',
-  
   timeline: '生涯卡时间轴（site.yml about.timeline；period=时段、text=事件）', text: '生涯时间轴的事件文字', location: '现居城市（site.yml about.location；求职目标城市原住页脚 brand_bio，2026-09-23 随简介删）',
   skill_levels: '技能等级体系（唯一事实源）：max=本档经验值上界、档位号=数组下标+1 → 卡面 Lv.N；经验满分=末档 max',
-  skills: '/about 技能卡平铺技能表（唯一事实源，2026-09-13 由 content/ability 并入；2026-09-27 由扁平胶囊改 XP 条；本轮拍平为单一列表、技能名统一为软件名）：name=软件名 / level=档位号 / exp=经验值',
+  skills: '/about 技能卡平铺技能表（唯一事实源，2026-09-13 由 content/ability 并入；2026-09-27 由扁平胶囊改 XP 条；本轮拍平为单一列表、技能名统一为软件名）：name=软件名 / level=档位号 / exp=经验值 / icon=行首方章的用途字形键',
   level: '档位号 1-N，须与 exp 同档（构建期硬校验，防「Lv.2 却跑 700 经验」）',
   exp: '经验值 0-1000（满分=skill_levels 末档 max）：决定进度条长度与数字滚动终点',
+  icon: '用途字形键（lucide 名，如 box / rotate-3d；登记表 components/about/skills/skillGlyph.ts，缺省与未知名回落 circle）',
   about_seal_label: '/about 顶部印章可访问名', about_tags_label: '/about 顶部标签组可访问名', about_timeline_label: '/about 生涯时间轴可访问名',
 }
 

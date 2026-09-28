@@ -200,14 +200,16 @@ page_meta:
 
 技能卡有两张表，唯一事实源都在 `about`：
 
-**① `skills`**——平铺技能表（2026-09-27 由四组 `skill_groups` 拍平；组名与组图标随之退役）。每行三键，**整块可省**：
+**① `skills`**——平铺技能表（2026-09-27 由四组 `skill_groups` 拍平；组名与组图标随之退役）。每行四键，**整块可省**：
 
 ```yaml
 skills:
-  - { name: 3dsmax, level: 4, exp: 760 }      # name=技能名（写软件名；全表唯一）
-  - { name: ZBrush, level: 3, exp: 570 }      # level=档位号 1-N（须与本行 exp 同档）
-  - { name: 提示词工程, level: 3, exp: 540 }  # exp=经验值 0-1000：决定条长，满分=末档 max
+  - { name: 3dsmax, level: 4, exp: 760, icon: box }        # name=技能名（写软件名；全表唯一）
+  - { name: ZBrush, level: 3, exp: 570, icon: brush }      # level=档位号 1-N（须与本行 exp 同档）
+  - { name: 提示词工程, level: 3, exp: 540, icon: message-square }  # exp=经验值 0-1000：决定条长，满分=末档 max
 ```
+
+`icon` 是行首方章里的「用途字形」：写 lucide 的名字（kebab 写法，如 `rotate-3d` / `gamepad-2`）。登记表住 `src/components/about/skills/skillGlyph.ts`，**未知名与不写都回落 `circle`**（中性圆点），所以这里不设枚举硬校验 —— 加字形 = 登记表加一行 + 本表引用它。
 
 整块删 = 技能卡整张不渲染；**给了就不能给空数组**，技能名不能重复；`level` 与 `exp` 不同档**当场报错**（防「Lv.2 却跑 700 经验」）。
 

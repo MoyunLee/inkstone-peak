@@ -226,13 +226,16 @@
 }
 .skill-card-head {
   display: flex;
-  align-items: baseline;
+  /* 加了行首方章后不能再按 baseline 对齐（方章没有文字基线） */
+  align-items: center;
   justify-content: space-between;
   gap: 10px;
   min-width: 0;
 }
 .skill-card-name {
   min-width: 0;
+  /* 方章、名字、档位签同处一行时由名字吃掉余量，档位签恒贴右 */
+  flex: 1 1 auto;
   /* 2026-09-27 用户定：与卡题同支楷体（原先继承正文宋体）。实测「看着像另一种字体」的真因是
      名字比全站正文更小更粗，而不是字族不同；改楷体后模块内只剩一种声音。
      字重必须交回 400：KaiTi 只有一档，600 只会触发浏览器伪粗（边缘发糊）。 */
@@ -240,6 +243,25 @@
   font-weight: 400;
   font-size: 14px;
   letter-spacing: 0.06em;
+}
+/* 行首「用途字形」方章：与行同高的墨线小方章（纯装饰，组件里 aria-hidden）。
+   字形名住 site.yml about.skills[].icon，登记表在 skills/skillGlyph.ts。
+   悬停时边框与字形转本档色阶 —— 与档位签同一套反馈语言，不另立第二套「点亮」规则。 */
+.skill-card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border: 1px solid color-mix(in srgb, var(--ink) 16%, transparent);
+  border-radius: 4px;
+  color: var(--ink-2);
+  transition: border-color var(--t) var(--ease), color var(--t) var(--ease);
+}
+.skill-card:hover .skill-card-icon {
+  border-color: color-mix(in srgb, var(--lv, var(--ink)) 55%, transparent);
+  color: var(--lv, var(--ink-2));
 }
 /* 等级签：与技能名同支楷体（模块内单一字体声音），悬停时轻微放大并转本档主色（纯装饰反馈） */
 .skill-card-level {

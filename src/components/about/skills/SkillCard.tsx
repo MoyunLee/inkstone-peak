@@ -9,6 +9,7 @@ import { useEffect } from 'react'
 import type { Skill } from '../../../lib/data/about'
 import { useIsoLayoutEffect } from '../../../lib/hooks/useIsoLayoutEffect'
 import { useMotionSafe } from '../../../lib/hooks/useMotionSafe'
+import { skillGlyph } from './skillGlyph'
 
 /** 同组相邻两卡的进场步长（秒）：阶梯只此一处，不再往 CSS 传 --i 变量。 */
 const STAGGER_S = 0.045
@@ -41,6 +42,8 @@ export default function SkillCard({ skill, levelName, expMax, index, revealed }:
   // 后者是首渲染取一次的 useState 快照、此后永不更新，会话中途开启「减少动效」会和 useReveal 的口径分叉，
   // 让本该静止的条照播动画。两边同源，才能保证中途切换也直落终态。
   const reduce = useMotionSafe()
+  // 行首方章的字形（未知名/未给都回落 circle，见 skillGlyph.ts）
+  const Glyph = skillGlyph(skill.icon)
   // 初值＝终值：服务端渲染出的静态 HTML 直接是真数真条（不是 0）
   const exp = useMotionValue(skill.exp)
   // 条宽由 MotionValue 推导，Framer 自己写 inline style，不经 React 每帧重渲染
@@ -84,6 +87,10 @@ export default function SkillCard({ skill, levelName, expMax, index, revealed }:
       whileHover={{ y: HOVER_LIFT, transition: { duration: 0.16, ease: EASE } }}
     >
       <div className="skill-card-head">
+        {/* 用途字形：纯装饰（名字就在右侧），故整块 aria-hidden */}
+        <span className="skill-card-icon" aria-hidden="true">
+          <Glyph size={13} strokeWidth={1.5} />
+        </span>
         <span className="skill-card-name">{skill.name}</span>
         <span className="skill-card-level">
           Lv.{skill.level} {levelName}

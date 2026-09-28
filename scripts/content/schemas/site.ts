@@ -166,6 +166,8 @@ export const siteSchema = z.object({
         name: z.string().min(1),
         level: z.number().int().min(1),
         exp: z.number().int().min(0),
+        // 行首方章里的用途字形（lucide 名）。可选：不写或未知名都回落 circle，故不必在此立枚举硬校验。
+        icon: z.string().min(1).optional(),
       }).strict())
       .min(1)
       .superRefine((ss, ctx) => {
