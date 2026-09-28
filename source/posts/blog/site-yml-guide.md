@@ -216,6 +216,14 @@ skills:
 
 登记表住 `src/components/about/skills/skillIcon.ts`，**未知名与不写都回落 `circle`**（中性圆点），所以这里不设枚举硬校验 —— 加标 = 登记表加一行 + 本表引用它。
 
+**换/加一枚图标，分三种情形**：
+
+1. **已在登记表里的标**：改 `site.yml` 一个词，零代码。
+2. **加一枚软件官方标**：先确认它有**单色版**（在 Iconify 找 `devicon-plain:` / `simple-icons:` / `thesvg:` 这类 plain / mono 版 —— **别用彩色版**：彩色版靠多色对比撑形状，统一成单色会糊成实心块，Substance 3D Painter 原版正是"底色方块 + 上面画字"）；然后在 `scripts/vendor-skill-marks.ts` 的清单加一行（组件名 · Iconify id · 产品名 · 许可），跑 `node scripts/vendor-skill-marks.ts` 重新生成 `skillMarks.tsx`，再在 `skillIcon.ts` 的 `ICONS` 加一行映射。**构建期不联网**：抓取只发生在手动跑脚本时，产物是源码。
+3. **拿不到官方标**（如 ZBrush）：用用途字形兜底 —— 登记表 `import` 一个 lucide 字形 + 加一行 `'lucide:xxx': 那个字形`，`site.yml` 写 `lucide:xxx`。
+
+尺寸与配色都不用手管：方章恒 26px、图标恒 16px（CSS 统一，viewBox 是 24 还是 128 都一样）；标色走 `currentColor`，跟随方章，悬停时转本档色阶。
+
 整块删 = 技能卡整张不渲染；**给了就不能给空数组**，技能名不能重复；`level` 与 `exp` 不同档**当场报错**（防「Lv.2 却跑 700 经验」）。
 
 **② `skill_levels`**——等级体系（档位名的唯一来源；组件内零中文字面量，加档只在表尾追加）：

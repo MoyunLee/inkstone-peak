@@ -1,6 +1,6 @@
-/* 技能行方章里的软件墨标（vendored 资产，不是依赖；生成于 2026-09-27）。
-   为什么能单色：各集本来就有单路径单色的「plain」版，fill 直接是 currentColor，所以标会跟随
-   方章自身的 color —— 悬停转本档色阶时标一起变色，且不存在彩色版强行墨化那种糊成一坨的问题。
+/* 技能行方章里的软件墨标（vendored 资产，不是依赖；由 scripts/vendor-skill-marks.ts 生成，勿手改）。
+   为什么能单色：各集本来就有单路径单色的「plain」版，fill 直接是 currentColor，所以标会跟随方章自身的
+   color —— 悬停转本档色阶时标一起变色，且不存在彩色版强行墨化那种糊成一坨的问题。
    来源与许可（原始 SVG 只做了三处改动：去 <xml>/宽高属性、kebab 属性转 JSX、色值统一 currentColor）：
      · Adobe Photoshop — devicon-plain（MIT）
      · Adobe After Effects — devicon-plain（MIT）
