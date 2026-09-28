@@ -4,7 +4,7 @@
    显示图片自己的颜色。mask 只取形状（alpha 通道）、颜色交给 CSS —— 于是往 source/site/skill/ 里丢彩色 Logo
    也好、黑白剪影也好，页面上都统一成墨色。代价：图片必须有透明底（不透明底 = 整块实心方块，JPEG 没有 alpha）。
    两种来源的分工：文件名 = 你自己换的图（含官方单色标，由 scripts/vendor-skill-marks.ts 抓取）；
-   'lucide:' = 「拿不到官方标」的兜底字形（ZBrush 全网只剩一个文件类型图标、提示词工程根本不是软件）。
+   'lucide:' = 「拿不到官方标」时的兜底字形通道（当前 11 条全部用文件，这条留着备用）。
    未给 icon 才回落 circle（中性圆点）；文件名写错会在**构建期直接报错**（见 scripts/content/build.ts）。 */
 import { Brush, Circle, MessageSquare } from 'lucide-react'
 import type { ComponentType } from 'react'

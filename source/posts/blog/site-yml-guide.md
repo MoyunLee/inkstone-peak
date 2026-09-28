@@ -205,11 +205,11 @@ page_meta:
 ```yaml
 skills:
   - { name: 3dsmax, level: 4, exp: 760, icon: 3dsmax.svg }        # name=技能名（写软件名；全表唯一）
-  - { name: ZBrush, level: 3, exp: 570, icon: 'lucide:brush' }    # level=档位号 1-N（须与本行 exp 同档）
+  - { name: ZBrush, level: 3, exp: 570, icon: zbrush.svg }        # level=档位号 1-N（须与本行 exp 同档）
   - { name: Photoshop, level: 4, exp: 640, icon: photoshop.svg }  # exp=经验值 0-1000：决定条长，满分=末档 max
 ```
 
-`icon` 是行首方章里的图标，两种写法：**不带冒号的当文件名**（住 `source/site/skill/`，见下节）、**带 `lucide:` 的当兜底字形**（只给拿不到官方标的条目：ZBrush 全网只剩一个"文件类型"图标、不是品牌标；提示词工程根本不是软件）。
+`icon` 是行首方章里的图标，两种写法：**不带冒号的当文件名**（住 `source/site/skill/`，见下节）、**带 `lucide:` 的当兜底字形**（拿不到官方标时的退路：当前 11 条**全部用文件**，这条通道空着备用）。
 
 图标是**文件**，住 `source/site/skill/`（站点根静态件目录 `source/site/` 下的一个子目录，发布后就是 `/skill/<文件名>`）；解析在 `src/components/about/skills/skillIcon.ts`。不给 `icon` 才回落 `circle`（中性圆点），所以这里不设枚举硬校验。
 
@@ -218,10 +218,10 @@ skills:
 - **换**：把新图丢进 `source/site/skill/`，`site.yml` 的 `icon` 写成那个文件名（如 `icon: blender.svg`）即可 —— 不改代码。
 - **两条硬要求**（运行时用 CSS mask 只取**形状**、颜色由网站统一给）：① 图片必须有**透明底** —— 不透明底色（含 JPEG，没有 alpha 通道）会被染成整块实心方块；② 形状之间别互相遮盖，同色叠一起会并成一块（官方"彩色版"常是"底色方块 + 上面画字"，得改用单色版）。
 - **文件名写错会怎样**：构建期直接报错并列出目录里现有的文件名（`✗ site.yml › about.skills.4.icon：找不到图标文件 source/site/skill/photoshop.png（现有：3dsmax.svg、…）`），不会带着一个空洞上线。
-- **想从 Iconify 抓官方单色标**（可选）：`scripts/vendor-skill-marks.ts` 的清单加一行（文件名 · Iconify id · 产品名 · 许可）→ 跑 `node scripts/vendor-skill-marks.ts`，文件就出现在同一个目录里。**构建期不联网**：抓取只发生在你手动跑脚本那一次；你手工丢进目录的图，这个脚本不碰。
-- **拿不到官方标的**（ZBrush 全网只剩一个文件类型图标、提示词工程不是软件）：`icon` 写 `lucide:brush` 这类兜底字形 id，字形表在 `src/components/about/skills/skillIcon.ts`。
+- **想从 Iconify 抓官方单色标**（可选）：`scripts/vendor-skill-marks.ts` 的清单加一行（文件名 · Iconify id · 产品名 · 许可 · 可选的"要丢掉的 path 序号"与"取景 viewBox"）→ 跑 `node scripts/vendor-skill-marks.ts`，文件就出现在同一个目录里。**构建期不联网**：抓取只发生在你手动跑脚本那一次；你手工丢进目录的图，这个脚本不碰。
+- **拿不到官方标时**：`icon` 写 `lucide:brush` 这类兜底字形 id，字形表在 `src/components/about/skills/skillIcon.ts`（ZBrush 早先用过这条路，现已换成官方标）。
 
-尺寸与配色都不用手管：方章恒 26px、图标恒 16px（CSS 统一，viewBox 是 24 还是 128 都一样）；颜色一律是墨色、跟随方章，悬停时转本档色阶 —— **丢彩色 Logo 进去，页面上也是墨色**（要保留图片原色就得改版式，那是另一件事）。
+尺寸与配色都不用手管：方章恒 26px、图标恒 16px（CSS 统一，viewBox 是 24 还是 128 都一样）；唯一要自己照看的是**取景** —— 图形在画布里只占中间一小块时，页面上就比邻条小一圈（丢图前裁紧即可；官方标由清单里的 `crop` 收紧，量法见 `.shots/probe-skill-ink.mjs`）；颜色一律是墨色、跟随方章，悬停时转本档色阶 —— **丢彩色 Logo 进去，页面上也是墨色**（要保留图片原色就得改版式，那是另一件事）。
 
 整块删 = 技能卡整张不渲染；**给了就不能给空数组**，技能名不能重复；`level` 与 `exp` 不同档**当场报错**（防「Lv.2 却跑 700 经验」）。
 
