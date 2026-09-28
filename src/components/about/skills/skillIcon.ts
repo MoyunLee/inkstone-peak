@@ -6,7 +6,7 @@
    两种来源的分工：文件名 = 你自己换的图（含官方单色标，由 scripts/vendor-skill-marks.ts 抓取）；
    'lucide:' = 「拿不到官方标」时的兜底字形通道（当前 11 条全部用文件，这条留着备用）。
    未给 icon 才回落 circle（中性圆点）；文件名写错会在**构建期直接报错**（见 scripts/content/build.ts）。 */
-import { Brush, Circle, MessageSquare } from 'lucide-react'
+import { Brush, Circle } from 'lucide-react'
 import type { ComponentType } from 'react'
 
 /** 图标形状：兜底字形吃 size / strokeWidth；文件式图标不吃 props（尺寸与颜色全交 CSS）。 */
@@ -15,10 +15,9 @@ export type IconShape = ComponentType<{ size?: number; strokeWidth?: number }>
 /** 图标文件在站点上的 URL 前缀（= source/site/skill/ 这个目录名）。 */
 export const ICON_URL_PREFIX = '/skill/'
 
-/** 'lucide:' 前缀 → 兜底字形。只收「不存在官方标」的条目。 */
+/** 'lucide:' 前缀 → 兜底字形。只收「不存在官方标」的条目（曾经还有一个 message-square，随「提示词工程」那行删掉）。 */
 const GLYPHS: Record<string, IconShape> = {
   'lucide:brush': Brush,
-  'lucide:message-square': MessageSquare,
 }
 
 /** 缺省图标：site.yml 未给 icon 时使用。 */

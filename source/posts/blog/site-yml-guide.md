@@ -216,9 +216,9 @@ skills:
 **怎么换图标**：
 
 - **换**：把新图丢进 `source/site/skill/`，`site.yml` 的 `icon` 写成那个文件名（如 `icon: blender.svg`）即可 —— 不改代码。
-- **两条硬要求**（运行时用 CSS mask 只取**形状**、颜色由网站统一给）：① 图片必须有**透明底** —— 不透明底色（含 JPEG，没有 alpha 通道）会被染成整块实心方块；② 形状之间别互相遮盖，同色叠一起会并成一块（官方"彩色版"常是"底色方块 + 上面画字"，得改用单色版）。
+- **两条硬要求**（运行时用 CSS mask 只取**形状**、颜色由网站统一给）：① 图片必须有**透明底** —— 不透明底色（含 JPEG，没有 alpha 通道）会被染成整块实心方块；② 形状之间别互相遮盖，同色叠一起会并成一块（官方「彩色版」常是「底色方块 + 上面画字」：方块会被染成整块实心，得把方块丢掉、只留字 —— 生成器清单里的 `drop` 就是干这个的，Ae / Ps / Pr / Pt 四枚都这么来）。
 - **文件名写错会怎样**：构建期直接报错并列出目录里现有的文件名（`✗ site.yml › about.skills.4.icon：找不到图标文件 source/site/skill/photoshop.png（现有：3dsmax.svg、…）`），不会带着一个空洞上线。
-- **想从 Iconify 抓官方单色标**（可选）：`scripts/vendor-skill-marks.ts` 的清单加一行（文件名 · Iconify id · 产品名 · 许可 · 可选的"要丢掉的 path 序号"与"取景 viewBox"）→ 跑 `node scripts/vendor-skill-marks.ts`，文件就出现在同一个目录里。**构建期不联网**：抓取只发生在你手动跑脚本那一次；你手工丢进目录的图，这个脚本不碰。
+- **想从 Iconify 抓官方标**（可选）：`scripts/vendor-skill-marks.ts` 的清单加一行（文件名 · Iconify id · 产品名 · 许可 · 可选的"要丢掉的 path 序号"与"取景 viewBox"）→ 跑 `node scripts/vendor-skill-marks.ts`，文件就出现在同一个目录里。**构建期不联网**：抓取只发生在你手动跑脚本那一次；你手工丢进目录的图，这个脚本不碰。
 - **拿不到官方标时**：`icon` 写 `lucide:brush` 这类兜底字形 id，字形表在 `src/components/about/skills/skillIcon.ts`（ZBrush 早先用过这条路，现已换成官方标）。
 
 尺寸与配色都不用手管：方章恒 26px、图标恒 16px（CSS 统一，viewBox 是 24 还是 128 都一样）；唯一要自己照看的是**取景** —— 图形在画布里只占中间一小块时，页面上就比邻条小一圈（丢图前裁紧即可；官方标由清单里的 `crop` 收紧，量法见 `.shots/probe-skill-ink.mjs`）；颜色一律是墨色、跟随方章，悬停时转本档色阶 —— **丢彩色 Logo 进去，页面上也是墨色**（要保留图片原色就得改版式，那是另一件事）。

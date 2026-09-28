@@ -237,6 +237,8 @@ about:
     - { name: 精通, max: 1000 }
   # 技能卡「开启创造力」平铺技能表（**唯一事实源**：直接改本表即可；2026-09-27 由扁平胶囊 tools 改为 XP 条 skills）。
   #   本轮用户令：分类组名（笔 · 建模雕刻 等）整体删除、技能名统一为软件名 → 四组结构拍平成本列表，数组顺序即渲染顺序。
+  #   2026-09-27 用户令「相关的技能排在一起」：组名不加回，靠**相邻**成组 —— 3D 美术链路（建模 → 雕刻 → 材质 → 引擎）
+  #   → AIGC 生成 → 平面与后期 → 编程；组内按 exp 降序，组边界靠语义分。
   #   level 须与 exp 同档（构建期硬校验，防等级/经验各说各话）；exp=作者自评 0-1000（1000 封顶），改数字即改卡面进度条与数字滚动终点。
   #   icon=行首方章的图标：写 source/site/skill/ 里的**文件名**（如 photoshop.svg）——丢图进那个目录 + 改这里即可，
   #   构建期会校验文件是否存在，写错名字直接报错并列出目录里现有的文件名（ZBrush 那枚是手工件：官图标自带六边形底板，
@@ -247,13 +249,13 @@ about:
     - { name: 3dsmax, level: 4, exp: 760, icon: 3dsmax.svg }
     - { name: ZBrush, level: 3, exp: 570, icon: zbrush.svg }
     - { name: Cinema 4D, level: 3, exp: 520, icon: cinema4d.svg }
+    - { name: Substance 3D Painter, level: 3, exp: 470, icon: substance-3d-painter.svg }
+    - { name: Unreal Engine, level: 2, exp: 340, icon: unrealengine.svg }
+    - { name: 即梦, level: 2, exp: 380, icon: jimeng.svg }
+    - { name: 混元 3D, level: 2, exp: 300, icon: hunyuan.svg }
     - { name: After Effects, level: 4, exp: 700, icon: aftereffects.svg }
     - { name: Photoshop, level: 4, exp: 640, icon: photoshop.svg }
     - { name: Premiere Pro, level: 3, exp: 560, icon: premierepro.svg }
-    - { name: 即梦, level: 2, exp: 380, icon: jimeng.svg }
-    - { name: 混元 3D, level: 2, exp: 300, icon: hunyuan.svg }
-    - { name: Substance 3D Painter, level: 3, exp: 470, icon: substance-3d-painter.svg }
-    - { name: Unreal Engine, level: 2, exp: 340, icon: unrealengine.svg }
     - { name: C 语言, level: 1, exp: 180, icon: c.svg }
 
 # --------------------------------------
@@ -273,7 +275,7 @@ footer:
     # links 写法：内联 [{ label, to }] 现写现用。
     # to 允许：站内路由（须命中 nav 白名单）· http(s) 外链 · mailto: · source/site/ 下的静态文件（如 /resume/xxx.pdf，构建期查落盘）。
     - { id: brand,   title: null }              # 栏1：印章母版（居中；brand_bio 已省，无栏题）
-    - { id: site,    title: 站内, from: nav }    # ★读 nav 自动生成，加一段导航此处自动出现
+    - { id: site,    title: 导航, from: nav }    # ★读 nav 自动生成，加一段导航此处自动出现
     - { id: social,  title: 联系, from: contact }
     # 想再加一栏就照这样内联写：文件放进 site/source/site/（如 source/site/resume/du-kang.pdf），带扩展名的内链构建期查落盘。
     # - { id: files, title: 资料, links: [ { label: 简历, to: /resume/du-kang.pdf } ] }

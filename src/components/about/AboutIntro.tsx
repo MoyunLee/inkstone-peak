@@ -16,7 +16,7 @@ export default function AboutIntro({
 }: {
   titleLevel?: 1 | 2
   skillFull?: boolean
-  /** 技能卡是否挂在本段尾部：/about 要把技能卡挪到整页最末并占满整行，故交由调用方另挂（见 pages/About.tsx）。 */
+  /** 技能卡是否挂在本段尾部：/about 要把技能卡挪到独立整行，故交由调用方另挂（见 pages/About.tsx）。 */
   showSkill?: boolean
 }) {
   const site = useSite()

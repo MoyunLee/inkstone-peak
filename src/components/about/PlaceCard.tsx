@@ -1,4 +1,4 @@
-/* /about 第三行右（占 1 列）：坐标「我现在住在」，极简水墨线条城市剪影（行内 SVG）。 */
+/* /about 坐标卡（lg 占 2 列）：坐标「我现在住在」，极简水墨线条城市剪影（行内 SVG）。 */
 import { MapPin } from 'lucide-react'
 import { placeNote } from '../../lib/data/about'
 import { useSite } from '../../lib/data/site'

@@ -1,4 +1,4 @@
-/* /about 第二行右（占 1 列）：生涯「无限进步」垂直时间轴。 */
+/* /about 生涯卡（lg 占 1 列）：生涯「无限进步」垂直时间轴。 */
 import { careerNodes } from '../../lib/data/about'
 import { useSite } from '../../lib/data/site'
 

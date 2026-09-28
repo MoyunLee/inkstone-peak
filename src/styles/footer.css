@@ -38,7 +38,7 @@
   row-gap: clamp(26px, 3.6vh, 38px);
 }
 .fcol-brand {
-  /* 2026-09-24：印章竖向居中于本栏（＝对齐「站内」栏中段的观山～造境），横向也居中 */
+  /* 2026-09-24：印章竖向居中于本栏（＝对齐「导航」栏中段的观山～造境），横向也居中 */
   display: flex;
   flex-direction: column;
   justify-content: center;

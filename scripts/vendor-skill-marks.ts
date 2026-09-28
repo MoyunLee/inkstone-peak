@@ -8,8 +8,9 @@
  * 所以文件本身什么颜色不重要，但必须满足两条：
  *   ① 透明底 —— 不透明底色会被 mask 成实心方块；JPEG 没有 alpha，别放；
  *   ② 形状之间不互相遮盖 —— 同色叠一起会并成一块。官方「彩色版」常是「底色方块 + 上面画字」，
- *      所以必须取 devicon-plain / simple-icons / thesvg 这类单色版；清单里的 drop 给个别标去掉底色板，
- *      crop 则在图形只占画布一小块时收紧取景（不收紧，页面上会比邻条小一圈）。
+ *      所以优先取 devicon-plain / simple-icons / thesvg 这类单色版；官方彩色版也能用，但得用 drop 丢掉它的
+ *      底色方块（Ae / Ps / Pr / Pt 四枚就是这么来的：留字母、去实心块），crop 则在图形只占画布一小块时
+ *      收紧取景（不收紧，页面上会比邻条小一圈）。
  *
  * 加一枚标：清单加一行 → 跑本脚本 → site.yml 的 icon 写文件名（如 photoshop.svg）。
  * 完全手工也行：把透明底的 SVG / PNG / WebP 丢进 source/site/skill/，site.yml 写文件名即可 ——
@@ -20,14 +21,12 @@ import { existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs'
 import { P } from './content/paths.ts'
 
 const OUT_DIR = P('source', 'site', 'skill')
-/** 发布出来的 URL 前缀（= publicDir 根下的目录名），文档与前端登记表都写这个。 */
-export const ICON_DIR = 'skill'
 
 /** 文件名 · Iconify id · 产品名 · 许可 · 要丢掉的 path 序号（1 基；默认 0 个）· 取景 viewBox（默认沿用原图）。 */
 const ICONS: [string, string, string, string, number[]?, [number, number, number, number]?][] = [
-  ['photoshop.svg', 'devicon-plain:photoshop', 'Adobe Photoshop', 'devicon-plain（MIT）'],
-  ['aftereffects.svg', 'devicon-plain:aftereffects', 'Adobe After Effects', 'devicon-plain（MIT）'],
-  ['premierepro.svg', 'devicon-plain:premierepro', 'Adobe Premiere Pro', 'devicon-plain（MIT）'],
+  ['photoshop.svg', 'thesvg-color:photoshop', 'Adobe Photoshop', 'thesvg-color（MIT，已去掉底色方块、只留字母，并收紧取景）', [1], [17, 19, 51, 39]],
+  ['aftereffects.svg', 'thesvg-color:after-effects', 'Adobe After Effects', 'thesvg-color（MIT，已去掉底色方块、只留字母，并收紧取景）', [1], [9, 20, 62, 39]],
+  ['premierepro.svg', 'thesvg-color:premiere', 'Adobe Premiere Pro', 'thesvg-color（MIT，已去掉底色方块、只留字母，并收紧取景）', [1], [18, 19, 49, 38]],
   ['3dsmax.svg', 'devicon-plain:3dsmax', 'Autodesk 3ds Max', 'devicon-plain（MIT）'],
   ['cinema4d.svg', 'simple-icons:cinema4d', 'Maxon Cinema 4D', 'simple-icons（CC0 1.0）'],
   ['unrealengine.svg', 'simple-icons:unrealengine', 'Unreal Engine', 'simple-icons（CC0 1.0）'],
