@@ -204,12 +204,17 @@ page_meta:
 
 ```yaml
 skills:
-  - { name: 3dsmax, level: 4, exp: 760, icon: box }        # name=技能名（写软件名；全表唯一）
-  - { name: ZBrush, level: 3, exp: 570, icon: brush }      # level=档位号 1-N（须与本行 exp 同档）
-  - { name: 提示词工程, level: 3, exp: 540, icon: message-square }  # exp=经验值 0-1000：决定条长，满分=末档 max
+  - { name: 3dsmax, level: 4, exp: 760, icon: 'devicon-plain:3dsmax' }       # name=技能名（写软件名；全表唯一）
+  - { name: ZBrush, level: 3, exp: 570, icon: 'lucide:brush' }              # level=档位号 1-N（须与本行 exp 同档）
+  - { name: Photoshop, level: 4, exp: 640, icon: 'devicon-plain:photoshop' }  # exp=经验值 0-1000：决定条长，满分=末档 max
 ```
 
-`icon` 是行首方章里的「用途字形」：写 lucide 的名字（kebab 写法，如 `rotate-3d` / `gamepad-2`）。登记表住 `src/components/about/skills/skillGlyph.ts`，**未知名与不写都回落 `circle`**（中性圆点），所以这里不设枚举硬校验 —— 加字形 = 登记表加一行 + 本表引用它。
+`icon` 是行首方章里的图标，写 Iconify 风格 id，两类都吃：
+
+- **软件官方墨标**（单色，跟随方章颜色）：`devicon-plain:photoshop`、`simple-icons:unrealengine`、`thesvg:jimeng`。这些墨标是 **vendored 资产**（`src/components/about/skills/skillMarks.tsx`，许可 MIT / CC0；商标归各自权利人，此处仅作指名使用），不走 CDN、不加依赖。
+- **用途字形兜底**：`lucide:brush`、`lucide:message-square` —— 只给拿不到官方标的条目（ZBrush 全网只剩一个"文件类型"图标、不是品牌标；提示词工程根本不是软件）。
+
+登记表住 `src/components/about/skills/skillIcon.ts`，**未知名与不写都回落 `circle`**（中性圆点），所以这里不设枚举硬校验 —— 加标 = 登记表加一行 + 本表引用它。
 
 整块删 = 技能卡整张不渲染；**给了就不能给空数组**，技能名不能重复；`level` 与 `exp` 不同档**当场报错**（防「Lv.2 却跑 700 经验」）。
 

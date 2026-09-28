@@ -212,7 +212,7 @@
 .skill-list {
   list-style: none;
   display: grid;
-  gap: 9px;
+  gap: 11px;
   margin: 0;
   padding: 0;
 }
@@ -241,23 +241,29 @@
      字重必须交回 400：KaiTi 只有一档，600 只会触发浏览器伪粗（边缘发糊）。 */
   font-family: var(--font-kai);
   font-weight: 400;
-  font-size: 14px;
+  font-size: 16px;
   letter-spacing: 0.06em;
 }
-/* 行首「用途字形」方章：与行同高的墨线小方章（纯装饰，组件里 aria-hidden）。
-   字形名住 site.yml about.skills[].icon，登记表在 skills/skillGlyph.ts。
-   悬停时边框与字形转本档色阶 —— 与档位签同一套反馈语言，不另立第二套「点亮」规则。 */
+/* 行首方章：与行同高的墨线小方章（纯装饰，组件里 aria-hidden）。
+   里面装 site.yml about.skills[].icon 指的图标：软件官方墨标（单色，跟随这里的 color）或兜底用途字形，
+   登记表在 skills/skillIcon.ts。悬停时边框与图标转本档色阶 —— 与档位签同一套反馈语言，不另立第二套「点亮」规则。 */
 .skill-card-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex: none;
-  width: 22px;
-  height: 22px;
+  width: 26px;
+  height: 26px;
   border: 1px solid color-mix(in srgb, var(--ink) 16%, transparent);
-  border-radius: 4px;
+  border-radius: 5px;
   color: var(--ink-2);
   transition: border-color var(--t) var(--ease), color var(--t) var(--ease);
+}
+/* 墨标自身没有宽高属性（尺寸全交这里），lucide 兜底字形则由 size 属性给同一个数 */
+.skill-card-icon svg {
+  display: block;
+  width: 16px;
+  height: 16px;
 }
 .skill-card:hover .skill-card-icon {
   border-color: color-mix(in srgb, var(--lv, var(--ink)) 55%, transparent);
@@ -269,7 +275,7 @@
   flex: none;
   font-family: var(--font-kai);
   color: var(--ink-3);
-  font-size: 11.5px;
+  font-size: 12.5px;
   letter-spacing: 0.05em;
   white-space: nowrap;
   transition: transform var(--t) var(--ease), color var(--t) var(--ease);
@@ -348,10 +354,11 @@
 .bento-skill [data-level='5'] {
   --lv: var(--lv-5);
 }
-/* ≥1024px：一行到底 —— 名称列 260px 封顶（名称与档位签同处此列、签贴列尾），条吃掉剩余宽度。 */
+/* ≥1024px：一行到底 —— 名称列 300px 封顶（名称与档位签同处此列、签贴列尾），条吃掉剩余宽度。
+   300px 是 2026-09-27 放大字号（名称 16px、方章 26px）后重量的：再窄长名会折行。 */
 @media (min-width: 1024px) {
   .skill-card {
-    grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 300px) minmax(0, 1fr);
     column-gap: 16px;
   }
 }
