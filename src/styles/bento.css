@@ -245,8 +245,9 @@
   letter-spacing: 0.06em;
 }
 /* 行首方章：与行同高的墨线小方章（纯装饰，组件里 aria-hidden）。
-   里面装 site.yml about.skills[].icon 指的图标：软件官方墨标（单色，跟随这里的 color）或兜底用途字形，
-   登记表在 skills/skillIcon.ts。悬停时边框与图标转本档色阶 —— 与档位签同一套反馈语言，不另立第二套「点亮」规则。 */
+   里面装 site.yml about.skills[].icon 指的东西：source/site/skill/ 里的图（发布后 /skill/<文件名>），
+   或 lucide 兜底字形。解析在 skills/skillIcon.ts，**文件是否存在由构建期硬校验**（写错名不让构建过）。
+   悬停时边框与图标转本档色阶 —— 与档位签同一套反馈语言，不另立第二套「点亮」规则。 */
 .skill-card-icon {
   display: inline-flex;
   align-items: center;
@@ -259,7 +260,22 @@
   color: var(--ink-2);
   transition: border-color var(--t) var(--ease), color var(--t) var(--ease);
 }
-/* 墨标自身没有宽高属性（尺寸全交这里），lucide 兜底字形则由 size 属性给同一个数 */
+/* 图标文件走 mask：只取形状（alpha），颜色由 background-color 给 —— 所以彩图进来也是墨色，
+   并跟随方章的 color（悬停转本档色阶）。⚠ 图片必须有透明底：不透明底（含 JPEG）会整块实心。
+   mask-image 由组件按文件名内联（文件名是数据，写不进 CSS），这里只管尺寸与重复方式。 */
+.skill-card-glyph {
+  display: block;
+  width: 16px;
+  height: 16px;
+  background-color: currentColor;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+}
+/* 兜底字形（lucide）没有宽高属性，尺寸全交这里，与上面文件式的 16px 对齐 */
 .skill-card-icon svg {
   display: block;
   width: 16px;

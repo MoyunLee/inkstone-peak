@@ -2,7 +2,7 @@
 // 类型由 front-matter 的 tags 判定（含 PORTFOLIO_TAG=作品 / 否则=博文）——判定**只在构建期这一处**；
 // 标记词随后从产物的 tags 里剔除（运行层只看 kind、不认识那个词），产出单份 .content/posts.json。
 // 读事实 → zod 三集合校验 → 交叉规则 → 写盘；runOnce 负责报错与退出码。
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 import matter from 'gray-matter'
@@ -185,6 +185,16 @@ export function build(report = true): boolean {
           issue('site.yml', where, `「${sk.name}」level=${sk.level}（${levels[sk.level - 1]?.name ?? ''}）与 exp=${sk.exp} 不同档：该档区间是 ${lower}-${upper}（改 exp 或改 level，只能对一处）`)
         }
       }
+    }
+    // 技能图标文件落盘（2026-09-27 用户令：图标改住 source/site/skill/，丢文件 + 改配置即可）：
+    // 不带「集:」前缀的 icon 就是该目录下的文件名 → 在这里查存在。不查的话页面上只是「一个空洞」——
+    // mask 取不到图 = 空白，预渲染 HTML 里也看不出异常，所以必须在构建期钉死；报错顺手列出目录里现有的文件名。
+    const iconDir = P('source', 'site', 'skill')
+    const iconFiles = existsSync(iconDir) ? readdirSync(iconDir).join('、') : '（目录还不存在）'
+    for (const [si, sk] of list.entries()) {
+      const icon = sk.icon ?? ''
+      if (icon === '' || icon.includes(':')) continue
+      if (!existsSync(P('source', 'site', 'skill', icon))) issue('site.yml', `about.skills.${si}.icon`, `找不到图标文件 source/site/skill/${icon}（现有：${iconFiles}）`)
     }
     const impl = sectionImplIds()
     for (const [i, sec] of s.home.sections.entries()) {

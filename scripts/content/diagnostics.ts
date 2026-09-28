@@ -57,10 +57,10 @@ const FIELD_CN: Record<string, string> = {
   place_note: '坐标卡配文（{city} 运行时替换为 about.location）', place_avail: '坐标卡配文第二行（可实习城市/合作方式）', place_coord: '坐标卡装饰坐标（可删）',
   timeline: '生涯卡时间轴（site.yml about.timeline；period=时段、text=事件）', text: '生涯时间轴的事件文字', location: '现居城市（site.yml about.location；求职目标城市原住页脚 brand_bio，2026-09-23 随简介删）',
   skill_levels: '技能等级体系（唯一事实源）：max=本档经验值上界、档位号=数组下标+1 → 卡面 Lv.N；经验满分=末档 max',
-  skills: '/about 技能卡平铺技能表（唯一事实源，2026-09-13 由 content/ability 并入；2026-09-27 由扁平胶囊改 XP 条；本轮拍平为单一列表、技能名统一为软件名）：name=软件名 / level=档位号 / exp=经验值 / icon=方章图标 id（官方墨标或兜底字形）',
+  skills: '/about 技能卡平铺技能表（唯一事实源，2026-09-13 由 content/ability 并入；2026-09-27 由扁平胶囊改 XP 条；本轮拍平为单一列表、技能名统一为软件名）：name=软件名 / level=档位号 / exp=经验值 / icon=方章图标（source/site/skill/ 下的文件名，或 lucide: 兜底字形 id）',
   level: '档位号 1-N，须与 exp 同档（构建期硬校验，防「Lv.2 却跑 700 经验」）',
   exp: '经验值 0-1000（满分=skill_levels 末档 max）：决定进度条长度与数字滚动终点',
-  icon: '方章图标 id（Iconify 风格，如 devicon-plain:photoshop / lucide:brush；登记表 components/about/skills/skillIcon.ts，软件墨标 vendored 在 skillMarks.tsx，缺省与未知名回落 circle）',
+  icon: '方章图标（2026-09-27 用户令改为「文件优先」）：不带冒号 = source/site/skill/ 下的文件名（丢图进该目录 + 改这里即可；**文件是否存在由构建期硬校验**，写错名直接报错并列出目录现有文件名）；带冒号 = 内置 id，目前只有 lucide: 兜底字形（拿不到官方标的条目）。缺省回落 circle。解析在 components/about/skills/skillIcon.ts，运行时用 CSS mask 只取形状、颜色跟随方章 —— 故图片必须有透明底',
   about_seal_label: '/about 顶部印章可访问名', about_tags_label: '/about 顶部标签组可访问名', about_timeline_label: '/about 生涯时间轴可访问名',
 }
 

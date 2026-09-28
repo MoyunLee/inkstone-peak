@@ -42,8 +42,8 @@ export default function SkillCard({ skill, levelName, expMax, index, revealed }:
   // 后者是首渲染取一次的 useState 快照、此后永不更新，会话中途开启「减少动效」会和 useReveal 的口径分叉，
   // 让本该静止的条照播动画。两边同源，才能保证中途切换也直落终态。
   const reduce = useMotionSafe()
-  // 行首方章的图标：软件官方墨标 / 兜底字形（未知名或未给都回落 circle，见 skillIcon.ts）
-  const Mark = skillIcon(skill.icon)
+  // 行首方章的图标：文件式（source/site/skill/ 里的图，mask 取形状、颜色由 CSS 给）或兜底字形
+  const icon = skillIcon(skill.icon)
   // 初值＝终值：服务端渲染出的静态 HTML 直接是真数真条（不是 0）
   const exp = useMotionValue(skill.exp)
   // 条宽由 MotionValue 推导，Framer 自己写 inline style，不经 React 每帧重渲染
@@ -87,9 +87,14 @@ export default function SkillCard({ skill, levelName, expMax, index, revealed }:
       whileHover={{ y: HOVER_LIFT, transition: { duration: 0.16, ease: EASE } }}
     >
       <div className="skill-card-head">
-        {/* 软件墨标/兜底字形：纯装饰（名字就在右侧），故整块 aria-hidden */}
+        {/* 图标：纯装饰（名字就在右侧），故整块 aria-hidden。文件式用 mask 上墨色（所以丢彩色 Logo 进来也是墨色），
+            字形式直接画组件；mask-image 只能按文件名内联 —— 文件名是数据，写不进 CSS。 */}
         <span className="skill-card-icon" aria-hidden="true">
-          <Mark size={16} strokeWidth={1.5} />
+          {icon.kind === 'file' ? (
+            <span className="skill-card-glyph" style={{ maskImage: `url(${icon.url})` }} />
+          ) : (
+            <icon.Glyph size={16} strokeWidth={1.5} />
+          )}
         </span>
         <span className="skill-card-name">{skill.name}</span>
         <span className="skill-card-level">
