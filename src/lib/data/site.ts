@@ -35,3 +35,21 @@ export function sectionById(s: SiteData, id: string): HomeSection | undefined {
   return s.home.sections.find((x) => x.id === id)
 }
 
+/**
+ * 按段 id（= nav 条目的 module）取该页在导航里的名字（`ink`）——页面唯一 `h1` 就用它。
+ *
+ * 为什么用这个而不用段标题：`/about` 的 h1 本来就是这枚词（「观自」= nav ink = `about.hero_title`）；
+ * 段标题（「观自 · 吾身技艺」/「观山 · 作品全览」）是**更长的题头**，两回事。
+ * 取它还能顺带保证 h1 与「顶栏那枚词 / 面包屑 / JSON-LD」说的是同一个名字，且不会与传音页
+ * 自己渲染的可见题头（h2）重复念一遍。
+ *
+ * @param s useSite() 返回的站点数据。
+ * @param module nav 条目的 `module`（= 首页段 id）。
+ * @returns 命中的 `ink`；没有对应 nav 条目时返回 undefined（调用方据此不渲染 h1）。
+ * @example
+ * const ink = navInk(site, 'portfolio')   // '观山'
+ */
+export function navInk(s: SiteData, module: string): string | undefined {
+  return s.nav.find((n) => n.module === module)?.ink
+}
+

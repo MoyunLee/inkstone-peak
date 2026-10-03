@@ -13,7 +13,9 @@ import { srcSetOf } from '../../lib/data/images'
  * @param src 交付地址（front-matter 归一后的 cover / top_img / video.poster）。
  * @param sizes 容器几何口径。
  * @param className 皮肤类名。
- * @param alt 内容图给描述；装饰图留空（默认）——卡片的链接名由标题文字给，免读屏重复念一遍。
+ * @param alt 文本替代的口径（2026-10-03 定，见 20-设计规范 §8）：图**在带名字的链接里**（卡片 / 轮播）留空——
+ *   名字由链接文字或 `aria-label` 给，免得读屏念两遍；图**独立出现**（详情页顶部槽：`figure.bd-hero` / 嵌入海报 `.em-cover`）
+ *   给文章标题。装饰图（占位色块、印章）留空 + `aria-hidden`。
  * @param eager true = 首屏内不延迟（顶图槽）；缺省 lazy（列表卡 / 正文分节）。
  * @example
  * <RespImg className="fc-img" src={it.cover} sizes={HERO_SIZES} eager />

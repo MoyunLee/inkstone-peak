@@ -1,5 +1,5 @@
 // vite build + vite build --ssr 之后：按路由清单复制壳 HTML，注入
-//   ① 预渲染正文（SSR 串 → #prerender 占位块）② title/description/canonical/keywords/robots。
+//   ① 预渲染正文（SSR 串 → #prerender 占位块）② title/description/canonical/keywords/robots ③ JSON-LD（<!--JSONLD--> 锚点）。
 // 元信息口径唯一家 = src/lib/meta/page-meta.ts（运行期 RouteMeta 用同一份，SPA 换页才不会退回入口页标题）。
 // 路由清单从 .content/posts.json 的 kind 派生（work → /portfolio/<slug>，post → /blog/<slug>）。
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
@@ -8,17 +8,24 @@ import process from 'node:process'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { pageMeta } from '../src/lib/meta/page-meta.ts'
 import type { MetaArticleInput, MetaSiteInput } from '../src/lib/meta/page-meta.ts'
+import { jsonLd, serializeJsonLd } from '../src/lib/meta/jsonld.ts'
+import type { JsonLdArticleInput, JsonLdSiteInput } from '../src/lib/meta/jsonld.ts'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const P = (...segs: string[]): string => path.join(ROOT, ...segs)
 
-type SiteJson = MetaSiteInput
-type ArticleJson = MetaArticleInput
+// 交叉类型：两份 JSON 都是「元信息 + 结构化数据」共用的同一份事实，故两个模型都能直接吃
+type SiteJson = MetaSiteInput & JsonLdSiteInput
+type ArticleJson = MetaArticleInput & JsonLdArticleInput
 
 const dist = P('dist')
 const shellFile = path.join(dist, 'index.html')
 const ssrEntry = P('.ssr', 'entry-server.js')
 const PRERENDER_SLOT = '<div id="prerender"></div>'
+// 结构化数据锚点（index.html 里的固定注释）：构建期换成该路由的 <script type="application/ld+json">
+const LDJSON_SLOT = '<!--JSONLD-->'
+// 分享卡锚点（index.html 里的固定注释）：构建期换成该路由的 og:* / twitter:* / article:* 一串
+const OG_SLOT = '<!--OG-->'
 
 if (!existsSync(shellFile)) {
   console.error('✗ 未找到 dist/index.html——请先 `vite build`（本脚本只注入，不产壳）')
@@ -28,14 +35,27 @@ if (!existsSync(ssrEntry)) {
   console.error('✗ 未找到 .ssr/entry-server.js——请先 `npm run ssr`（vite build --ssr src/entry-server.tsx）')
   process.exit(1)
 }
-// 壳是**重复消费**的：本脚本结尾会把根壳覆写成本页结果，故单跑 prerender 时读到的可能是上一轮的正文。
-// 先把已注入的正文还原回空占位，再走一次注入（幂等）。
-const shell = readFileSync(shellFile, 'utf8').replace(
-  /<div id="prerender">[\s\S]*?<\/div>\n(\s*)<\/body>/,
-  (_m, indent: string) => `${PRERENDER_SLOT}\n${indent}</body>`,
-)
+// 壳是**重复消费**的：本脚本结尾会把根壳覆写成本页结果，故单跑 prerender 时读到的可能是上一轮的正文/结构化数据。
+// 先把两处已注入的内容都还原成空锚点，再走一次注入（幂等）。
+const shell = readFileSync(shellFile, 'utf8')
+  .replace(
+    /<div id="prerender">[\s\S]*?<\/div>\n(\s*)<\/body>/,
+    (_m, indent: string) => `${PRERENDER_SLOT}\n${indent}</body>`,
+  )
+  // 结构化数据槽同理：上一轮注入的 <script type="application/ld+json"> 还原成锚点注释（保留原缩进）
+  .replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/, LDJSON_SLOT)
+  // 分享卡槽同理：上一轮注入的那串 meta 整段还原成锚点（含缩进，故替换串自带四个空格）
+  .replace(/(?:[ \t]*<meta (?:property|name)="(?:og|twitter|article):[^"]*"[^>]*>\r?\n)+/, '    ' + OG_SLOT + '\n')
 if (!shell.includes(PRERENDER_SLOT)) {
   console.error('✗ 壳里没有 `#prerender` 占位块——index.html 被改动，停下修锚（预渲染正文无处可落）')
+  process.exit(1)
+}
+if (!shell.includes(LDJSON_SLOT)) {
+  console.error('✗ 壳里没有结构化数据锚点 `<!--JSONLD-->`——index.html 被改动，停下修锚（JSON-LD 无处可落）')
+  process.exit(1)
+}
+if (!shell.includes(OG_SLOT)) {
+  console.error('✗ 壳里没有分享卡锚点 `<!--OG-->`——index.html 被改动，停下修锚（og/twitter 标签无处可落）')
   process.exit(1)
 }
 const readJson = <T>(name: string): T => JSON.parse(readFileSync(P('.content', name), 'utf8')) as T
@@ -99,6 +119,41 @@ function inject(page: Page, body: string): string {
   }
   if (m.noindex && !/<meta name="robots"/.test(html)) {
     html = html.replace(/<\/title>/, () => '</title>\n    <meta name="robots" content="noindex" />')
+  }
+  // 结构化数据（JSON-LD）：口径唯一家 = src/lib/meta/jsonld.ts，喂的是与 pageMeta 同一份 site.json / posts.json。
+  // 404 口径没有数据（返回 null）→ 连锚点整行删掉，不留空注释。替换一律函数式（JSON 里有 $ 也不当替换模式）。
+  const ld = jsonLd(page.urlPath, site, posts)
+  if (ld) {
+    const json = serializeJsonLd(ld).split('\n').map((line) => '      ' + line).join('\n')
+    html = html.replace(LDJSON_SLOT, () => `<script type="application/ld+json">\n${json}\n    </script>`)
+  } else {
+    html = html.replace(/[ \t]*<!--JSONLD-->\r?\n/, '')
+  }
+  // 分享卡（og:* / twitter:* / article:*）：口径唯一家 = page-meta.ts 的 m.og；全站共用同一张手工默认卡。
+  // 404 口径没有卡（m.og 缺省）→ 连锚点整行删掉。值一律过 esc()（属性值不认裸引号/尖括号）。
+  const og = m.og
+  if (og) {
+    const tags = [
+      `<meta property="og:type" content="${esc(og.type)}" />`,
+      `<meta property="og:site_name" content="${esc(site.site.title)}" />`,
+      `<meta property="og:locale" content="${esc(m.lang.replace('-', '_'))}" />`,
+      `<meta property="og:title" content="${esc(m.title)}" />`,
+      `<meta property="og:description" content="${esc(m.description)}" />`,
+      `<meta property="og:url" content="${esc(m.canonical)}" />`,
+      `<meta property="og:image" content="${esc(og.image)}" />`,
+      '<meta property="og:image:width" content="1200" />',
+      '<meta property="og:image:height" content="630" />',
+      `<meta property="og:image:alt" content="${esc(og.imageAlt)}" />`,
+      ...(og.publishedTime ? [`<meta property="article:published_time" content="${esc(og.publishedTime)}" />`] : []),
+      ...(og.modifiedTime ? [`<meta property="article:modified_time" content="${esc(og.modifiedTime)}" />`] : []),
+      '<meta name="twitter:card" content="summary_large_image" />',
+      `<meta name="twitter:title" content="${esc(m.title)}" />`,
+      `<meta name="twitter:description" content="${esc(m.description)}" />`,
+      `<meta name="twitter:image" content="${esc(og.image)}" />`,
+    ]
+    html = html.replace(OG_SLOT, () => tags.join('\n    '))
+  } else {
+    html = html.replace(/[ \t]*<!--OG-->\r?\n/, '')
   }
   // 预渲染正文必须是「已经画好、不待执行」的静态标记：React 为迟到落定的 Suspense 边界
   // 会输出 <script> 引导脚本 + <div hidden> + <template> 换装机制，那套只对 hydrate 有意义，

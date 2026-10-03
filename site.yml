@@ -33,7 +33,10 @@ nav:
   - { ink: 观山, route: /portfolio,      isDetailPage: true,  detailPrefix: /portfolio,       module: portfolio }  # 列表页+/portfolio/:slug 动态详情同前缀固定激活（旧 /work 族已于 2026-09-13 彻底移除）
   - { ink: 造境, route: /blog,           isDetailPage: true,  detailPrefix: /blog,            module: blog }       # 博客随笔页（旧 /pipeline 于 2026-09-13 彻底移除）。2026-09-09 归档复活升族：/blog/:slug 详情族按前缀固定激活（观山同权 R2 语义），module=blog 首页段照常参与滚动联动
   - { ink: 观自, route: /about,          isDetailPage: false, detailPrefix: null,            module: about }      # 观自=整页 /about（旧 hash 锚点关联已于 2026-09-13 彻底移除）
-  - { ink: 传音, route: /footer,         isDetailPage: false, detailPrefix: null,            module: footer }     # 独立传音页 /footer（2026-09-16：旧 /footer/:id 动态详情退役——组件从不读 :id、全站无入口、预渲染只产 /footer 一条）
+  # ★2026-10-03 用户令「删除旧地址」：**独立传音页整条退役**，不留注释留底——nav 只剩上面四条。
+  #   传音**只作为首页第五段存在**（home.sections 的 id=footer + SiteFooter 组件，各页页脚照旧）。
+  #   要恢复：在本行位置按上面同格式补一条 nav（五字段）+ 在 src/routes.tsx 加回路由与页面组件；
+  #   经过与缘由见 Dev_Docs 80 该日行、90 §3。
 
 # 子页 meta 专名：只喂预渲染 <title>，不进页面可见层
 # ★2026-09-13 用户令：键名归位=路由段名（pipeline→blog、contact→footer，与 nav[].route 一致）；
@@ -47,7 +50,6 @@ page_meta:
   portfolio: 观山
   about: 观自
   blog: 造境
-  footer: 传音
 
 # --------------------------------------
 # Page Desc（子页 meta 摘要专写：只喂预渲染 <meta name="description">）
@@ -93,7 +95,7 @@ home:
       en: ABOUT
       intro: null
       cta_detail: true
-    - id: footer                                 # 与 /footer 对应
+    - id: footer                                 # 首页第五段（传音）：2026-10-03 起没有独立页，只剩这一段
       heading: 有想法了？来信相告。               # 09-06 页脚重构（原"传音入密"退役，只留 ink 词"传音"）
       en: FOOTER
       # 传音段自带题头（SiteFooter 的 .foot-head）⇒ 不走段标题行：intro / cta_detail 对它没有消费者，

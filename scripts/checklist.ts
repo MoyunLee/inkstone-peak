@@ -76,7 +76,6 @@ if (existsSync(path.join(dist, 'index.html'))) {
     path.join('portfolio', 'index.html'),
     path.join('blog', 'index.html'),
     path.join('about', 'index.html'),
-    path.join('footer', 'index.html'),
     '404.html',
     ...works.map((w) => path.join('portfolio', w.slug, 'index.html')),
     ...articles.map((a) => path.join('blog', a.slug, 'index.html')),
@@ -87,6 +86,66 @@ if (existsSync(path.join(dist, 'index.html'))) {
     const noBody = paths.filter((p) => !readFileSync(path.join(dist, p), 'utf8').includes('<div id="prerender">'))
     if (noBody.length > 0) blocking.push(`${noBody.length} 份路由 HTML 没有预渲染正文（首份：${noBody[0]}）——爬虫与无 JS 用户看到空壳`)
     else delivery.push(`${paths.length} 份路由 HTML 均含预渲染正文 · sitemap/rss/robots 三件齐`)
+
+    // 结构化数据：每份路由恰好 1 条 JSON-LD、且是合法 JSON（404 除外——noindex 页刻意不出）。
+    // 只验「有没有 / 是不是 JSON」：内容口径归 src/lib/meta/jsonld.ts 与富结果测试工具管，本表不重复一遍。
+    const ldProblems: string[] = []
+    let ldChecked = 0
+    for (const p of paths) {
+      const html = readFileSync(path.join(dist, p), 'utf8')
+      const want = p === '404.html' ? 0 : 1
+      const found = (html.match(/<script type="application\/ld\+json">/g) ?? []).length
+      if (found !== want) {
+        ldProblems.push(`${p} 的 JSON-LD 脚本 ${found} 条（应为 ${want}）——pre-render 的 <!--JSONLD--> 锚点或注入逻辑有问题`)
+        continue
+      }
+      if (want === 0) continue
+      ldChecked += 1
+      const raw = /<script type="application\/ld\+json">([\s\S]*?)<\/script>/.exec(html)?.[1] ?? ''
+      try {
+        const graph = JSON.parse(raw) as { '@graph'?: unknown[] }
+        if (!Array.isArray(graph['@graph']) || graph['@graph'].length === 0) ldProblems.push(`${p} 的 JSON-LD 没有 @graph 节点`)
+      } catch (err) {
+        ldProblems.push(`${p} 的 JSON-LD 不是合法 JSON（${err instanceof Error ? err.message : String(err)}）`)
+      }
+    }
+    if (ldProblems.length > 0) blocking.push(...ldProblems)
+    else delivery.push(`${ldChecked} 份路由 HTML 各 1 条合法 JSON-LD（404 刻意不出）`)
+
+    // 分享卡：非 404 每页四件 og 标签齐备 · og:url 必须等于 canonical · og:image 指向的图必须真在 dist 里。
+    // 只验"带没带 / 对不对得上"：卡面文案口径归 src/lib/meta/page-meta.ts 的 og 字段。
+    const ogProblems: string[] = []
+    let ogChecked = 0
+    for (const p of paths) {
+      const html = readFileSync(path.join(dist, p), 'utf8')
+      const want = p === '404.html' ? 0 : 4
+      const found = (html.match(/<meta property="og:(?:title|description|url|image)"/g) ?? []).length
+      if (found !== want) {
+        ogProblems.push(`${p} 的 og 标签 ${found} 条（应为 ${want}）——pre-render 的 <!--OG--> 锚点或注入逻辑有问题`)
+        continue
+      }
+      if (want === 0) continue
+      ogChecked += 1
+      const ogUrl = /<meta property="og:url" content="([^"]+)"/.exec(html)?.[1] ?? ''
+      const canonical = /<link rel="canonical" href="([^"]+)"/.exec(html)?.[1] ?? ''
+      if (ogUrl !== canonical) ogProblems.push(`${p} 的 og:url 与 canonical 不一致（${ogUrl || '空'} ≠ ${canonical || '空'}）`)
+      const image = /<meta property="og:image" content="([^"]+)"/.exec(html)?.[1] ?? ''
+      const rel = image.replace(/^https?:\/\/[^/]+/, '').replace(/^\//, '')
+      if (!rel || !existsSync(path.join(dist, rel.split('/').join(path.sep)))) {
+        ogProblems.push(`${p} 的 og:image 指向的文件不在 dist 里：${image || '(空)'}`)
+      }
+    }
+    if (ogProblems.length > 0) blocking.push(...ogProblems)
+    else delivery.push(`${ogChecked} 份路由 HTML 均有分享卡（og:title/description/url/image · og:url==canonical · 图在 dist 内；404 刻意不出）`)
+
+    // 标题层级：每份路由**恰好 1 个** <h1>（含 404——它有自己的 h1）。列表页那枚是 .sr-only（只给读屏与爬虫）。
+    const h1Problems: string[] = []
+    for (const p of paths) {
+      const n = (readFileSync(path.join(dist, p), 'utf8').match(/<h1[\s>]/g) ?? []).length
+      if (n !== 1) h1Problems.push(`${p} 的 <h1> ${n} 个（应为 1）——列表页那枚是 .sr-only，见 20-设计规范 §8`)
+    }
+    if (h1Problems.length > 0) blocking.push(...h1Problems)
+    else delivery.push(`${paths.length} 份路由 HTML 各恰好 1 个 <h1>`)
   }
 } else {
   delivery.push('dist/ 未构建，跳过交付件校验（上线前 npm run build 后重跑本表）')

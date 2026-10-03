@@ -29,6 +29,22 @@
   outline-offset: 2px;
 }
 
+/* ---------- 视觉隐藏（a11y） ----------
+   只该给读屏与爬虫的标题/标签：移出布局与视口，但仍在可访问树里（不占位、不参与栅格）。
+   与 .skip-link 的分工：那个是"聚焦时浮出来"的链接，这个永远不显示。
+   ★别借 .vh 干这事——它住在 embed.css，是视频/嵌入顶图槽的定比壳（可见的），名字只是像。 */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 /* ---------- 顶栏 ---------- */
 .topbar {
   position: fixed;

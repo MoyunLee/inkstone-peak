@@ -1,9 +1,12 @@
 <!doctype html>
 <!-- 预渲染壳（meta 注入式）：下方 <html lang> / title / description / canonical 为固定替换锚点，
      构建后由 scripts/pre-render.ts 按路由逐份覆写——此处手改值无意义，话术唯一家在 site.yml（lang 取 site.lang）。
-     ★2026-09-11 用户令：**OG 全套移除**（og:site_name/type/title/description/url/image 六个标签全删）
-       —— 微信/QQ 分享不再出卡片；`og_default` 配置、assets.ts 的 og 图生成、checklist 的 og 检查同步下线。
-       canonical 保留并逐路由覆写（站内既有词汇：旧地址重定向桩本就带 canonical），故 `site.url` 仍有消费者。 -->
+     ★2026-09-11 用户令：**OG 全套移除**；★2026-10-03 用户令**恢复**（用户令 D3）：og:* / twitter:* / article:*
+       由 pre-render 按路由写进下面那行「OG」锚点注释，全站共用一张手工默认卡 /og/default.png（配方 scripts/og-card.ts）。
+       恢复不等于回退到旧形态：不恢复 `og_default` 配置键，也不在构建链里出图（PNG 带字依赖本机字体）。
+       canonical 保留并逐路由覆写（站内既有词汇：旧地址重定向桩本就带 canonical），故 `site.url` 仍有消费者。
+       头部另有一枚 JSONLD 锚点注释（即「JSONLD」那行）：构建期换成该路由的结构化数据，模型见 src/lib/meta/jsonld.ts。
+       它刻意只做构建期——SPA 换页不改写这段数据，缘由写在模块头部与 Dev_Docs 90 的 §4.8。 -->
 <html lang="zh-CN">
   <head>
     <meta charset="utf-8" />
@@ -14,6 +17,8 @@
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="alternate" type="application/rss+xml" href="/rss.xml" />
+    <!--OG-->
+    <!--JSONLD-->
     <script type="module" src="/src/main.tsx"></script>
   </head>
   <body>

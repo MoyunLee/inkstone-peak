@@ -12,7 +12,7 @@ npm run build      # 产 dist/（内容校验→媒体→素材→中文闸→�
 npm run preview    # 起本地服务 → 浏览器打开 http://127.0.0.1:4173
 ```
 
-- **`npm run preview` 的语义与生产一致**（目录路径直出 `<路径>/index.html`，未知路径给 404 页）：`vite.config.ts` 里的 `previewDirIndex()` 补了这层改写。★此前 vite preview 的 SPA 回退会把**所有非首页路径都喂成 `dist/index.html`**，于是刷新 /portfolio、/blog、/footer 时**首帧先看到首页内容**、React 挂载后才换成真页面（地址栏不变，像被弹回首页）；10 份预渲染正文里只有首页那份在本地可见（2026-09-16 修复）。
+- **`npm run preview` 的语义与生产一致**（目录路径直出 `<路径>/index.html`，未知路径给 404 页）：`vite.config.ts` 里的 `previewDirIndex()` 补了这层改写。★此前 vite preview 的 SPA 回退会把**所有非首页路径都喂成 `dist/index.html`**，于是刷新 /portfolio、/blog、/about 时**首帧先看到首页内容**、React 挂载后才换成真页面（地址栏不变，像被弹回首页）；10 份预渲染正文里只有首页那份在本地可见（2026-09-16 修复）。
 - 只投递期自用：这台电脑开着 `npm run preview` 就能逛所有页面（首页五段/案例/关于/流程/404 全功能，粒子、导航、深链都在）。
 - 想给别人看但不想上网：同一 Wi-Fi 下用 `npx vite preview --host 0.0.0.0`，手机访问 `http://<你电脑IP>:4173`（防火墙放行即可）——仅限同网段，不出户。
 - 改文案/内容想即时看：另开一个终端 `npm run content:watch`，再跑 `npm run dev`（地址 http://127.0.0.1:5173），改 `site.yml`、`source/` 或 `content/` 下的 md 存盘即热更。

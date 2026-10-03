@@ -149,14 +149,14 @@ export function articleAsideTags(entry: ArticleEntry, site: SiteData): string[] 
  *
  * @param e 一条嵌入（label 作可访问名）。
  * @param site 站点数据（取 a11y 的三句嵌入话术）。
- * @param opts hero=顶图槽（eager）；cover=海报图；external=出口地址（优先平台页）。
+ * @param opts hero=顶图槽（eager）；cover=海报图；**alt=海报图的文本替代**（顶部槽给文章标题、分节给该条 label）；external=出口地址（优先平台页）。
  * @example
  * {embedFrame(entry.embeds[0], site, { hero: true, cover: entry.cover })}
  */
 function embedFrame(
   e: PortfolioEmbed,
   site: SiteData,
-  opts?: { hero?: boolean; cover?: string | null; external?: string | null },
+  opts?: { hero?: boolean; cover?: string | null; alt?: string | null; external?: string | null },
 ): ReactNode {
   const a = site.a11y
   return (
@@ -164,6 +164,7 @@ function embedFrame(
       url={e.url}
       label={e.label}
       cover={opts?.cover ?? null}
+      alt={opts?.alt ?? null}
       external={opts?.external ?? null}
       hero={opts?.hero === true}
       texts={{ play: a.embed_play ?? '', external: a.embed_external ?? '', failed: a.embed_failed ?? '' }}
@@ -209,13 +210,14 @@ export function articleHero(entry: ArticleEntry, site: SiteData): ReactNode {
   if (top) {
     // 海报用文章封面；出口优先平台页（手机上通常直接唤起 App），没有才回落播放器地址。
     // .bd-hero 定比壳与框下出口都由 EmbedHero 自己渲染（出口必须在壳**外面**才不会被 overflow 裁掉）
-    return embedFrame(top, site, { hero: true, cover: entry.cover ?? entry.top_img, external: entry.links?.[0]?.url ?? null })
+    return embedFrame(top, site, { hero: true, cover: entry.cover ?? entry.top_img, alt: entry.title, external: entry.links?.[0]?.url ?? null })
   }
   if (!entry.top_img) return null
   return (
     <figure className="bd-hero">
-      {/* 顶图是装饰（标题已经给了名字），alt 留空免读屏重复念一遍 */}
-      <RespImg src={entry.top_img} sizes={HERO_SIZES} eager />
+      {/* 顶图是**内容图**（读者要看的就是这张画），给文章标题当文本替代——与自托管视频、嵌入海报两条
+          顶部槽口径一致（★2026-10-03 用户令：三处不再各说各话）。卡片/轮播仍留空：那两处的图在带标题的链接里。 */}
+      <RespImg src={entry.top_img} sizes={HERO_SIZES} alt={entry.title} eager />
     </figure>
   )
 }
@@ -244,7 +246,7 @@ export function articlePreBody(entry: ArticleEntry, site: SiteData): ReactNode {
           {site.a11y.case_embeds ? <h2>{site.a11y.case_embeds}</h2> : null}
           <ul>
             {embeds.map((e) => (
-              <li key={e.url}>{embedFrame(e, site, { external: entry.links?.[0]?.url ?? null })}</li>
+              <li key={e.url}>{embedFrame(e, site, { alt: e.label, external: entry.links?.[0]?.url ?? null })}</li>
             ))}
           </ul>
         </div>

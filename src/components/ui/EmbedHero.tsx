@@ -32,6 +32,7 @@ function isTouch(): boolean {
  * @param url 播放器地址（已过白名单）。
  * @param label 可访问名（iframe title）。
  * @param cover 海报图（顶图槽用文章封面；没有就退成纸色块）。
+ * @param alt 海报图的文本替代：顶图槽给文章标题、正文分节给该条嵌入的 label——**海报是内容图，不是装饰**。
  * @param external 出口地址（优先平台页，没有就用播放器地址）。
  * @param texts 三个话术（site.yml a11y：播放 / 新窗口 / 没加载出来）。
  * @param hero true=顶图槽（自己渲染 .bd-hero 定比壳并 eager 加载），false=正文分节（lazy）。
@@ -42,6 +43,7 @@ export default function EmbedHero({
   url,
   label,
   cover,
+  alt,
   external,
   texts,
   hero = false,
@@ -49,6 +51,8 @@ export default function EmbedHero({
   url: string
   label: string
   cover?: string | null
+  /** 海报图的 alt；调用方必给（见上方 @param alt）。 */
+  alt?: string | null
   external?: string | null
   texts: { play: string; external: string; failed: string }
   hero?: boolean
@@ -69,7 +73,7 @@ export default function EmbedHero({
 
   const poster = (
     <div className="em">
-      {cover ? <RespImg className="em-cover" src={cover} sizes={HERO_SIZES} eager={hero} /> : <span className="em-cover" aria-hidden="true" />}
+      {cover ? <RespImg className="em-cover" src={cover} sizes={HERO_SIZES} alt={alt ?? ''} eager={hero} /> : <span className="em-cover" aria-hidden="true" />}
       {touch ? (
         <a className="em-play" href={out} target="_blank" rel="noopener noreferrer">
           <span className="em-orb"><span className="em-tri" aria-hidden="true" /></span>

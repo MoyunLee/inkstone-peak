@@ -5,10 +5,12 @@ import FadeCarousel from '../components/ui/FadeCarousel'
 import CaseGrid from '../components/ui/article/CaseGrid'
 import type { CarouselItem } from '../components/ui/FadeCarousel'
 import { works } from '../lib/data/content'
-import { useSite } from '../lib/data/site'
+import { navInk, useSite } from '../lib/data/site'
 
 export default function PortfolioList() {
   const site = useSite()
+  // 本页唯一 h1：只给读屏与爬虫（首屏是大图轮播，标题挤进去会破版）。文案 = 该页在导航里的名字（site.yml nav ink）。
+  const heading = navInk(site, 'portfolio')
   // 轮播成员＝声明 carousel: true **且有封面**的作品（纯图轮播，没封面就没有可展示的东西）；
   // 顺序沿用 works 的构建期 date 倒序，与列表同序。
   const maxSlides = site.portfolio?.carousel?.max_slides // 缺省=不限
@@ -20,6 +22,7 @@ export default function PortfolioList() {
     <>
       <Header />
       <main id="main-content" className="page-pad page-main portfolio-list">
+        {heading ? <h1 className="sr-only">{heading}</h1> : null}
         <FadeCarousel
           items={slides}
           labels={{ prev: site.a11y.carousel_prev, next: site.a11y.carousel_next }}

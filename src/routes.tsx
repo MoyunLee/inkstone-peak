@@ -9,7 +9,6 @@ import PortfolioDetail from './pages/PortfolioDetail'
 import About from './pages/About'
 import BlogList from './pages/BlogList'
 import BlogDetail from './pages/BlogDetail'
-import FooterPage from './pages/Footer'
 import NotFound from './pages/NotFound'
 
 /** 换页回顶：仅 path 变化时执行（挂载首跑不碰）、带 hash 跳过、顺带清 navlock 跳页锁。 */
@@ -53,7 +52,6 @@ export default function AppRoutes() {
         <Route path="/about" element={<About />} />
         <Route path="/blog" element={<BlogList />} />
         <Route path="/blog/:slug" element={<BlogDetail />} />
-        <Route path="/footer" element={<FooterPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>
