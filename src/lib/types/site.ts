@@ -124,7 +124,10 @@ export interface SiteData {
     url: string
   }
   nav: NavLink[]
+  /** 页面 meta 专名：键 = 路由 basename；另有首页专用键 `home`（首页 basename 是空串，无段名可用）。 */
   page_meta?: Record<string, string>
+  /** 页面 meta 摘要专写：键法同 page_meta（首页用 `home`）；未命中回落 page-meta.ts 的 STATIC_DESC。 */
+  page_desc?: Record<string, string>
   home: { sections: HomeSection[] }
   /** 观山顶部轮播：成员由作品 front-matter 的 `carousel` 声明，这里只限最多几张（缺省/删键=不限）。 */
   portfolio?: {

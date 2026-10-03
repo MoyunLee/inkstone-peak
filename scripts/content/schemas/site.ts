@@ -43,6 +43,8 @@ export const siteSchema = z.object({
   })),
   // 子页 meta 专名：键名自由（缺哪把用 site.title 回落）
   page_meta: z.record(z.string(), z.string()).optional(),
+  // 子页 meta 摘要专写（键法同 page_meta；未命中回落 page-meta.ts 的 STATIC_DESC 策略小表）
+  page_desc: z.record(z.string(), z.string()).optional(),
   home: z.object({ sections: z.array(
     z
       .object({

@@ -38,11 +38,28 @@ nav:
 # 子页 meta 专名：只喂预渲染 <title>，不进页面可见层
 # ★2026-09-13 用户令：键名归位=路由段名（pipeline→blog、contact→footer，与 nav[].route 一致）；
 #   about 值由旧专名「道途」改「观自」——全站唯一一处双层命名退场，meta 名自此与导航同词。
+# ★2026-10-03：新增 home = 首页整条 <title>。这是本节唯一破例的键：首页 basename 是空串，没有路由
+#   段名可用，故借 nav 的 module 词「home」；值即完整标题、不套「<专名> · 砚山」后缀（放作者名还是
+#   带作品集 / 职业关键词，全看这一行；现取「作者名 · 站名」，与子页后缀同构、保住独占词「砚山」）。
+#   缺键即回落 site.title（=旧行为，首页标题只有「砚山」）。
 page_meta:
+  home: 杜康 · 砚山
   portfolio: 观山
   about: 观自
   blog: 造境
   footer: 传音
+
+# --------------------------------------
+# Page Desc（子页 meta 摘要专写：只喂预渲染 <meta name="description">）
+# --------------------------------------
+# 键法同 page_meta：键 = 路由 basename，首页用 home。命中即用；未命中回落 page-meta.ts 的 STATIC_DESC
+# 策略小表——所以新页面零配置也有摘要（默认 site.description），写这四条只为让 / 与三个列表页两两不同。
+# 本站四条都只写一句短语（与页面专名同构）：摘要是 title 的补充说明，不靠它堆词；要长要短全看这一行。
+page_desc:
+  home: 杜康 · MoyunLee
+  portfolio: 观山 · 作品全览
+  blog: 造境 · 笔墨札记
+  about: 观自：关于杜康
 
 # --------------------------------------
 # Index（首页五段：顺序权威）

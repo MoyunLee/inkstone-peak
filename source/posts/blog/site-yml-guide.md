@@ -1,7 +1,7 @@
 ---
 title: 本站 site.yml 全字段速查：每个键怎么配，什么时候可以删
 date: "2026-09-16"
-updated: "2026-09-27"
+updated: "2026-10-03"
 tags: [写作, 配置, 建站]
 categories: [站务]
 keywords: site.yml,配置,建站,Butterfly,zod,缺省即隐藏,构建期校验
@@ -9,7 +9,7 @@ description: site.yml 是本站骨架与全部界面文案的唯一事实源。�
 toc_number: false     # 本文标题自带编号（## 一、/ ### 3.1），再叠 toc.number 的自动编号会出双份——与姊妹篇 front-matter-guide 同处理
 ---
 
-这篇是给未来的自己（和任何一个要接手这份配置的人）写的：`site.yml` 有 13 个顶层分节、几十个键，注释虽密，但「哪些删了当场报错、哪些删了只是少一块 UI」光靠翻文件容易记混。本文按分节逐键过一遍，每个键给三样东西：**怎么写 / 能不能省 / 省了会怎样**。
+这篇是给未来的自己（和任何一个要接手这份配置的人）写的：`site.yml` 有 23 个顶层分节、几十个键，注释虽密，但「哪些删了当场报错、哪些删了只是少一块 UI」光靠翻文件容易记混。本文按分节逐键过一遍，每个键给三样东西：**怎么写 / 能不能省 / 省了会怎样**。
 
 配套那篇《本站 front-matter 全字段速查》管的是**每一篇文章**的头部；这篇管的是**站点层**。两篇合起来，本站零代码能碰的配置面就齐了。
 
@@ -27,7 +27,8 @@ toc_number: false     # 本文标题自带编号（## 一、/ ### 3.1），再�
 |---|---|---|---|
 | `site` | ❌ 不能 | `title` `author` `lang` `description` `url` | 站点元信息 / canonical / sitemap / rss |
 | `nav` | ❌ 不能 | 每条 5 个字段全给 | 双导航 / 路由白名单 / 预渲染页面清单 |
-| `page_meta` | ✅ 可整节删 | — | 子页 `<title>` 专名 |
+| `page_meta` | ✅ 可整节删 | — | 子页 `<title>` 专名（首页用 `home` 键给整条标题） |
+| `page_desc` | ✅ 可整节删 | — | 静态页 `<meta description>` 专写（键法同 `page_meta`；未写回落策略小表） |
 | `home` | ❌ 不能 | `sections` ≥1 段；每段 `id` + （`heading` 或 `heading_lines` ≤2 行） | 首页五段 |
 | `portfolio` | ✅ 可整节删 | — | 观山轮播张数 |
 | `blog` | ✅ 可整节删 | — | 归档列表 / 首页造境段 / 卡片标签 |
@@ -50,7 +51,7 @@ toc_number: false     # 本文标题自带编号（## 一、/ ### 3.1），再�
 | `title` | ✅ | 站点名；页面 meta 回落它，也作标题后缀 |
 | `author` | ✅ | 作者名；`/about` 深墨卡的名字、版权模块作者回落到它 |
 | `lang` | ✅ | 注入 `<html lang>`（如 `zh-CN`） |
-| `description` | ✅ | 首页与列表页的 meta 描述 |
+| `description` | ✅ | 兜底摘要：未专写 `page_desc` 的静态页 + RSS 频道描述 |
 | `url` | ✅ | **站点绝对 URL**：逐路由 canonical、sitemap、rss、robots 的域唯一来源；必须是合法 `http(s)` |
 | `tagline` | 可选 | 备用副题，**当前无消费者**（写了不报错，也不出现在任何地方） |
 
@@ -74,14 +75,27 @@ nav:
 
 构建期还会逐条查：`ink` 重复、`route` 基路径撞车、`detailPrefix` 撞车、`module` 不在 `home.sections` 或重复。**内链白名单也从这张表派生**——加页面 = 加一行。
 
-### 3.3 `page_meta`（可整节省）
+### 3.3 `page_meta` / `page_desc`（meta 两节，均可整节省）
 
-自由 record，**键 = 该页路由的 basename**（`/portfolio` → `portfolio`；`/` 用 `site.title`）。缺键回落 `site.title`。它只喂预渲染的 `<title>`，不进页面可见层。
+自由 record，**键 = 该页路由的 basename**（`/portfolio` → `portfolio`）。缺键回落 `site.title`。它只喂预渲染的 `<title>`，不进页面可见层。
+
+**首页是唯一破例**：它的 basename 是空串，没有段名可用，故键名取 `home`（与 `nav` 的 `module: home` 同词），值是**首页整条 `<title>`**——不套 `<专名> · <站名>` 后缀，想放什么就写什么（本站取「作者名 · 站名」＝`杜康 · 砚山`，与子页后缀同构）。缺键时首页标题就只剩 `site.title`。
 
 ```yaml
 page_meta:
+  home: 杜康 · 砚山   # 首页整条 title（本节唯一破例键）
   portfolio: 观山
   about: 观自
+```
+
+`page_desc` 是与它成对的姊妹节（只管**静态页**；文章详情页的摘要一直取该篇 front-matter 的 `description`）：键法完全相同（键 = 路由 basename，首页用 `home`），值进 `<meta name="description">`。命中即用；未命中回落 `page-meta.ts` 的 `STATIC_DESC` 策略小表（`''`/`portfolio`/`about` → `site.description`，`blog` → 该段 `intro`，`footer` → 该段 `heading`；未列出的新页默认 `site`）——所以**新页面零配置也有摘要**，写这几条只为让 `/` 与三个列表页两两不同。**本站一律只写一句短语**（与页面专名同构）：摘要是 title 的补充说明，不靠它堆词。
+
+```yaml
+page_desc:
+  home: 杜康 · MoyunLee
+  portfolio: 观山 · 作品全览
+  blog: 造境 · 笔墨札记
+  about: 观自：关于杜康
 ```
 
 ### 3.4 `home`（必填节）
@@ -313,6 +327,8 @@ columns:
 |---|---|
 | `site.tagline` | 无影响（当前无消费者） |
 | `page_meta.<某页>` | 该页 `<title>` 回落 `site.title` |
+| `page_meta.home` | 首页 `<title>` 回落 `site.title`（首页标题只剩站名：无作者、无职业词） |
+| `page_desc` 整节 | 四页摘要回落策略小表（`''`/`portfolio`/`about` → `site.description`；`blog` → 该段 `intro`，现为 `null` 故仍回落 `site.description`；`footer` → 该段 `heading`） |
 | `portfolio` 整节 | 轮播不限张数、间隔 5000ms |
 | `blog` 整节 | 新在前 / 卡不显示日期 / 标签不限 / 首页预览 6 张 / 不出「作品」标签 |
 | `heatmap` 整节 | 首页造境段与 `/blog` 的热力图整块不出 |

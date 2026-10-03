@@ -17,7 +17,10 @@ export interface MetaNavInput {
 export interface MetaSiteInput {
   site: { title: string; description: string; url: string; lang?: string }
   nav: MetaNavInput[]
+  /** 页面 meta 专名：键 = 路由 basename；另加首页专用键 `home`（首页 basename 是空串，无段名可用）。 */
   page_meta?: Record<string, string> | null
+  /** 页面 meta 摘要专写：键法同 page_meta（首页用 `home`）；未命中回落 STATIC_DESC 策略小表。 */
+  page_desc?: Record<string, string> | null
   home: { sections: { id: string; heading?: string | null; intro?: string | null }[] }
   notfound: { line: string }
 }
@@ -50,6 +53,7 @@ export interface RouteMetaModel {
  *   intro   → 该页 module 对应首页段的 intro，缺则回落 site.description
  *   heading → 该页 module 对应首页段的 heading，缺则回落 site.description
  * 键 = 路由 basename（'/' 记作 ''）。**未列出的新页默认 site**，所以从 nav 新增页面无需改这里。
+ * 前置：site.yml 的 page_desc 命中该页时优先（见 pageMeta 内），本表只管「没专写」的页。
  */
 const STATIC_DESC: Record<string, 'site' | 'intro' | 'heading'> = {
   '': 'site',
@@ -97,6 +101,7 @@ export function pageMeta(pathname: string, site: MetaSiteInput, posts: MetaArtic
   const siteUrl = info.url.replace(/\/+$/, '')
   const p = normalizePath(pathname)
   const pm = site.page_meta ?? {}
+  const pd = site.page_desc ?? {}
   const lang = info.lang ?? 'zh-CN'
   const out = (title: string, description: string, extra?: Partial<RouteMetaModel>): RouteMetaModel => ({
     title,
@@ -114,9 +119,13 @@ export function pageMeta(pathname: string, site: MetaSiteInput, posts: MetaArtic
     const named = key !== '' && pm[key] ? pm[key] : info.title
     const sec = site.home.sections.find((s) => s.id === (hit.module ?? ''))
     const how = STATIC_DESC[key] ?? 'site'
-    const description =
+    const fallback =
       how === 'intro' ? (sec?.intro ?? info.description) : how === 'heading' ? (sec?.heading ?? info.description) : info.description
-    return out(p === '/' ? info.title : `${named} · ${info.title}`, description)
+    // 摘要：page_desc 专写优先（键法同 page_meta，首页用 `home`）；未命中回落策略小表（新页零配置）。
+    const description = pd[key === '' ? 'home' : key] || fallback
+    // 首页 basename 是空串（routeKey('/') → ''），没有可用的路由段名 ⇒ 本节唯一破例的键 `home`：
+    // 值是首页整条 <title>（不套「<专名> · <站名>」后缀，好把作者与职业关键词放进首页）；缺键回落 site.title。
+    return out(p === '/' ? (pm.home ?? info.title) : `${named} · ${info.title}`, description)
   }
 
   // ② 详情页：只看文章的落点 to（前缀由 site.yml 的 detailPrefix 决定，本文件不认前缀）
