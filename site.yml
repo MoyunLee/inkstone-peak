@@ -283,7 +283,7 @@ about:
 # 联系方式（页脚「联系」栏的唯一数据源；原「联系我」按钮 2026-09-24 已移除）
 contact:
   email: 2106996916@qq.com
-  douyin:   { platform: 抖音, value: 重回1985, url: "https://v.douyin.com/IgjCV-dLEFA/" }
+  wechat:   { platform: 微信, value: MoyunLee, url: null }   # 2026-10-03 用户令加。微信没有可用的 http 链接 ⇒ 只能 url: null：页脚渲染 --ink-3 灰字「微信 · MoyunLee」（4.59:1 达标）但**不可点**。也因为它是最主要渠道，**有意**紧随 email，不按「无 url 行排最后」的惯例
   github:   { platform: GitHub, value: inkstone-peak, url: "https://github.com/MoyunLee/inkstone-peak" }   # 本站源码仓库（公开）。卡面出「GitHub · inkstone-peak」；换仓库/改主页只动这一行
   bilibili: { platform: B 站, value: 雨夜鱼龙舞yo, url: "https://space.bilibili.com/1800744550" }   # 卡面出「B 站 · 雨夜鱼龙舞yo」；换账号/改主页只动这一行（原为 url=null → 灰字「筹建中」）
 
@@ -292,15 +292,18 @@ footer:
   # 2026-09-24 用户令：题头右侧「查看详细 → / 联系我 →」两枚按钮整体移除（footer.cta 随之退役）→ 页头只剩题头。
   columns:                                      # 桌面三栏 / 640~1023 两栏 / <640 单列（列数自动进 --foot-rest，增删栏不改 CSS）
     # links 写法：内联 [{ label, to }] 现写现用。
-    # to 允许：站内路由（须命中 nav 白名单）· http(s) 外链 · mailto: · source/site/ 下的静态文件（如 /resume/xxx.pdf，构建期查落盘）。
+    # to 允许：站内路由（须命中 nav 白名单）· http(s) 外链 · mailto: · source/site/ 下的静态文件（任何带扩展名的文件，构建期查落盘）。
     - { id: brand,   title: null }              # 栏1：印章母版（居中；brand_bio 已省，无栏题）
     - { id: site,    title: 导航, from: nav }    # ★读 nav 自动生成，加一段导航此处自动出现
     - { id: social,  title: 联系, from: contact }
-    # 想再加一栏就照这样内联写：文件放进 site/source/site/（如 source/site/resume/du-kang.pdf），带扩展名的内链构建期查落盘。
-    # - { id: files, title: 资料, links: [ { label: 简历, to: /resume/du-kang.pdf } ] }
+    # 想再加一栏就照这样内联写：文件放进 site/source/site/，带扩展名的内链构建期查落盘（缺失只 warn）。
+    # - { id: files, title: 资料, links: [ { label: 下载, to: /files/example.pdf } ] }
+    # ↑ 2026-10-03 用户令：**不放简历 PDF**（怕个人信息泄露）→ 原「资料 · 简历 → /resume/du-kang.pdf」示例整条删除；
+    #   上方通用写法保留给别的文件，但别照旧文档 / 审查报告把简历加回来。
   # brand_bio: 杜康，游戏方向创作者。2027 春起可实习，穗 / 深 / 沪 / 京，接受远程合作。
   # ↑ 2026-09-23 用户令：栏1 简介整句删除、印章居中 → 本键删除（可省键，缺省即隐藏）。
   #   这一行曾承载「求职意向 / 地域口径的全站唯一落点」；要恢复就取消上面的注释，别在组件里写第二处。
+  email_label: 邮箱                              # 「联系」栏邮箱行的前缀标签 → 页脚渲染「邮箱 · 2106996916@qq.com」；可省＝裸地址。2026-10-03 用户令
   seal_text: 杜康                               # 与顶栏 logo 同一枚印章母版；崩口/键线在组件里，不在此处
   copyright: © 2026 杜康
 

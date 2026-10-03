@@ -3,6 +3,7 @@
   "buildCommand": "npm run build",
   "installCommand": "npm ci",
   "outputDirectory": "dist",
+  "trailingSlash": false,
   "headers": [
     {
       "source": "/(.*)",

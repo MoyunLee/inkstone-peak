@@ -187,6 +187,7 @@ export const siteSchema = z.object({
     // links：内联 [{label,to}]
     columns: z.array(z.object({ id: z.string(), title: urlOrNull.optional(), from: z.string().optional(), links: z.array(linkShape).optional() }).strict()),
     brand_bio: z.string().optional(),   // 2026-09-23 转可选：栏1 只留印章时整键省（缺省即隐藏）
+    email_label: z.string().optional(),  // 「联系」栏邮箱行的前缀标签（本站「邮箱」）；缺省＝裸地址
     seal_text: z.string(),
     copyright: z.string(),
     demo_note: z.string().optional(),

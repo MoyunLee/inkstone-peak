@@ -272,20 +272,21 @@ about:
 ```yaml
 contact:
   email: someone@example.com
-  douyin:   { platform: 抖音, value: 重回1985, url: "https://v.douyin.com/xxxx/" }
+  wechat:   { platform: 微信, value: 你的微信号, url: null }        # 有值但无可用链接：url: null
   github:   { platform: GitHub, value: inkstone-peak, url: "https://github.com/MoyunLee/inkstone-peak" }
   bilibili: { platform: B 站, value: 雨夜鱼龙舞yo, url: "https://space.bilibili.com/1800744550" }
 ```
 
-`url: null` 时渲染成灰字、不留死链，灰字文案取 `pending`（如「筹建中」——本站现有三行社交（抖音 / GitHub / B 站）已全部填真地址，故当前无此类行；键留着，将来加新平台时可先用它占位）；`url` 若给了就必须是合法 `http(s)`。
+`url: null` 时渲染成**灰字、不可点**（不留死链）：**有 `value` 就显示 `platform · value`，只有 `pending` 才显示待建文案**。本站现有三行社交（`微信` / GitHub / B 站），其中 `wechat` 正是这一类——微信号没有可用的 `http(s)` 链接，只能 `url: null`（`--ink-3` 灰字 4.59:1 达标，但要复制得手抄）；`url` 若给了就必须是合法 `http(s)`。
 
-卡面文字 = `platform · value`（本站现有三行：`抖音 · 重回1985` / `GitHub · inkstone-peak` / `B 站 · 雨夜鱼龙舞yo`，**数组顺序即渲染顺序**；`url: null` 的灰字行按惯例排在最后）。加一行 = 在 `contact` 下加一个键，页脚「联系」栏自动出现，组件零改动。
+卡面文字 = `platform · value`（本站现有三行：`微信 · MoyunLee` / `GitHub · inkstone-peak` / `B 站 · 雨夜鱼龙舞yo`，**数组顺序即渲染顺序**）。`url: null` 的灰字行惯例排最后，**唯一例外是 `wechat`**——它是国内最主要渠道，故紧随 `email`。加一行 = 在 `contact` 下加一个键，页脚「联系」栏自动出现，组件零改动。
 
 ### 3.11 `footer`（必填节）
 
 | 键 | 必填 | 说明 |
 |---|---|---|
 | `columns` | ✅ | 栏目数组（见下） |
+| `email_label` | 可选 | 「联系」栏邮箱行的前缀标签（本站 `邮箱`，渲染成「邮箱 · 2106996916@qq.com」）；删键＝裸地址。界面中文的家仍是 `site.yml`，组件不写死 |
 | `brand_bio` | 可选 | 栏1 印章下方的简介段；**曾承载求职意向/地域口径的全站唯一落点**。删键＝整段不渲染、印章照常居中（本站 2026-09-23 已删，原句以注释留底在 `site.yml`） |
 | `seal_text` | ✅ | 印文；页脚大印与**构建期生成**的 favicon / apple-touch-icon 都用它 |
 | `copyright` | ✅ | 版权行 |
@@ -306,7 +307,7 @@ columns:
 
 规则：`id === brand` 是特殊栏；**非 brand 栏必须给 `from`（`nav` / `contact`）或 `links`（内联 `[{ label, to }]`）之一**，两者都没有 = 构建失败。
 
-`to` 允许四类：**站内路由**（须命中从 `nav` 派生的白名单）· **`http(s)` 外链** · **`mailto:`** · **`source/site/` 下的静态件**（如 `/resume/du-kang.pdf`，构建期查落盘）。想挂简历 PDF 就走最后一类，没有专门的 `cv` 字段。
+`to` 允许四类：**站内路由**（须命中从 `nav` 派生的白名单）· **`http(s)` 外链** · **`mailto:`** · **`source/site/` 下的静态件**（任何带扩展名的文件，构建期查落盘）。没有专门的 `cv` 字段。（2026-10-03 用户令：**本站不放简历 PDF**，怕个人信息泄露；这条通用通道留着给别的文件。）
 
 ### 3.12 `notfound`（必填节）
 

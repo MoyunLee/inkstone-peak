@@ -152,6 +152,8 @@ export interface SiteData {
     columns: FooterColumn[]
     /** 栏1 印章下方简介；可省（缺省即隐藏，印章居中）。 */
     brand_bio?: string
+    /** 「联系」栏邮箱行的前缀标签（如「邮箱」）；可省＝裸地址。 */
+    email_label?: string
     seal_text: string
     copyright: string
     demo_note?: string

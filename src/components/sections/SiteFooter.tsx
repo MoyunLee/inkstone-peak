@@ -31,7 +31,8 @@ export default function SiteFooter() {
     return v ? `${s.platform} · ${v}` : s.platform
   }
   const social: { key: string; text: string; url: string | null }[] = [
-    { key: 'email', text: site.contact.email, url: `mailto:${site.contact.email}` },
+    // 邮箱行的前缀标签（如「邮箱」）取自 site.yml 的 footer.email_label——界面中文不在组件里写死（gate-cn 会拦）；分隔符与社交行一致。
+    { key: 'email', text: f.email_label ? `${f.email_label} · ${site.contact.email}` : site.contact.email, url: `mailto:${site.contact.email}` },
     ...Object.entries(site.contact)
       .filter(([k, v]) => k !== 'email' && typeof v === 'object' && v !== null)
       .map(([k, v]) => {

@@ -50,11 +50,11 @@ for (const w of portfolio) {
   if (!textOk) accepted.push(`案例「${w.slug}」正文含【占位】措辞`)
 }
 
-// 任何「有键无 url」的社交条目都会在页脚渲染「筹建中」——逐条列出，不写死平台名
+// 任何「有键无 url」的社交条目都会在页脚渲染成**灰字、不可点**（有 value 时显示 value；只有 pending 才显示待建文案）——逐条列出，不写死平台名
 for (const [key, raw] of Object.entries(site.contact)) {
   if (key === 'email' || raw === null || typeof raw !== 'object') continue
-  const v = raw as { url?: string | null }
-  if (!v.url) toggles.push(`contact.${key} 无 url → 页脚渲染「筹建中」（有真地址时改 site.yml contact.${key}.url）`)
+  const v = raw as { url?: string | null; value?: string | null }
+  if (!v.url) toggles.push(`contact.${key} 无 url → 页脚灰字、不可点（${v.value ? '显示 value' : '显示 pending 待建文案'}；有真地址时补 site.yml contact.${key}.url）`)
 }
 
 // 演示站小字：正式发布时删
