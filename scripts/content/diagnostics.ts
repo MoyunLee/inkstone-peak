@@ -44,7 +44,7 @@ const FIELD_CN: Record<string, string> = {
   post_code_expand: '代码展开按钮文字', post_code_collapse: '代码收起按钮文字',
   page_meta: '子页 meta 专名（只喂预渲染；首页用 home 键给整条 title）',
   page_desc: '子页 meta 摘要专写（只喂预渲染 description；键法同 page_meta，首页用 home）',
-  carousel_prev: '轮播左箭头 aria', carousel_next: '轮播右箭头 aria',
+  carousel_prev: '轮播左箭头 aria', carousel_next: '轮播右箭头 aria', carousel_pause: '轮播暂停键 aria', carousel_play: '轮播播放键 aria',
   heatmap: '贡献热力图话术（2026-09-10，可复用组件 Heatmap.tsx 唯一文案源）',
   less: '图例左端（浅=少）', more: '图例右端（深=多）', tip: '悬浮提示模板（有更新：{date}/{n}）', tip_empty: '悬浮提示模板（空白格）',
   region_label: '热力图可访问名', years_label: '年份页签组可访问名', weekdays: '纵轴星期序（长度 7，周日起；索引 0=首行）', months: '横轴月名（长度 12）',

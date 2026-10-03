@@ -23,9 +23,15 @@ export default function PortfolioList() {
       <Header />
       <main id="main-content" className="page-pad page-main portfolio-list">
         {heading ? <h1 className="sr-only">{heading}</h1> : null}
+        {/* 四枚文案同出 a11y 节：箭头两枚 + 暂停/播放两枚（后者是 WCAG 2.2.2 的停机键） */}
         <FadeCarousel
           items={slides}
-          labels={{ prev: site.a11y.carousel_prev, next: site.a11y.carousel_next }}
+          labels={{
+            prev: site.a11y.carousel_prev,
+            next: site.a11y.carousel_next,
+            pause: site.a11y.carousel_pause,
+            play: site.a11y.carousel_play,
+          }}
           intervalMs={site.portfolio?.carousel?.interval_ms}
           className="portfolio-carousel"
         />

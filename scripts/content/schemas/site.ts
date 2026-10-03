@@ -9,7 +9,7 @@ const linkShape = z.object({ label: z.string(), to: z.string() }).strict()
 const A11Y_KEYS = [
   'nav_label', 'tabs_label', 'seal_top_hint', 'brand_label',
   'case_period', 'case_embeds',
-  'detail_cta', 'detail_aria', 'carousel_prev', 'carousel_next',
+  'detail_cta', 'detail_aria', 'carousel_prev', 'carousel_next', 'carousel_pause', 'carousel_play',
   'about_seal_label', 'about_tags_label', 'about_timeline_label',
   'post_date', 'post_updated', 'post_categories', 'post_toc_label',
   'post_aside_label', 'post_comments_label', 'post_copyright_heading', 'post_copyright_author',

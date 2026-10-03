@@ -327,6 +327,8 @@ a11y:
   detail_aria: 查看「{ink}」详情页                # 同上 aria-label 模板，{ink} 运行时替换为段雅名
   carousel_prev: 上一张                           # 轮播左箭头 aria-label
   carousel_next: 下一张                           # 轮播右箭头 aria-label
+  carousel_pause: 暂停自动播放                           # 轮播暂停键 aria-label（WCAG 2.2.2 的停机机构）
+  carousel_play: 播放自动播放                           # 轮播播放键 aria-label（再按恢复自动播）
   about_seal_label: 杜康 · 个人印章                # /about 顶部印章 aria-label
   about_tags_label: 个人标签                       # /about 顶部左右标签组 aria-label
   about_timeline_label: 生涯时间轴                  # /about 生涯卡时间轴 aria-label

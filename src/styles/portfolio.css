@@ -77,21 +77,23 @@
    而 D7 把底衬搬进 .fc-arrow 基样式后，这条会把尖角染成纸色 ⇒ 纸色字压在纸色圆底上＝自己把自己抹掉
    （改完首轮截图实测确认）。有底衬就不需要再按「有无图」切字色了。 */
 .fade-carousel.has-photo .fc-dot {
-  background: color-mix(in srgb, var(--paper) 72%, transparent);
+  background-color: color-mix(in srgb, var(--paper) 72%, transparent);
   opacity: 1;
 }
 .fade-carousel.has-photo .fc-dot.on {
-  background: var(--paper);
+  background-color: var(--paper);
 }
 .fc-arrow {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
   z-index: 2;
-  /* 箭头压在封面**照片**上（.fc-stage 的图），所以不能靠"把字色改深"解决——
-     深色封面上深墨字会直接消失。改成一片半透明纸色圆底 + 浓墨字：深浅照片上都读得出，
-     字与底衬的对比 ≥9:1，同时满足 SC 1.4.11 对 UI 组件的 3:1（底衬本身把边界画出来）。
-     顺带把可点面积从 ~50×35 收到 46×46 正圆。 */
+  /* 箭头压在封面**照片**上（.fc-stage 的图）。
+     2026-10-03 用户令「按钮所在的背景全部透明化」：D7 那层半透明纸色圆底整体退役，按钮盒子回到**全透明**。
+     可见性随之只能落在字形上，而底图有亮/暗/花色三种 ⇒ 任何单一字色都必有一头消失；
+     所以留浓墨字形 + 一圈**纸色光晕**：亮照片上靠字本身、暗照片上靠光晕。
+     光晕贴着字形走（text-shadow 不铺满 46×46 的盒子），所以"背景透明"这条仍然成立。
+     可点面积仍是 46×46 正圆（SC 2.5.8）。 */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -100,13 +102,17 @@
   padding: 0;
   border: 0;
   border-radius: 50%;
-  background: color-mix(in srgb, var(--paper) 82%, transparent);
+  background: transparent;
   color: var(--ink);
   cursor: pointer;
   font-family: var(--font-song);
   font-size: 32px;
   line-height: 1;
-  transition: background var(--t) var(--ease), color var(--t) var(--ease);
+  text-shadow:
+    0 0 1px color-mix(in srgb, var(--paper) 97%, transparent),
+    0 0 3px color-mix(in srgb, var(--paper) 88%, transparent),
+    0 0 7px color-mix(in srgb, var(--paper) 45%, transparent);
+  transition: color var(--t) var(--ease), text-shadow var(--t) var(--ease);
 }
 .fc-arrow.prev {
   left: 10px;
@@ -115,8 +121,11 @@
   right: 10px;
 }
 .fc-arrow:hover {
-  background: var(--paper);
-  color: var(--ink);
+  color: var(--seal);
+  text-shadow:
+    0 0 1px var(--paper),
+    0 0 4px color-mix(in srgb, var(--paper) 95%, transparent),
+    0 0 9px color-mix(in srgb, var(--paper) 55%, transparent);
 }
 .fc-arrow:focus-visible {
   outline: 2px solid var(--seal);
@@ -130,29 +139,86 @@
   bottom: 18px;
   z-index: 2;
   display: flex;
-  gap: 10px;
+  gap: 16px;
   justify-content: center;
 }
+/* D8 指示点扩靶：**命中区 24×24、视觉仍是 8px**——padding 把盒撑到 24、margin 负回去把布局盒收回 8，
+   于是可见点与 bottom:18px 与旧版逐像素相同（窄屏不会挤到箭头）。
+   background-clip:content-box 让底色只填内容盒，否则会变成一个 24px 的大圆。
+   ⚠ 改底色一律用 background-color：background 简写会把 background-clip 重置回 border-box。
+   ★间距 10px → 16px 不是审美，是**必须**：24px 命中框在 18px 心距下互相重叠 6px，
+     axe 的 target-size（WCAG 2.5.8）当场判 serious（实测 10/14px 各 2 点违规）；命中框要互不重叠，
+     心距就得 ≥24px ⇒ gap ≥16px。16px 在 320/360/375/390/414/768/1024/1280/1440/1920 十档实测全过
+     （375px 那种 .5px 边界也是恰好相切，因为三框共享同一小数部分、不会累积误差）。
+   ★已知项（2026-10-03 记，未修）：非激活圆点也是压在照片上的 UI 点，--ink-4 + opacity .6 在浅色照片上几乎看不见；
+     激活点有 .fade-carousel.has-photo 的纸色override 兜着。要修就照 .fc-arrow 的思路给底衬，别只改颜色。 */
 .fc-dot {
-  width: 8px;
-  height: 8px;
-  padding: 0;
+  width: 24px;
+  height: 24px;
+  padding: 8px;
+  margin: -8px;
   border: 0;
   border-radius: 50%;
-  /* ★已知项（2026-10-03 记，未修）：非激活圆点也是压在照片上的 UI 点，--ink-4 + opacity .6 在浅色照片上几乎看不见；
-     激活点有 .fade-carousel.has-photo 的纸色override 兜着。要修就照 .fc-arrow 的思路给底衬，别只改颜色。 */
-  background: var(--ink-4);
+  background-color: var(--ink-4);
+  background-clip: content-box;
   cursor: pointer;
   opacity: 0.6;
-  transition: background var(--t) var(--ease), opacity var(--t) var(--ease);
+  transition: background-color var(--t) var(--ease), opacity var(--t) var(--ease);
 }
 .fc-dot.on {
-  background: var(--ink-2);
+  background-color: var(--ink-2);
   opacity: 1;
 }
 .fc-dot:focus-visible {
   outline: 2px solid var(--seal);
   outline-offset: 3px;
+}
+/* D8 暂停/播放键（WCAG 2.2.2 的停机机构）：与 .fc-arrow 同一套「无底衬 + 浓墨 + 纸色光晕」皮肤，
+   44×44 正圆落在右下角（SVG 字形由 lucide 出，不走字体）。
+   图标是 SVG，光晕要用 filter:drop-shadow（text-shadow 对 <svg> 无效）。 */
+.fc-toggle {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  filter:
+    drop-shadow(0 0 0.5px color-mix(in srgb, var(--paper) 97%, transparent))
+    drop-shadow(0 0 1.5px color-mix(in srgb, var(--paper) 88%, transparent))
+    drop-shadow(0 0 4px color-mix(in srgb, var(--paper) 45%, transparent));
+  transition: color var(--t) var(--ease), filter var(--t) var(--ease);
+}
+.fc-toggle:hover {
+  color: var(--seal);
+  filter:
+    drop-shadow(0 0 1px var(--paper))
+    drop-shadow(0 0 2.5px color-mix(in srgb, var(--paper) 95%, transparent))
+    drop-shadow(0 0 6px color-mix(in srgb, var(--paper) 55%, transparent));
+}
+.fc-toggle:focus-visible {
+  outline: 2px solid var(--seal);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+/* reduced-motion 下自动播是**永久**关的（FadeCarousel 闸①），这个键按了也不会转；
+   留着只会让读屏念出「暂停自动播放」这种与事实不符的名字 ⇒ 干脆不显示。
+   ⚠ 必须写在 .fc-toggle 基样式**之后**：同特异度下纯靠顺序决胜负，早写会被后面的 display:flex 盖掉（实测踩过）。
+   用 CSS 而不是 JS 判定：useMotionSafe() 首帧在服务端与客户端都返回 false，
+   让 reduced 影响 markup 会撞 hydration 不变式（见 useMotionSafe 的注释）。 */
+@media (prefers-reduced-motion: reduce) {
+  .fc-toggle {
+    display: none;
+  }
 }
 .portfolio-carousel {
   margin: 0 0 clamp(48px, 9vh, 110px);
@@ -160,6 +226,15 @@
 @media (max-width: 640px) {
   .fc-arrow {
     font-size: 26px;
+  }
+  /* ≤640 的舞台只有 136–288px 高，而箭头是竖中摆的 46px：右下角与它**必然抢同一块地**
+     （320px 档实测下缘重叠 1px）。所以窄屏不再放右下角，改到右箭头左边、同一条竖中线——
+     44px 靶一个不少，也不再和任何控件重叠（实测 320/360/375 三档都留出 ≥6px 横隙）。 */
+  .fc-toggle {
+    top: 50%;
+    right: 62px;
+    bottom: auto;
+    transform: translateY(-50%);
   }
 }
 
