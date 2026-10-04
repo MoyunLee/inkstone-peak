@@ -63,6 +63,7 @@ const FIELD_CN: Record<string, string> = {
   exp: '经验值 0-1000（满分=skill_levels 末档 max）：决定进度条长度与数字滚动终点',
   icon: '方章图标（2026-09-27 用户令改为「文件优先」）：不带冒号 = source/site/skill/ 下的文件名（丢图进该目录 + 改这里即可；**文件是否存在由构建期硬校验**，写错名直接报错并列出目录现有文件名）；带冒号 = 内置 id，目前只有 lucide: 兜底字形（拿不到官方标的条目）。缺省回落 circle。解析在 components/about/skills/skillIcon.ts，运行时用 CSS mask 只取形状、颜色跟随方章 —— 故图片必须有透明底',
   about_seal_label: '/about 顶部印章可访问名', about_tags_label: '/about 顶部标签组可访问名', about_timeline_label: '/about 生涯时间轴可访问名',
+  theme_label: '外观切换组可访问名（role=radiogroup 的 aria-label）', theme_light: '浅色选项', theme_dark: '深色选项', theme_system: '跟随系统选项（默认态：无 localStorage 记录时即它）', theme_switch_hint: '窄屏收起按钮的 title/aria-label 兜底',
 }
 
 type IssueLine = { file: string; where: string; why: string }

@@ -12,7 +12,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-bottom: 1px solid rgba(20, 22, 26, 0.08);
+  border-bottom: 1px solid var(--hairline);
   overflow: hidden;
 }
 .bd-hero img,
@@ -95,7 +95,7 @@
 .post-toc-item { counter-increment: toc; }
 .post-toc-item > a { position: relative; display: block; padding: 5px 0 5px 2em; text-indent: -2em; color: var(--ink-2); text-decoration: none; font-size: 13px; line-height: 1.6; letter-spacing: 0.04em; transition: color var(--t) var(--ease); }
 .post-toc-item + .post-toc-item { margin-top: 3px; } /* 条目原本首尾严丝合缝，全靠行高撑 */
-.post-toc-item > a:hover { color: var(--post-accent, var(--seal)); }
+.post-toc-item > a:hover { color: var(--post-accent-ink); }
 .post-toc[data-number='true'] .post-toc-item > a::before { content: counters(toc, '.') '. '; color: var(--ink-3); }
 .post-toc[data-simple='true'] .post-toc-list { padding-left: 0; }
 /* 当前章节（useTocSpy 命中 aria-current="location"）：只染链接与序号，另在悬挂缩进里挂一枚 6px 朱点——
@@ -113,8 +113,8 @@
   opacity: 0;
   transition: opacity var(--t) var(--ease);
 }
-.post-toc-item > a[aria-current] { color: var(--post-accent, var(--seal)); }
-.post-toc[data-number='true'] .post-toc-item > a[aria-current]::before { color: var(--post-accent, var(--seal)); }
+.post-toc-item > a[aria-current] { color: var(--post-accent-ink); }
+.post-toc[data-number='true'] .post-toc-item > a[aria-current]::before { color: var(--post-accent-ink); }
 .post-toc-item > a[aria-current]::after { opacity: 1; }
 
 [data-toc-number='true'] .prose { counter-reset: prose-h2; }
@@ -127,14 +127,14 @@
 /* ── 强调色：只染链接与引用侧线，不铺面（印朱面积纪律）──
    两型同源（原来只写了 .blog-detail，作品页正文链接落回正文色——2026-09-21 一并收口）。 */
 .bd-body .prose a,
-.post-copyright a { color: var(--post-accent, var(--seal)); }
+.post-copyright a { color: var(--post-accent-ink); }
 /* 引用块左线同目录左线一式：与朱点同色（原回落 --ink-4 落灰）。只染线不染字——引文仍 --ink-3。 */
 .prose blockquote { margin: 1.2em 0; padding: 0 1.1em; border-left: 2px solid var(--post-accent, var(--seal)); color: var(--ink-3); }
 
 /* ── 代码块与折叠（highlight_shrink） ──
    preflight 把 pre 外边距清零了：上一段 16px 挤着它、下一段却贴到 0px。
    按正文段距节奏补成上下对称（1.5em＝24px），别再让代码块和后文连成一片。 */
-.prose pre { margin: 1.5em 0; background: color-mix(in srgb, var(--ink) 92%, transparent); color: var(--paper); border-radius: var(--card-radius); padding: 14px 16px; overflow: auto; font-family: var(--font-mono); font-size: 13px; line-height: 1.7; }
+.prose pre { margin: 1.5em 0; background: var(--code-bg); color: var(--code-fg); border-radius: var(--card-radius); padding: 14px 16px; overflow: auto; font-family: var(--font-mono); font-size: 13px; line-height: 1.7; }
 .prose code { font-family: var(--font-mono); font-size: 0.92em; }
 /* 行内 code 必须能断：路径类 token（`scripts/content/schemas/article.ts`）实测 282px 宽，
    而 360px 视口下正文栏只有 262px —— 不断行就是整页横向溢出 20px（2026-09-26 实测）。
@@ -145,8 +145,8 @@
 .prose > .cs-wrap > pre { margin: 0; } /* 折叠壳持距，pre 自身归零，免得双份 */
 .cs-wrap { position: relative; }
 .prose[data-shrink='true'] .cs-wrap:not(.cs-open) pre { max-height: 20rem; overflow: hidden; }
-.cs-btn { position: absolute; right: 10px; bottom: 10px; font: inherit; font-size: 12px; letter-spacing: 0.08em; color: var(--paper); background: color-mix(in srgb, var(--ink) 70%, transparent); border: 1px solid color-mix(in srgb, var(--paper) 40%, transparent); border-radius: 999px; padding: 3px 12px; cursor: pointer; }
-.cs-btn:hover { background: color-mix(in srgb, var(--ink) 88%, transparent); }
+.cs-btn { position: absolute; right: 10px; bottom: 10px; font: inherit; font-size: 12px; letter-spacing: 0.08em; color: var(--code-btn-fg); background: var(--code-btn-bg); border: 1px solid var(--code-btn-line); border-radius: 999px; padding: 3px 12px; cursor: pointer; }
+.cs-btn:hover { background: var(--code-btn-bg-hover); }
 
 /* ── 侧栏（aside）：信息卡 + 卡外目录 ──
    卡只框信息（署名 / 提要 / 行 / 标签）：纸色微底 + 1px 发丝界 + 圆角，与版权模块同一套卡片语言。
@@ -155,7 +155,7 @@
 .post-aside { font-size: 13px; }
 .pa-card {
   padding: 18px 18px 20px;
-  border: 1px solid color-mix(in srgb, var(--ink-4) 60%, transparent);
+  border: 1px solid var(--line-panel);
   border-radius: var(--card-radius);
   background: color-mix(in srgb, var(--card) 60%, transparent);
 }
@@ -206,7 +206,7 @@
 .post-copyright,
 .post-comments { min-height: auto; scroll-snap-align: none; }
 .post-comments { padding: 0; } /* 评论挂载点不该继承首页段落的 6vw/8vh 内边距 */
-.post-copyright { margin-top: 3.4em; padding: 18px 20px; border: 1px solid color-mix(in srgb, var(--ink-4) 60%, transparent); border-radius: var(--card-radius); background: color-mix(in srgb, var(--card) 60%, transparent); }
+.post-copyright { margin-top: 3.4em; padding: 18px 20px; border: 1px solid var(--line-panel); border-radius: var(--card-radius); background: color-mix(in srgb, var(--card) 60%, transparent); }
 .post-copyright h2 { font-size: 14px; letter-spacing: 0.18em; color: var(--ink-3); margin: 0 0 12px; }
 .pc-rows { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: 13px; }
 .pc-rows li { display: flex; gap: 10px; flex-wrap: wrap; }
@@ -214,6 +214,25 @@
 .pc-rows a { word-break: break-all; }
 .pc-info { margin: 12px 0 0; font-size: 13px; color: var(--ink-2); }
 .pc-info b { font-weight: 400; color: var(--ink-3); letter-spacing: 0.1em; margin-right: 8px; }
+
+/* ── 作者主题色（front-matter 的 main_color / background，2026-10-04 三态外观补齐）──
+   这两样是**内容**给的浅色底料，直接内联到 <main> 上就与主题脱钩：深色下会留下一整块浅色纸底。
+   于是改为：内容只注入 --post-bg / --post-accent 两个自定义属性，怎么用由这里按主题决定——
+     · 页底：浅色照用作者给的纸色；深色把它当一层淡染压回纸底（保留每篇的色调身份，不再整块翻白）。
+     · 主题色当前景（链接/目录当前项）：浅色原样；深色按 --accent-lift 往 --ink 提亮（作者色是在浅底上挑的，
+       #9e2b25 直接压深纸只有 2.4:1，正文链接过不了 AA）。边框/条块继续用原色：非文字，≥3:1 即可。 */
+.page-pad {
+  --post-accent-ink: color-mix(in srgb, var(--post-accent, var(--seal)) calc(100% - var(--accent-lift)), var(--ink));
+}
+.page-pad[data-post-bg='true'] { background: var(--post-bg); }
+:root[data-theme='dark'] .page-pad[data-post-bg='true'] {
+  background: color-mix(in srgb, var(--post-bg) 12%, var(--paper));
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .page-pad[data-post-bg='true'] {
+    background: color-mix(in srgb, var(--post-bg) 12%, var(--paper));
+  }
+}
 
 /* ── 评论区挂载点（provider 配好后才进 DOM；本片只给容器规格） ── */
 .post-comments { margin-top: 2.6em; }

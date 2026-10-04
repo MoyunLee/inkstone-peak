@@ -55,21 +55,41 @@ export function createInkField(canvas: HTMLCanvasElement): () => void {
   let slashReadyAt = 0
   const t0 = performance.now()
 
-  // 软墨点精灵 ×3 档
-  const sprite = (r: number): HTMLCanvasElement => {
+  // 软墨点精灵 ×3 档。
+  // ★canvas 读不到 CSS 变量（E1）：墨色必须在画的时候从 documentElement 的计算值里取，
+  //   否则 --ink 在深色下变浅、这里仍画浓墨，山形会整块消失。取不到或解析失败一律回落原浓墨，
+  //   保证浅色现状逐像素不变。
+  const inkRgb = (): [number, number, number] => {
+    const raw = getComputedStyle(document.documentElement).getPropertyValue('--ink').trim()
+    const hex = /^#([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.exec(raw)
+    if (hex) {
+      const s = hex[1] ?? ''
+      const h = s.length <= 4 ? s.slice(0, 3).split('').map((ch) => ch + ch).join('') : s.slice(0, 6)
+      return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)]
+    }
+    const rgb = /^rgba?\(\s*([\d.]+)[\s,]+([\d.]+)[\s,]+([\d.]+)/i.exec(raw)
+    if (rgb) return [Number(rgb[1]), Number(rgb[2]), Number(rgb[3])]
+    return [20, 22, 26]
+  }
+  const sprite = (r: number, rgb: [number, number, number]): HTMLCanvasElement => {
     const c = document.createElement('canvas')
     c.width = c.height = r * 2
     const g = c.getContext('2d')
     if (g) {
       const gr = g.createRadialGradient(r, r, 0, r, r, r)
-      gr.addColorStop(0, 'rgba(20,22,26,1)')
-      gr.addColorStop(1, 'rgba(20,22,26,0)')
+      gr.addColorStop(0, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},1)`)
+      gr.addColorStop(1, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},0)`)
       g.fillStyle = gr
       g.fillRect(0, 0, r * 2, r * 2)
     }
     return c
   }
-  const SP = [sprite(6), sprite(9), sprite(13)]
+  let SP = [sprite(6, inkRgb()), sprite(9, inkRgb()), sprite(13, inkRgb())]
+  // 主题切换的重绘入口：三张 12–26px 的小 canvas，重建成本可忽略（E1）
+  const buildSprites = (): void => {
+    const rgb = inkRgb()
+    SP = [sprite(6, rgb), sprite(9, rgb), sprite(13, rgb)]
+  }
 
   // 采样成粒子（超预算随机稀疏化）
   function build(): void {
@@ -230,19 +250,45 @@ export function createInkField(canvas: HTMLCanvasElement): () => void {
       raf = requestAnimationFrame(frame)
     }
   }
+  // 出视口 / 切标签页期间只标脏：回屏时先按新墨色重建精灵，再补一帧（E1）
+  let dirty = false
+  const resume = (): void => {
+    if (dirty) {
+      dirty = false
+      buildSprites()
+    }
+    wake()
+  }
+  // data-theme 一变就换墨色重画：主题切换（含 system 态跟随系统）必须让水墨山跟着走。
+  // canvas 读不到 CSS 变量，故监听 documentElement 的属性，而不是重设 canvas 自己的样式。
+  const themeObs = new MutationObserver((): void => {
+    if (reduce) {
+      buildSprites()
+      lastNow = performance.now()
+      frame(lastNow)
+      return
+    }
+    if (paused) {
+      dirty = true
+      return
+    }
+    buildSprites()
+    wake()
+  })
+  themeObs.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
   const section = canvas.closest('section')
   const surface: HTMLElement = section ?? canvas // 指针落点：整个山门（段）优先，认不出段时退化回画布
   const io = new IntersectionObserver(
     ([en]) => {
       paused = !(en?.isIntersecting ?? false)
-      if (!paused) wake()
+      if (!paused) resume()
     },
     { threshold: 0 },
   )
   if (section) io.observe(section)
   const onVis = (): void => {
     paused = document.hidden
-    if (!paused) wake()
+    if (!paused) resume()
   }
 
   // 指针事件挂**段**而不是画布：画布上还压着 .hero-copy（大字标题 / 按钮），挂画布的话
@@ -261,6 +307,7 @@ export function createInkField(canvas: HTMLCanvasElement): () => void {
     cancelAnimationFrame(raf)
     window.clearTimeout(rt)
     io.disconnect()
+    themeObs.disconnect()
     surface.removeEventListener('pointermove', onMove)
     surface.removeEventListener('pointerleave', onLeave)
     surface.removeEventListener('pointerdown', onDown)

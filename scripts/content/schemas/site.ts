@@ -16,6 +16,7 @@ const A11Y_KEYS = [
   'post_copyright_link', 'post_copyright_notice', 'post_code_expand', 'post_code_collapse',
   'skip_link_label', 'lightbox_label', 'lightbox_close',
   'embed_play', 'embed_external', 'embed_failed', 'video_retry', 'video_open_native',
+  'theme_label', 'theme_light', 'theme_dark', 'theme_system', 'theme_switch_hint',
 ] as const
 
 /**

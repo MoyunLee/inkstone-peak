@@ -45,14 +45,20 @@
 }
 .seal-btn:hover {
   border-color: var(--ink);
-  background: #ede5d6;
+  background: var(--btn-hover);
 }
 .seal-btn:active {
-  background: #e5dcc9;
+  background: var(--btn-active);
 }
-.seal-btn:focus-visible {
+/* 焦点环的全站唯一口径：2px 印朱 + 3px 外扩。三态外观徽章与选项（见本文件末尾）共用**描边口径**，
+   但不共用圆角：它们本来就是圆形，12px 会把形状改方，故那条圆角留在下面的 .seal-btn 专属块里。 */
+.seal-btn:focus-visible,
+.theme-badge:focus-visible,
+.theme-choice:focus-visible {
   outline: 2px solid var(--seal);
   outline-offset: 3px;
+}
+.seal-btn:focus-visible {
   border-radius: 12px;
 }
 .seal-btn.head-act {
@@ -84,3 +90,143 @@
   font-size: 13px;
   letter-spacing: 0.15em;
 }
+
+/* ---------- 三态外观徽章（浅色 / 深色 / 跟随系统，2026-10-04） ----------
+   结构住在 src/components/layout/ThemeToggle.tsx；这里只管皮肤。
+   形态：视口**左下角**常驻一枚圆形朱印徽章（印面 --seal + 印文色图标 --seal-fg + 内圈，与 Seal 同一支笔，
+   不新增任何色），悬浮 / 聚焦 / 点按即在徽章**上方**展开三枚 44×44 圆选项，选完收起回徽章。
+   ★徽章必须挂 #root 直下（src/routes.tsx），不能留在 .topbar 里：顶栏有 backdrop-filter，
+     会给 position:fixed 的后代当包含块，徽章会被"钉"在顶栏里而不是视口左下角。
+   面板可见性由 data-open + display 控制，**不许**用 hidden 属性：预渲染闸会把正文里的 div[hidden]
+   判成迟到 Suspense 标记并中止构建。 */
+.theme-switch {
+  position: fixed;
+  left: clamp(12px, 2.2vw, 28px); /* 与右侧题签同一条呼吸线（镜像） */
+  bottom: clamp(14px, 3vh, 28px);
+  z-index: 20; /* 与顶栏同层：在 15 的侧栏渐变之上、100 的灯箱之下 */
+  display: flex; /* 容器尺寸＝徽章；面板绝对定位向上溢出，不推挤页面、不产生滚动 */
+}
+.theme-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px; /* 命中区下限 44×44，徽章本体即按钮 */
+  height: 48px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--seal);
+  color: var(--seal-fg);
+  cursor: pointer;
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--seal-fg) 45%, transparent),
+    /* ↑ 内圈＝印章内框（同 45% 描边） */
+    0 0 0 3px color-mix(in srgb, var(--paper) 78%, transparent),
+    /* ↑ 纸色隔离环：徽章压在照片/水墨上也边界清楚 */
+    var(--shadow-lift);
+}
+.theme-badge:hover,
+.theme-badge[aria-expanded='true'] {
+  background: color-mix(in srgb, var(--seal) 88%, var(--seal-fg));
+}
+.theme-panel {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 10px);
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  padding: 6px;
+  border: 1px solid var(--line-panel);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--card) 92%, transparent);
+  backdrop-filter: blur(8px);
+  box-shadow: var(--shadow-pop);
+  transform: translate(-50%, 0);
+}
+.theme-switch[data-open='true'] .theme-panel {
+  display: flex;
+}
+/* 悬浮桥（2026-10-04 用户反馈「鼠标无法上移切换模式」）：
+   面板在徽章上方 10px 处，那 10px 空隙原先不属于任何元素——鼠标从徽章往上移的瞬间，
+   指针已落在 .theme-switch 的命中区之外，mouseleave 立刻把面板收掉，选项永远够不着。
+   这里用挂在**面板**上的伪元素把空隙填进命中区：它是 .theme-switch 的后代，
+   所以进入它不算离开组件。面板关闭时 display:none，桥也随之消失，不留多余命中区。 */
+.theme-panel::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -10px;
+  height: 10px;
+}
+.theme-choice {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px; /* 命中区下限 44×44，不许再小 */
+  height: 44px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+.theme-choice:hover {
+  color: var(--ink);
+  border-color: var(--line-card);
+}
+/* 选中态＝一枚小朱印（印面 --seal + 印文色图标）：与左下角那枚徽章同构，一眼看出"当前就是它" */
+.theme-choice[aria-checked='true'] {
+  color: var(--seal-fg);
+  border-color: var(--seal);
+  background: var(--seal);
+}
+/* 窄屏把徽章收到 44×44 并贴到 10px 角上（命中区仍在 44 下限，不许再小）。
+   原因：360px 滚到页末时，版权行「© 2026 杜康」的文字盒在 y 699–716，48px 徽章（底距 8vh≈23）
+   顶边落在 709，圆顶会擦掉这行字左下角 1–2px。贴角后顶边降到 726，整行字完全让开，
+   而且**不必**在页脚底部补空白（补空白＝页末多一块空地，用户已否）。 */
+@media (max-width: 640px) {
+  .theme-switch {
+    left: 10px;
+    bottom: 10px;
+  }
+  .theme-badge {
+    width: 44px;
+    height: 44px;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .theme-badge {
+    transition:
+      transform var(--t) var(--ease),
+      background var(--t) var(--ease),
+      box-shadow var(--t) var(--ease);
+  }
+  .theme-badge:hover,
+  .theme-badge[aria-expanded='true'] {
+    transform: translateY(-2px);
+  }
+  .theme-choice {
+    transition:
+      color var(--t) var(--ease),
+      border-color var(--t) var(--ease),
+      background var(--t) var(--ease);
+  }
+  .theme-panel {
+    animation: theme-pop 160ms var(--ease);
+  }
+}
+@keyframes theme-pop {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 6px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+

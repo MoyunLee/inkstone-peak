@@ -183,8 +183,8 @@
   padding: 8px 3px;
   transition: all var(--t) var(--ease);
   text-shadow:
-    0 0 5px rgba(247, 244, 238, 0.85),
-    0 0 10px rgba(247, 244, 238, 0.55);
+    0 0 5px color-mix(in srgb, var(--paper) 85%, transparent),
+    0 0 10px color-mix(in srgb, var(--paper) 55%, transparent);
 }
 .side-tabs a:hover {
   opacity: 1;
@@ -201,3 +201,23 @@
     display: none;
   }
 }
+
+/* ---------- 无 JS 降级底图（index.html 的 <noscript> 里那张 hero-base.png） ----------
+   原先这些定位/混合模式写在内联 style 上，深色下 multiply 会把整块压成黑；搬到这里才能用媒体查询兜底。
+   无 JS 时 <html> 上没有 data-theme（引导脚本也没跑），所以深色只能按 prefers-color-scheme 判——
+   该 PNG 是「深墨 + alpha」，反相后即浅墨，再用 screen 叠到暗纸上，山形才留得住。 */
+.noscript-hero {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100svh;
+  object-fit: cover;
+  mix-blend-mode: multiply;
+}
+@media (prefers-color-scheme: dark) {
+  .noscript-hero {
+    mix-blend-mode: screen;
+    filter: invert(1);
+  }
+}
+

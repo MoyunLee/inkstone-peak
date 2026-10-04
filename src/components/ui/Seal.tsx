@@ -49,14 +49,14 @@ export default function Seal({ variant = 'badge' }: { variant?: 'badge' | 'foot'
       </defs>
       <g mask={`url(#${maskId})`}>
         <path d="M6 2h32q4 0 4 4v32q0 4-4 4H6q-4 0-4-4V6q0-4 4-4z" fill="var(--seal)" />
-        <rect x="5.5" y="5.5" width="33" height="33" fill="none" stroke="var(--paper)" strokeOpacity=".45" strokeWidth=".9" />
+        <rect x="5.5" y="5.5" width="33" height="33" fill="none" stroke="var(--seal-fg)" strokeOpacity=".45" strokeWidth=".9" />
         {chars[0] ? (
-          <text x="22" y="21" fontSize="15" fill="var(--paper)" textAnchor="middle" style={{ fontFamily: 'var(--font-kai)' }}>
+          <text x="22" y="21" fontSize="15" fill="var(--seal-fg)" textAnchor="middle" style={{ fontFamily: 'var(--font-kai)' }}>
             {chars[0]}
           </text>
         ) : null}
         {chars[1] ? (
-          <text x="22" y="36.5" fontSize="15" fill="var(--paper)" textAnchor="middle" style={{ fontFamily: 'var(--font-kai)' }}>
+          <text x="22" y="36.5" fontSize="15" fill="var(--seal-fg)" textAnchor="middle" style={{ fontFamily: 'var(--font-kai)' }}>
             {chars[1]}
           </text>
         ) : null}

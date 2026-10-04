@@ -3,6 +3,7 @@ import { Route, Routes, useLocation } from 'react-router-dom'
 import { unlockAllNav } from './lib/nav/navlock'
 import RouteMeta from './components/layout/RouteMeta'
 import Lightbox from './components/ui/Lightbox'
+import ThemeToggle from './components/layout/ThemeToggle'
 import Home from './pages/Home'
 import PortfolioList from './pages/PortfolioList'
 import PortfolioDetail from './pages/PortfolioDetail'
@@ -54,6 +55,9 @@ export default function AppRoutes() {
         <Route path="/blog/:slug" element={<BlogDetail />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
+      {/* 三态外观徽章：视口左下角常驻。必须挂在这里（#root 直下）——顶栏有 backdrop-filter，
+          会给 position:fixed 的后代当包含块，挂进 <header> 就会被钉在顶栏里。 */}
+      <ThemeToggle />
     </>
   )
 }

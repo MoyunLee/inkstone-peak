@@ -1,6 +1,6 @@
-// 构建期素材：用 sharp 确定性生成 noise.webp / hero-base.png / mist-a|b.png / favicon.svg / apple-touch-icon.png。
+// 构建期素材：用 sharp 确定性生成 noise.webp / noise-dark.webp / hero-base.png / mist-a|b.png / favicon.svg / apple-touch-icon.png。
 // 产物落 source/site/（站点根静态件的唯一家）：dev 由 vite 插件直供、build 直写 dist/——不再有 public/ 暂存层。
-// ⚠ 六件都是**构建产物，不入仓**（配方 = 本文件 + site.yml 的印文 + tokens.css 的令牌）：改配置后重跑本步即可，
+// ⚠ 七件都是**构建产物，不入仓**（配方 = 本文件 + site.yml 的印文 + tokens.css 的令牌）：改配置后重跑本步即可，
 //   仓库里没有副本可过期。手工静态件（简历 PDF 等）才是 source/site/ 的入仓内容。见 .gitignore。
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
@@ -14,8 +14,10 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const P = (...segs: string[]): string => path.join(ROOT, ...segs)
 const SITE_YML = P('site.yml')
 
-// ① 生宣 noise（mulberry32 确定性伪随机）
-async function noiseWebp(): Promise<void> {
+// ① 生宣 noise（mulberry32 确定性伪随机）：同一套种子出两张，只换斑点基色——
+//    浅色纸用深斑点（base 18），深色纸用浅斑点（base 224）；alpha 分布完全相同，改一张另一张跟着同形。
+//    为什么必须两张：噪点叠在 --paper 上，深斑点压在深底上等于没有纹理（E3）。
+async function noiseWebp(file: string, base: number): Promise<void> {
   const S = 96
   let seed = 0x2f7f3a11
   const rnd = (): number => {
@@ -27,7 +29,7 @@ async function noiseWebp(): Promise<void> {
   }
   const buf = Buffer.alloc(S * S * 4)
   for (let i = 0; i < S * S; i++) {
-    const v = 18 + Math.floor(rnd() * 16)
+    const v = base + Math.floor(rnd() * 16)
     const a = rnd() < 0.45 ? Math.floor(rnd() * 11) : 0
     buf.writeUInt8(v, i * 4)
     buf.writeUInt8(v, i * 4 + 1)
@@ -35,13 +37,14 @@ async function noiseWebp(): Promise<void> {
     buf.writeUInt8(a, i * 4 + 3)
   }
   const out = await sharp(buf, { raw: { width: S, height: S, channels: 4 } }).webp({ lossless: true }).toBuffer()
-  writeFileSync(P('source', 'site', 'noise.webp'), out)
+  writeFileSync(P('source', 'site', file), out)
 }
 
 
 async function main(): Promise<void> {
   mkdirSync(P('source', 'site'), { recursive: true })
-  await noiseWebp()
+  await noiseWebp('noise.webp', 18)
+  await noiseWebp('noise-dark.webp', 224)
   await heroBasePng()
   await mistPngs()
   await brandMarks()

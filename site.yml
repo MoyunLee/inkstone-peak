@@ -355,6 +355,12 @@ a11y:
   embed_failed: 播放器没加载出来，可在新窗口观看        # 播放器迟迟不 load 时贴在海报上的说明
   video_retry: 重试                                 # 自托管视频失败态的重试按钮（重新挂载 <video>）
   video_open_native: 用系统播放器打开                # 自托管视频失败态的出口（直开 mp4，交给系统播放器）
+  # —— 三态外观切换（2026-10-04 用户令）：三个选项文案的唯一家（切换器组件内零中文字面量）——
+  theme_label: 外观                                 # 切换器 role=radiogroup 的可访问名（三态组 aria-label）
+  theme_light: 浅色                                 # 选项一：显式浅色（免疫系统主题变化）
+  theme_dark: 深色                                  # 选项二：显式深色（免疫系统主题变化）
+  theme_system: 跟随系统                            # 选项三=默认态：无 localStorage 记录时即它；监听 prefers-color-scheme 实时跟随
+  theme_switch_hint: 切换外观                       # 窄屏收起按钮的 title/aria-label 兜底
 
 # 刻意【不放在本文件】的三样，避免双主：
 #   · 粒子物理/淡出曲线/崩缺半径/160ms 令牌 → src/styles/ + src/fx/ink-field.ts

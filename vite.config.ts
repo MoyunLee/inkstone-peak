@@ -34,8 +34,11 @@ function safeRelPath(pathname: string): string | null {
 }
 
 /** source/site = publicDir：Vite 会原样整份拷进 dist/，这里按后缀把关（B2）。
- *  **不要**放宽成「_ 开头的都放行」——那等于给任意笔记开后门。 */
-const PUBLISHABLE_EXT = new Set(['.png', '.jpg', '.jpeg', '.webp', '.avif', '.gif', '.svg', '.ico', '.pdf', '.woff', '.woff2', '.txt', '.xml', '.json'])
+ *  **不要**放宽成「_ 开头的都放行」——那等于给任意笔记开后门。
+ *  `.js` 是 2026-10-04 为三态外观的防闪烁引导 source/site/theme-init.js 开的：CSP 是 script-src 'self'（禁内联），
+ *  该脚本必须走同源外部文件、且要在样式表与模块脚本之前以**经典脚本**同步执行（type=module 会推迟到解析后，起不到防闪作用），
+ *  所以它只能住 publicDir 直发、不能进打包管线。见 index.html 里那行 <script src="/theme-init.js">。 */
+const PUBLISHABLE_EXT = new Set(['.png', '.jpg', '.jpeg', '.webp', '.avif', '.gif', '.svg', '.ico', '.pdf', '.woff', '.woff2', '.txt', '.xml', '.json', '.js'])
 function assertPublishableSource(root: string): void {
   const dir = path.resolve(root, 'source', 'site')
   if (!existsSync(dir)) return

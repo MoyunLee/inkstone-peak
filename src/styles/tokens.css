@@ -3,6 +3,7 @@
    「子集自托管」一度做过又撤掉：为了跨机一致多背 177KB，且云端无法再生（需本机 Python），
    与「只用系统自带字体」的取向不符。真要恢复：得重新生成子集并随仓库提交——2026-09-16 用户令已否掉这条路线。 */
 :root {
+  color-scheme: light; /* S1：原生控件/滚动条/<video> 跟随。深色见文件下方两块（勿在此写第二条） */
   /* 色墨：纸底禁纯白；印朱=全站唯一彩色（面积 <2%） */
   --paper: #f7f4ee;
   --ink: #14161a; /* 浓墨 */
@@ -43,6 +44,43 @@
   --lv-4: color-mix(in srgb, var(--ink) 76%, var(--paper)); /* 熟练 */
   --lv-5: var(--ink); /* 精通：浓墨 */
 
+  /* ── 深色模式语义令牌地基（2026-10-04）──
+     浅色值＝原先散落在各分片里的写死色**等价搬家**（浅色视觉逐像素不变）；
+     深色覆盖只写在下面 :root[data-theme='dark'] 与 @media (prefers-color-scheme: dark) 两处。
+     组件/页面侧一律只许取用，不许再写死颜色。 */
+  --seal-fg: #f7f4ee; /* 印面文字与内框键线：两主题恒定浅色（E2——--paper 变暗后印章会变成暗底暗字） */
+  --on-media: #f7f4ee; /* 压在照片/播放器海报上的前景：媒体叠层不随主题翻，故为常量 */
+  --on-media-strong: #fff;
+  --scrim-ink: #14161a; /* 媒体遮罩基色（常量） */
+  --media-shadow-ink: #000; /* 媒体投影基色（常量） */
+  --seal-ink: #9e2b25; /* 印朱当**前景**用（链接/图标/小字）：浅色与 --seal 同值；深色才分叉提亮（印朱当「面」时不许提亮，会刺眼） */
+  --accent-lift: 0%; /* 作者主题色（front-matter 的 main_color）当前景用时，深色下往 --ink 提亮的比例；浅色 0% ＝原色 */
+  --hairline: color-mix(in srgb, var(--ink) 8%, transparent); /* 装饰发丝界：随 --ink 自动翻，深色不需覆写 */
+  --line-card: color-mix(in srgb, var(--ink-4) 55%, transparent); /* .card 边框（＝原写死值） */
+  --line-panel: color-mix(in srgb, var(--ink-4) 60%, transparent); /* 文章侧栏/版权模块框 */
+  --line-bento: color-mix(in srgb, var(--ink) 9%, transparent); /* 便当卡边框（＝原 rgba(20,22,26,.09)） */
+  --shadow-soft: 0 1px 2px rgba(20, 22, 26, 0.03), 0 10px 26px -16px rgba(20, 22, 26, 0.14);
+  --shadow-lift: 0 4px 20px rgba(20, 22, 26, 0.04);
+  --shadow-pop: 0 4px 20px rgba(20, 22, 26, 0.18);
+  --btn-hover: #ede5d6; /* .seal-btn:hover 底 */
+  --btn-active: #e5dcc9;
+  --selection: rgba(158, 43, 37, 0.18); /* ::selection（E7） */
+  --tone-0: #41586b; /* 封面占位色块五档（arc.css 唯一取用处；tone-3 深色下不能继续用 --ink-2） */
+  --tone-1: #6f7f5c;
+  --tone-2: #9a6f4e;
+  --tone-3: var(--ink-2);
+  --tone-4: #5f7d78;
+  --noise-img: url('/noise.webp'); /* 纸纹（E3：深色换浅斑点那一张） */
+  --ink-blend: multiply; /* #ink 画布混合模式（E1：深色下 multiply 会把淡墨粒子乘没，改 screen） */
+  --code-bg: color-mix(in srgb, var(--ink) 92%, transparent);
+  --code-fg: var(--paper);
+  --code-btn-bg: color-mix(in srgb, var(--ink) 70%, transparent);
+  --code-btn-bg-hover: color-mix(in srgb, var(--ink) 88%, transparent);
+  --code-btn-fg: var(--paper);
+  --code-btn-line: color-mix(in srgb, var(--paper) 40%, transparent);
+  --intro-bg: var(--ink); /* /about 深墨卡：深色下仍取更深的一档，不翻成浅块 */
+  --intro-fg: var(--paper);
+
   --page-max: 1700px;
   --gutter: clamp(20px, 4vw, 72px);
   --inset-x: calc(6vw + var(--gutter));
@@ -59,6 +97,113 @@
   --font-kai: 'LXGW WenKai', '霞鹜文楷', KaiTi, '楷体', serif;
   --font-song: 'Source Han Serif SC', '思源宋体', 'Noto Serif SC', SimSun, serif;
   --font-mono: 'LXGW WenKai Mono', '霞鹜文楷等宽', ui-monospace, monospace;
+}
+
+/* ── 深色（三态之一 light|dark）──
+   ★下面两块必须**逐值同步**，改一处必须改两处（CSS 没有 mixin，只能写两份）：
+     ① :root[data-theme='dark']      —— 用户显式选深色（JS 在 <html> 上打的属性，见 source/site/theme-init.js）
+     ② @media (prefers-color-scheme: dark) —— 系统跟随；:not([data-theme='light']) 保证「显式选浅色」不被系统深色盖掉，
+        同时也覆盖「完全没有 JS / 没有 localStorage」时仅靠 CSS 就能正确渲染（S3）。
+   --lv-1…--lv-5 由 color-mix(--ink, --paper) 派生，故不在此列；--hairline 与所有 ink 基色的
+   半透明混色/发丝界也随 --ink 自动翻，同样不在此列。 */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  /* 深色不是反相：纸底＝浓墨近黑（禁纯黑），墨＝暖纸白，印朱＝压暗的朱砂（深底上不刺眼）。
+     对比度实测（相对 --paper #16181d）：--ink 14.14 / --ink-2 10.47 / --ink-3 6.74 /
+     --ink-4 3.66（对 --card 3.36）/ 卡片边框 --line-card 3.04（对卡底）/ 印文 --seal-fg 对 --seal 5.23。 */
+  --paper: #16181d;
+  --ink: #e9e5dd;
+  --ink-2: #c3c7ce;
+  --ink-3: #9aa0a9;
+  --ink-4: #6b727c;
+  --card: #1d2026;
+  --card-wash: rgba(255, 255, 255, 0.045);
+  --card-wash-hover: rgba(255, 255, 255, 0.075);
+  --cover: #242830;
+  --sheen: rgba(255, 255, 255, 0.16);
+  --seal: #aa463e;
+  --seal-ink: color-mix(in srgb, var(--seal) 62%, var(--ink)); /* 对纸 5.7:1 / 对卡 5.3:1：印朱当字色也过 AA；当“面”仍用上面的 --seal */
+  --accent-lift: 60%; /* 60%：作者色（浅底上挑的）提亮后，压在「淡染作者色的深纸底」上仍有 ≥5:1 */
+  --heat-0: #272b33;
+  --heat-1: #2c4034;
+  --heat-2: #3d5b46;
+  --heat-3: #5b8567;
+  --heat-4: #86b494;
+  --tone-0: #34495c;
+  --tone-1: #3d5136;
+  --tone-2: #57402c;
+  --tone-3: #4b5159;
+  --tone-4: #33504d;
+  --noise-img: url('/noise-dark.webp');
+  --ink-blend: screen;
+  --line-card: color-mix(in srgb, var(--ink-4) 92%, transparent);
+  --line-panel: color-mix(in srgb, var(--ink-4) 92%, transparent);
+  --line-bento: color-mix(in srgb, var(--ink-4) 92%, transparent);
+  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.5), 0 10px 26px -16px rgba(0, 0, 0, 0.75);
+  --shadow-lift: 0 4px 20px rgba(0, 0, 0, 0.5);
+  --shadow-pop: 0 4px 20px rgba(0, 0, 0, 0.65);
+  --btn-hover: color-mix(in srgb, var(--ink) 8%, var(--paper));
+  --btn-active: color-mix(in srgb, var(--ink) 14%, var(--paper));
+  --selection: rgba(200, 96, 84, 0.34);
+  --code-bg: #0f1115;
+  --code-fg: var(--ink);
+  --code-btn-bg: color-mix(in srgb, var(--ink) 22%, transparent);
+  --code-btn-bg-hover: color-mix(in srgb, var(--ink) 30%, transparent);
+  --code-btn-fg: var(--ink);
+  --code-btn-line: color-mix(in srgb, var(--ink) 40%, transparent);
+  --intro-bg: #0f1115;
+  --intro-fg: var(--ink);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+  color-scheme: dark;
+  /* 深色不是反相：纸底＝浓墨近黑（禁纯黑），墨＝暖纸白，印朱＝压暗的朱砂（深底上不刺眼）。
+     对比度实测（相对 --paper #16181d）：--ink 14.14 / --ink-2 10.47 / --ink-3 6.74 /
+     --ink-4 3.66（对 --card 3.36）/ 卡片边框 --line-card 3.04（对卡底）/ 印文 --seal-fg 对 --seal 5.23。 */
+  --paper: #16181d;
+  --ink: #e9e5dd;
+  --ink-2: #c3c7ce;
+  --ink-3: #9aa0a9;
+  --ink-4: #6b727c;
+  --card: #1d2026;
+  --card-wash: rgba(255, 255, 255, 0.045);
+  --card-wash-hover: rgba(255, 255, 255, 0.075);
+  --cover: #242830;
+  --sheen: rgba(255, 255, 255, 0.16);
+  --seal: #aa463e;
+  --seal-ink: color-mix(in srgb, var(--seal) 62%, var(--ink)); /* 对纸 5.7:1 / 对卡 5.3:1：印朱当字色也过 AA；当“面”仍用上面的 --seal */
+  --accent-lift: 60%; /* 60%：作者色（浅底上挑的）提亮后，压在「淡染作者色的深纸底」上仍有 ≥5:1 */
+  --heat-0: #272b33;
+  --heat-1: #2c4034;
+  --heat-2: #3d5b46;
+  --heat-3: #5b8567;
+  --heat-4: #86b494;
+  --tone-0: #34495c;
+  --tone-1: #3d5136;
+  --tone-2: #57402c;
+  --tone-3: #4b5159;
+  --tone-4: #33504d;
+  --noise-img: url('/noise-dark.webp');
+  --ink-blend: screen;
+  --line-card: color-mix(in srgb, var(--ink-4) 92%, transparent);
+  --line-panel: color-mix(in srgb, var(--ink-4) 92%, transparent);
+  --line-bento: color-mix(in srgb, var(--ink-4) 92%, transparent);
+  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.5), 0 10px 26px -16px rgba(0, 0, 0, 0.75);
+  --shadow-lift: 0 4px 20px rgba(0, 0, 0, 0.5);
+  --shadow-pop: 0 4px 20px rgba(0, 0, 0, 0.65);
+  --btn-hover: color-mix(in srgb, var(--ink) 8%, var(--paper));
+  --btn-active: color-mix(in srgb, var(--ink) 14%, var(--paper));
+  --selection: rgba(200, 96, 84, 0.34);
+  --code-bg: #0f1115;
+  --code-fg: var(--ink);
+  --code-btn-bg: color-mix(in srgb, var(--ink) 22%, transparent);
+  --code-btn-bg-hover: color-mix(in srgb, var(--ink) 30%, transparent);
+  --code-btn-fg: var(--ink);
+  --code-btn-line: color-mix(in srgb, var(--ink) 40%, transparent);
+  --intro-bg: #0f1115;
+  --intro-fg: var(--ink);
+  }
 }
 
 /* ── 共用动效原语（2026-09-16 统一渲染层）──
@@ -91,7 +236,7 @@ html {
 }
 body {
   margin: 0;
-  background: var(--paper) url('/noise.webp') repeat;
+  background: var(--paper) var(--noise-img) repeat;
   color: var(--ink);
   font-family: var(--font-song);
   font-size: 16px;
@@ -100,7 +245,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 ::selection {
-  background: rgba(158, 43, 37, 0.18);
+  background: var(--selection); /* E7：浅色现状值不变；深色另有更亮的一档 */
 }
 h1,
 h2,
@@ -120,8 +265,11 @@ section {
 .site-foot {
   scroll-margin-top: calc(var(--nav-h) + 8px);
 }
+/* 2026-10-04 用户令：页脚不再吃整屏。原为 min-height: var(--section-h)（100svh）＋ #footer 内容居中，
+   结果滚到页末时页脚内容悬在屏幕中段、下方空出一大块（实测 1280×860 下 158px，1403 高的窗口下约 394px）。
+   页脚是收尾块不是展示段：按内容高收口。滚动吸附仍保留（全站是 y proximity，不会把页脚顶出可达范围）。 */
 .site-foot.as-section {
-  min-height: var(--section-h);
+  min-height: auto;
   scroll-snap-align: start;
 }
 .section-full {
@@ -153,8 +301,13 @@ section {
     z-index: 15;
     pointer-events: none;
     background:
-      linear-gradient(90deg, rgba(20, 22, 26, 0.05), rgba(20, 22, 26, 0.015) 55%, rgba(20, 22, 26, 0.05)),
-      url('/noise.webp') repeat;
+      linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--ink) 5%, transparent),
+        color-mix(in srgb, var(--ink) 1.5%, transparent) 55%,
+        color-mix(in srgb, var(--ink) 5%, transparent)
+      ),
+      var(--noise-img) repeat;
   }
   body::before {
     left: 0;

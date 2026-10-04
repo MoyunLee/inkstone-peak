@@ -41,8 +41,8 @@
   justify-content: flex-start;
 }
 .bento-tag {
-  background: rgba(20, 22, 26, 0.06);
-  border: 1px solid rgba(20, 22, 26, 0.05);
+  background: color-mix(in srgb, var(--ink) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ink) 5%, transparent); /* ink 基色：深色随 --ink 自动翻 */
   border-radius: 999px;
   color: var(--ink-2);
   padding: 4px 13px;
@@ -57,7 +57,7 @@
 .bento-tag:hover {
   background: var(--seal);
   border-color: var(--seal);
-  color: var(--paper);
+  color: var(--seal-fg); /* 印朱底上用恒定浅色：深色下 --paper 变暗会成暗字 */
 }
 .bento-seal-slot {
   flex: none;
@@ -88,12 +88,10 @@
   display: flex;
   flex-direction: column;
   background: var(--card-wash);
-  border: 1px solid rgba(20, 22, 26, 0.09);
+  border: 1px solid var(--line-bento);
   border-radius: 4px;
   padding: clamp(18px, 2.2vw, 26px);
-  box-shadow:
-    0 1px 2px rgba(20, 22, 26, 0.03),
-    0 10px 26px -16px rgba(20, 22, 26, 0.14);
+  box-shadow: var(--shadow-soft); /* 深色换黑基座（墨色投影会成光晕） */
   transition:
     border-color var(--t) var(--ease),
     background-color var(--t) var(--ease),
@@ -121,7 +119,7 @@
 .bento-card:hover {
   border-color: color-mix(in srgb, var(--seal) 40%, transparent);
   background: var(--card-wash-hover);
-  box-shadow: 0 4px 20px rgba(20, 22, 26, 0.04);
+  box-shadow: var(--shadow-lift);
 }
 
 .bento-label {
@@ -142,17 +140,17 @@
 .bento-intro-card {
   justify-content: center;
   min-height: clamp(178px, 21vh, 228px);
-  background: var(--ink);
+  background: var(--intro-bg);
   border-color: transparent;
-  color: var(--paper);
+  color: var(--intro-fg); /* 深墨卡：深色下保持"更深的一档"，不翻成浅块 */
 }
 .bento-intro-card .bento-label {
-  color: color-mix(in srgb, var(--paper) 62%, transparent);
+  color: color-mix(in srgb, var(--intro-fg) 62%, transparent);
 }
 .bento-intro-card:hover {
-  background: var(--ink);
+  background: var(--intro-bg);
   border-color: color-mix(in srgb, var(--seal) 55%, transparent);
-  box-shadow: 0 4px 20px rgba(20, 22, 26, 0.18);
+  box-shadow: var(--shadow-pop);
 }
 .bento-intro-name {
   margin: 0;
@@ -166,7 +164,7 @@
 }
 .bento-intro-sub {
   margin: 12px 0 0;
-  color: color-mix(in srgb, var(--paper) 78%, transparent);
+  color: color-mix(in srgb, var(--intro-fg) 78%, transparent);
   font-size: 14px;
   line-height: 1.75;
   letter-spacing: 0.04em;
@@ -187,7 +185,7 @@
 .bento-pursuit-title em {
   display: block;
   margin-top: 4px;
-  color: var(--seal);
+  color: var(--seal-ink);
   font-style: normal;
 }
 
@@ -488,7 +486,7 @@
 .bento-place-note svg {
   flex: none;
   margin-top: 3px;
-  color: var(--seal);
+  color: var(--seal-ink);
 }
 .bento-place-avail {
   margin: 4px 0 0;

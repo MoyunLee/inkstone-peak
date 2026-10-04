@@ -35,7 +35,7 @@
   display: flex;
   flex-direction: column;
   background: var(--card);
-  border: 1px solid color-mix(in srgb, var(--ink-4) 55%, transparent); /* 发丝描边界，非装饰框 */
+  border: 1px solid var(--line-card); /* 发丝描边界，非装饰框（浅 55% ink-4 / 深 92%，见 tokens.css） */
   border-radius: var(--card-radius);
   overflow: hidden;
   text-decoration: none;
@@ -62,7 +62,7 @@
   align-items: center;
   justify-content: center;
   color: var(--ink-3);
-  border-bottom: 1px solid rgba(20, 22, 26, 0.08);
+  border-bottom: 1px solid var(--hairline);
   overflow: hidden;
 }
 .card-cover img {
@@ -89,8 +89,8 @@
   align-items: center;
   justify-content: center;
   background-color: color-mix(in srgb, var(--ink-3) var(--cover-mix), transparent);
-  background-image: url('/noise.webp');
-  background-repeat: repeat;
+  background-image: var(--noise-img);
+  background-repeat: repeat; /* 深色换深色噪点：--noise-img 两主题各一张（tokens.css） */
 }
 /* 占位正中的站章：复用 Seal 母版（mark 变体）。尺寸随块宽伸缩（约封面宽的 28%），实印不透明 */
 .cover-seal {
@@ -100,19 +100,19 @@
   transform: rotate(-4deg);
 }
 .cover-ph[data-tone='0'] {
-  background-color: color-mix(in srgb, #41586b var(--cover-mix), transparent);
+  background-color: color-mix(in srgb, var(--tone-0) var(--cover-mix), transparent);
 }
 .cover-ph[data-tone='1'] {
-  background-color: color-mix(in srgb, #6f7f5c var(--cover-mix), transparent);
+  background-color: color-mix(in srgb, var(--tone-1) var(--cover-mix), transparent);
 }
 .cover-ph[data-tone='2'] {
-  background-color: color-mix(in srgb, #9a6f4e var(--cover-mix), transparent);
+  background-color: color-mix(in srgb, var(--tone-2) var(--cover-mix), transparent);
 }
 .cover-ph[data-tone='3'] {
-  background-color: color-mix(in srgb, var(--ink-2) var(--cover-mix), transparent);
+  background-color: color-mix(in srgb, var(--tone-3) var(--cover-mix), transparent); /* 原走 --ink-2：深色下会翻成浅灰块 */
 }
 .cover-ph[data-tone='4'] {
-  background-color: color-mix(in srgb, #5f7d78 var(--cover-mix), transparent);
+  background-color: color-mix(in srgb, var(--tone-4) var(--cover-mix), transparent);
 }
 /* 卡文槽：题 → 提要 → 标签 → 日期。提要与标签缺省就不占位（作品常常没有标签，题与日期照出）；
    日期 margin-top:auto 沉底——同排卡片的日期落在同一条基线上，这正是「整齐」的来源。 */

@@ -40,7 +40,9 @@ export default function ArticleDetail({ entry }: { entry: ArticleEntry }) {
   const a = site.a11y
   const style: CSSProperties = {}
   if (entry.main_color) Object.assign(style, { '--post-accent': entry.main_color })
-  if (entry.background) style.background = entry.background
+  // 作者自定义页底（front-matter 的 background）不直接落成内联 background：内联样式在深色下会把整页糊成浅色块，
+  // 而 JS 无从知道当前主题（SSR 也读不到）。改为注入 --post-bg，由 post.css 按 data-theme 决定「浅色照用 / 深色当淡染压回纸底」。
+  if (entry.background) Object.assign(style, { '--post-bg': entry.background })
   const where = tocPlacement(entry)
   const tocProps = { items: entry.tocItems, number: entry.toc_number, simple: entry.toc_style_simple, label: a.post_toc_label }
   return (
@@ -50,6 +52,7 @@ export default function ArticleDetail({ entry }: { entry: ArticleEntry }) {
         id="main-content"
         className="page-pad page-main"
         style={style}
+        data-post-bg={entry.background ? 'true' : undefined}
         data-toc-number={entry.toc_number ? 'true' : 'false'}
       >
         {articleHero(entry, site)}

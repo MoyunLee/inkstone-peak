@@ -77,11 +77,11 @@
    而 D7 把底衬搬进 .fc-arrow 基样式后，这条会把尖角染成纸色 ⇒ 纸色字压在纸色圆底上＝自己把自己抹掉
    （改完首轮截图实测确认）。有底衬就不需要再按「有无图」切字色了。 */
 .fade-carousel.has-photo .fc-dot {
-  background-color: color-mix(in srgb, var(--paper) 72%, transparent);
+  background-color: color-mix(in srgb, var(--on-media) 72%, transparent); /* 压在照片上：用媒体前景常量，不跟主题翻（--paper 深色下会变暗） */
   opacity: 1;
 }
 .fade-carousel.has-photo .fc-dot.on {
-  background-color: var(--paper);
+  background-color: var(--on-media);
 }
 .fc-arrow {
   position: absolute;
@@ -121,7 +121,7 @@
   right: 10px;
 }
 .fc-arrow:hover {
-  color: var(--seal);
+  color: var(--seal-ink);
   text-shadow:
     0 0 1px var(--paper),
     0 0 4px color-mix(in srgb, var(--paper) 95%, transparent),
@@ -199,7 +199,7 @@
   transition: color var(--t) var(--ease), filter var(--t) var(--ease);
 }
 .fc-toggle:hover {
-  color: var(--seal);
+  color: var(--seal-ink);
   filter:
     drop-shadow(0 0 1px var(--paper))
     drop-shadow(0 0 2.5px color-mix(in srgb, var(--paper) 95%, transparent))
