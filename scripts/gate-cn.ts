@@ -1,29 +1,19 @@
 // 中文闸：src/components 与 src/pages 禁中文字面量（注释之外无例外），命中即非零退出。
-import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
+import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { info } from './quiet.ts'
+import { walkTs } from './walk-ts.ts'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const DIRS = ['src/components', 'src/pages']
 const HAN = /[\p{sc=Han}]/u
 
-function walk(dir: string): string[] {
-  if (!existsSync(dir)) return []
-  const out: string[] = []
-  for (const name of readdirSync(dir)) {
-    const p = path.join(dir, name)
-    if (statSync(p).isDirectory()) out.push(...walk(p))
-    else if (/\.(ts|tsx)$/.test(name)) out.push(p)
-  }
-  return out
-}
-
 const hits: string[] = []
 let checked = 0
 for (const rel of DIRS) {
-  for (const file of walk(path.join(ROOT, rel))) {
+  for (const file of walkTs(path.join(ROOT, rel))) {
     checked += 1
     const lines = readFileSync(file, 'utf8').split(/\r?\n/)
     let inBlock = false

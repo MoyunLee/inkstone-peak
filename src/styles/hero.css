@@ -28,14 +28,14 @@
     mask-image: var(--fade-y);
   }
 }
-/* 云雾层：构建期预模糊 PNG + 横漂 + 8s 呼吸；越界由 #home overflow-x:clip 封死 */
+/* 云雾层：构建期预模糊 WebP + 横漂 + 8s 呼吸；越界由 #home overflow-x:clip 封死 */
 .mist {
   position: absolute;
   left: -10%;
   width: 120%;
   height: 26%;
   pointer-events: none;
-  background: url('/mist-a.png') center / 100% 100% no-repeat;
+  background: url('/mist-a.webp') center / 100% 100% no-repeat;
   will-change: transform, opacity;
 }
 .mist.a {
@@ -46,7 +46,7 @@
 }
 .mist.b {
   bottom: 2%;
-  background-image: url('/mist-b.png');
+  background-image: url('/mist-b.webp');
   animation:
     drift 92s linear infinite alternate-reverse,
     breathe 8s ease-in-out infinite alternate-reverse;
@@ -73,7 +73,7 @@
     opacity: 0.09;
   }
 }
-/* .mist 是深墨 PNG：深底上与纸同色会整片消失，深色下反相成浅墨雾（与 #ink 的 screen 混合同源）。
+/* .mist 是深墨 WebP：深底上与纸同色会整片消失，深色下反相成浅墨雾（与 #ink 的 screen 混合同源）。
    无 JS 时没有 data-theme 属性，故媒体查询那条必须并列存在。 */
 :root[data-theme='dark'] .mist {
   filter: invert(1);

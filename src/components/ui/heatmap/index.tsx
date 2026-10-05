@@ -1,12 +1,13 @@
 import { useRef, useState } from 'react'
 import type { MouseEvent } from 'react'
 import { fill, useHeatmapData } from './useHeatmapData'
-import type { HeatItem, HeatLabels } from './useHeatmapData'
+import type { HeatItem } from './useHeatmapData'
+import type { HeatmapLabels } from '../../../lib/types/site'
 import { HeatmapGrid } from './HeatmapGrid'
 import { HeatmapTooltip } from './HeatmapTooltip'
 import type { HeatTip } from './HeatmapTooltip'
 
-export type { HeatItem, HeatLabels } from './useHeatmapData'
+export type { HeatItem } from './useHeatmapData'
 
 /**
  * 贡献日历热力图（/blog 归档页与首页「造境」段共用）。
@@ -30,7 +31,7 @@ export default function Heatmap({
   className = '',
 }: {
   items: HeatItem[]
-  labels: HeatLabels
+  labels: HeatmapLabels
   years?: number[]
   defaultYear?: number
   className?: string

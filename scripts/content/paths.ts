@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url'
 import MarkdownIt from 'markdown-it'
 import { BILI_PAGE_HOSTS, EMBED_HOSTS, hostOf } from './schemas/shared.ts'
 import { embedIframeHtml, escapeHtml } from '../../src/lib/data/embed.ts'
+import type { TocItem } from '../../src/lib/types/content.ts'
 
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..')
 export const P = (...segs: string[]): string => path.join(ROOT, ...segs)
@@ -11,17 +12,13 @@ export const OUT_DIR = P('.content')
 // ⚠ 安全不变量：html 必须保持 false。
 //   正文经 PostBody 的 dangerouslySetInnerHTML 直出（React 不做转义），html:true 等于把 markdown 里的原始 HTML 原样执行。
 //   linkify:false 同时避免裸 URL 被自动变成链接。要支持自定义 HTML，必须同时上 DOMPurify，不能只改这一个开关。
-export const RENDER = new MarkdownIt({ html: false, linkify: false, typographer: false })
+const RENDER = new MarkdownIt({ html: false, linkify: false, typographer: false })
 
-/** 标题清单项（TOC 事实层，组件零解析）。 */
-export interface Heading {
-  level: number
-  id: string
-  text: string
-}
+/** 标题清单项（TOC 事实层，组件零解析）；形状与运行层契约同源，只此一处定义。 */
+export type Heading = TocItem
 
 /** 渲染期收集袋：标题清单（喂 TOC）+ 正文嵌入的诊断（构建期连同文件名报错）。 */
-export interface RenderEnv {
+interface RenderEnv {
   headings: Heading[]
   problems: string[]
 }
@@ -121,7 +118,7 @@ export function renderBody(src: string): { html: string; headings: Heading[]; pr
 // ── source/ 素材：磁盘母版位置 ↔ 对外交付 URL 的单一映射 ──
 // 与 vite.config.ts 的 staticFromSource.MIRRORS 同构（source/images/** → /images/**；source/video/** → /media/video/**）。
 // front-matter 的图片/视频槽一律先经 toMediaUrl 归一成 URL 再落 posts.json，故页面层只见对外地址。
-export const MEDIA_MIRRORS: readonly (readonly [from: string, url: string])[] = [
+const MEDIA_MIRRORS: readonly (readonly [from: string, url: string])[] = [
   ['images', '/images/'],
   ['video', '/media/video/'],
 ]

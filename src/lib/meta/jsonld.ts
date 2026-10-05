@@ -11,7 +11,7 @@
 import { navBase, normalizePath } from './page-meta.ts'
 
 /** nav 条目（只取结构化数据用到的字段；与 .content/site.json 顶层同形）。 */
-export interface JsonLdNavInput {
+interface JsonLdNavInput {
   ink: string
   route?: string | null
   isDetailPage: boolean
@@ -46,7 +46,7 @@ export interface JsonLdArticleInput {
 }
 
 /** 一页的完整结构化数据：该页所有节点共用一套 @graph（一页只出一个 script）。 */
-export interface JsonLdGraph {
+interface JsonLdGraph {
   '@context': string
   '@graph': Record<string, unknown>[]
 }

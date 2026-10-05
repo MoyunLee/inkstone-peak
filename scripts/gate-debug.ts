@@ -1,30 +1,20 @@
 // 调试残留闸：src/ 下禁 console.* / debugger，命中即非零退出。
 // 为什么是闸门而不是 build.minify 选项：Vite 8 的转换器是 oxc，esbuild.drop 已被忽略（见 vite.config.ts 说明）。
 // 当前 src 为零命中，本闸把「忘了删调试语句」从自觉变成结构性保证。
-import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
+import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { info } from './quiet.ts'
+import { walkTs } from './walk-ts.ts'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const DIR = 'src'
 const HIT = /\bconsole\s*\.|\bdebugger\b/
 
-function walk(dir: string): string[] {
-  if (!existsSync(dir)) return []
-  const out: string[] = []
-  for (const name of readdirSync(dir)) {
-    const p = path.join(dir, name)
-    if (statSync(p).isDirectory()) out.push(...walk(p))
-    else if (/\.(ts|tsx)$/.test(name)) out.push(p)
-  }
-  return out
-}
-
 const hits: string[] = []
 let checked = 0
-for (const file of walk(path.join(ROOT, DIR))) {
+for (const file of walkTs(path.join(ROOT, DIR))) {
   checked += 1
   const lines = readFileSync(file, 'utf8').split(/\r?\n/)
   for (let i = 0; i < lines.length; i += 1) {

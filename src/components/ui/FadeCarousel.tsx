@@ -13,7 +13,7 @@ export interface CarouselItem {
   /** 封面：铺满整张幻灯片。没图就不要进轮播（由调用方过滤）。 */
   cover?: string | null
 }
-export interface CarouselLabels {
+interface CarouselLabels {
   /** 上一张（缺了就只剩一个「‹」字形当名字，勉强能读）。 */
   prev?: string
   /** 下一张，同 prev。 */

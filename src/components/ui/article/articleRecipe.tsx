@@ -28,7 +28,7 @@ function workPart(entry: ArticleEntry): Partial<WorkArticle> {
 }
 
 /** 展示标签：作品以 site.yml 的 work_tag 打头（类型标记词构建期已剔除，运行层只剩 kind）——与归档卡同一公式。 */
-export function articleTags(entry: ArticleEntry, site: SiteData): string[] {
+function articleTags(entry: ArticleEntry, site: SiteData): string[] {
   const workTag = site.blog?.work_tag
   return entry.kind === 'work' && workTag ? [workTag, ...entry.tags] : entry.tags
 }

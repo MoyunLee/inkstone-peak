@@ -78,7 +78,7 @@ export function build(report = true): boolean {
   const portfolioSlugs = works.map((w) => w.slug)
   if (works.length === 0) issue('source/posts/', '（目录）', `没有任何作品（tags 含 ${PORTFOLIO_TAG}）——首页观山段与 /portfolio 列表都将为空`)
 
-  // 素材存在性（警告不阻断，与 site.yml footer.cv 的存在性校验同构）：一律校 source/ 母版而非镜像产物
+  // 素材存在性（警告不阻断）：一律校 source/ 母版而非镜像产物
   for (const e of entries) {
     const d = e.data
     const slots: [string, string | null | undefined][] = [
@@ -144,11 +144,11 @@ export function build(report = true): boolean {
     for (const [i, n] of s.nav.entries()) {
       if (seenInk.has(n.ink)) issue('site.yml', `nav.${i}.ink`, `显示名「${n.ink}」重复（React key 与"同 id 同词"律要求全站唯一）`)
       seenInk.add(n.ink)
-      const rbase = ((n.route ?? '/').split('#')[0] || '/')
+      const rbase = navBase(n.route)
       if (seenRoute.has(rbase)) issue('site.yml', `nav.${i}.route`, `基路径「${rbase}」已被另一条 nav 占用（route 与页面一一对应，2026 锚点改制教义；悟录类封存行恢复须另择路径）`)
       seenRoute.add(rbase)
       if (typeof n.detailPrefix === 'string') {
-        const pbase = (n.detailPrefix.split('#')[0] || '/')
+        const pbase = navBase(n.detailPrefix)
         if (seenPin.has(pbase)) issue('site.yml', `nav.${i}.detailPrefix`, `激活前缀「${pbase}」与另一条 nav 撞车（前缀匹配将先后遮蔽，语义歧义）`)
         seenPin.add(pbase)
       }

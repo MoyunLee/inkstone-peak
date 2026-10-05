@@ -1,26 +1,15 @@
 import { useMemo, useState } from 'react'
+import type { HeatmapLabels } from '../../../lib/types/site'
 
 export interface HeatItem {
   date: string
   count: number
 }
 
-export interface HeatLabels {
-  title: string
-  less: string
-  more: string
-  tip: string
-  tip_empty: string
-  region_label: string
-  years_label: string
-  weekdays: string[]
-  months: string[]
-}
-
 /** 格态：day=年内可悬浮日 / future=年内未来日 / out=跨年留白日（首末列溢出日） */
-export type HeatState = 'day' | 'future' | 'out'
+type HeatState = 'day' | 'future' | 'out'
 
-export interface HeatDay {
+interface HeatDay {
   key: string
   count: number
   level: number
@@ -33,7 +22,7 @@ export interface HeatCol {
   days: HeatDay[]
 }
 
-export interface HeatModel {
+interface HeatModel {
   cols: HeatCol[]
   colsCount: number
   total: number
@@ -41,6 +30,8 @@ export interface HeatModel {
 }
 
 const DAY_MS = 86400000
+/** 一周七天：热力图按自然周铺列（每列 7 格，周日起） */
+const DAYS_PER_WEEK = 7
 const pad2 = (n: number): string => (n < 10 ? '0' + n : String(n))
 const keyOf = (d: Date): string => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`
 
@@ -98,7 +89,7 @@ export function useHeatmapData({
   defaultYear,
 }: {
   items: HeatItem[]
-  labels: HeatLabels
+  labels: HeatmapLabels
   years?: number[]
   defaultYear?: number
 }): { years: number[]; activeYear: number; setPicked: (y: number) => void; model: HeatModel } {
@@ -120,15 +111,15 @@ export function useHeatmapData({
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
     const start = sundayOf(new Date(activeYear, 0, 1))
     const lastSun = sundayOf(new Date(activeYear, 11, 31))
-    const colsCount = Math.round((lastSun.getTime() - start.getTime()) / DAY_MS / 7) + 1
+    const colsCount = Math.round((lastSun.getTime() - start.getTime()) / DAY_MS / DAYS_PER_WEEK) + 1
     const cols: HeatCol[] = []
     let total = 0
     let max = 0
     for (let w = 0; w < colsCount; w += 1) {
       const days: HeatDay[] = []
       let firstOfMonth = -1
-      for (let r = 0; r < 7; r += 1) {
-        const d = addDays(start, w * 7 + r)
+      for (let r = 0; r < DAYS_PER_WEEK; r += 1) {
+        const d = addDays(start, w * DAYS_PER_WEEK + r)
         const inYear = d.getFullYear() === activeYear
         const future = inYear && d.getTime() > today.getTime()
         const count = inYear && !future ? (agg.counts.get(keyOf(d)) ?? 0) : 0

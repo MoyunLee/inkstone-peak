@@ -3,7 +3,7 @@
 export const OFF_W = 960
 export const OFF_H = 560
 
-export interface ScenePoint {
+interface ScenePoint {
   x: number
   y: number
   ink: number
@@ -36,7 +36,7 @@ interface Layer {
   inkv: number
 }
 
-export function layersFor(mobile: boolean): Layer[] {
+function layersFor(mobile: boolean): Layer[] {
   return mobile
     ? [
         { sub: 5, ratio: 0.2, amp: 150, inkv: 0.3 },

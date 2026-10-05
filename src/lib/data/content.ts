@@ -17,7 +17,7 @@ export const posts = postsJson as unknown as ArticleEntry[]
  * @example
  * // 想让某件作品在观山轮播排第一：它的 front-matter 写 swiper_index: 1
  */
-export function pinRank(e: ArticleEntry): [number, number] {
+function pinRank(e: ArticleEntry): [number, number] {
   if (e.swiper_index !== null) return [0, e.swiper_index]
   if (e.top_group_index !== null) return [1, e.top_group_index]
   return [2, 0]

@@ -20,7 +20,7 @@ export const EMBED_ATTRS = {
 export const EMBED_ATTRS_HERO = { ...EMBED_ATTRS, loading: 'eager' } as const
 
 /** 同一份属性 → HTML 属性串（构建期字符串渲染用；camelCase 映射回 HTML 属性名，布尔项写空值）。 */
-export function embedAttrString(): string {
+function embedAttrString(): string {
   return [
     'loading="' + EMBED_ATTRS.loading + '"',
     'allowfullscreen',

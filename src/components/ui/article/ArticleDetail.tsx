@@ -16,7 +16,7 @@ import {
 import { useSite } from '../../../lib/data/site'
 
 /** 目录落位：关目录 → null；侧栏开着且非简洁模式 → 侧栏；否则正文内联（关侧栏时目录仍可达）。 */
-export function tocPlacement(entry: ArticleEntry): 'aside' | 'inline' | null {
+function tocPlacement(entry: ArticleEntry): 'aside' | 'inline' | null {
   if (!entry.toc) return null
   return entry.aside && !entry.toc_style_simple ? 'aside' : 'inline'
 }

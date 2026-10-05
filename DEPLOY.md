@@ -8,11 +8,11 @@
 
 ```bash
 cd <仓库目录>
-npm run build      # 产 dist/（内容校验→媒体→素材→中文闸→类型→构建→SSR→10 路由正文预渲染→feeds）
+npm run build      # 产 dist/（内容校验→媒体→素材→中文闸→类型→构建→SSR→10 路由 + 404 共 11 份正文预渲染→feeds）
 npm run preview    # 起本地服务 → 浏览器打开 http://127.0.0.1:4173
 ```
 
-- **`npm run preview` 的语义与生产一致**（目录路径直出 `<路径>/index.html`，未知路径给 404 页）：`vite.config.ts` 里的 `previewDirIndex()` 补了这层改写。★此前 vite preview 的 SPA 回退会把**所有非首页路径都喂成 `dist/index.html`**，于是刷新 /portfolio、/blog、/about 时**首帧先看到首页内容**、React 挂载后才换成真页面（地址栏不变，像被弹回首页）；10 份预渲染正文里只有首页那份在本地可见（2026-09-16 修复）。
+- **`npm run preview` 的语义与生产一致**（目录路径直出 `<路径>/index.html`，未知路径给 404 页）：`vite.config.ts` 里的 `previewDirIndex()` 补了这层改写。★此前 vite preview 的 SPA 回退会把**所有非首页路径都喂成 `dist/index.html`**，于是刷新 /portfolio、/blog、/about 时**首帧先看到首页内容**、React 挂载后才换成真页面（地址栏不变，像被弹回首页）；11 份预渲染正文里只有首页那份在本地可见（2026-09-16 修复）。
 - 只投递期自用：这台电脑开着 `npm run preview` 就能逛所有页面（首页五段/案例/关于/流程/404 全功能，粒子、导航、深链都在）。
 - 想给别人看但不想上网：同一 Wi-Fi 下用 `npx vite preview --host 0.0.0.0`，手机访问 `http://<你电脑IP>:4173`（防火墙放行即可）——仅限同网段，不出户。
 - 改文案/内容想即时看：另开一个终端 `npm run content:watch`，再跑 `npm run dev`（地址 http://127.0.0.1:5173），改 `site.yml`、`source/` 或 `content/` 下的 md 存盘即热更。
@@ -29,8 +29,8 @@ npm run build     # = content → media → assets → 中文闸 → tsc → vit
 npm run checklist # 上线检查表：🔴 必须为 0
 ```
 
-产物在 `dist/`：10 份路由 HTML（5 固定 + 2 案例 + 2 博文 + 404；每页独立 title/description/canonical/keywords **且内嵌预渲染正文**）+ 哈希资源 + `sitemap.xml` `rss.xml` `robots.txt`（三份构建期生成，域名唯一源 = `site.yml` 的 `site.url`）+ 站点根静态件（`hero-base.png`、`mist-a/b.png`、`noise.webp`、`favicon.svg`、`apple-touch-icon.png`，源在 `source/site/`）。★2026-09-13：旧地址重定向桩 ×11 已整层删除。
-> ★2026-09-11 用户令：OG 全套（og:title/description/url/image 及 og 图）已移除——微信/QQ 分享不再出卡片，故 `source/site/` 下不再有 `og-default.png` 与 `og/*.png`。
+产物在 `dist/`：11 份 HTML（4 固定（/、/portfolio、/about、/blog）+ 3 案例 + 3 博文 + 404；每页独立 title/description/canonical/keywords **且内嵌预渲染正文**）+ 哈希资源 + `sitemap.xml` `rss.xml` `robots.txt`（三份构建期生成，域名唯一源 = `site.yml` 的 `site.url`）+ 站点根静态件（`hero-base.png`、`mist-a/b.png`、`noise.webp`、`favicon.svg`、`apple-touch-icon.png`，源在 `source/site/`）。★2026-09-13：旧地址重定向桩 ×11 已整层删除。
+> ★2026-09-11 用户令：OG 全套（og:title/description/url/image 及 og 图）已移除——微信/QQ 分享不再出卡片，故 `source/site/` 下不再有 `og-default.png` 与 `og/*.png`。★2026-10-03 用户令**恢复**（用户令 D3）：`og:*` / `twitter:*` / `article:*` 由 pre-render 按路由写回，全站共用一张手工默认卡 `source/site/og/default.png`（配方 `scripts/og-card.ts`），微信/QQ 分享恢复出卡片。恢复不等于回退旧形态：**不恢复 `og_default` 配置键，也不在构建链里出图**（PNG 带字依赖本机字体）。
 
 ## 2. 部署（Vercel）
 
@@ -91,7 +91,7 @@ npm run checklist # 上线检查表：🔴 必须为 0
 ## 5. 上线前验收（发布清单，需你本人过一遍）
 
 - [ ] 手机**关 Wi-Fi 用流量**访问 Vercel 地址：首屏粒子山、滚动不掉帧（中端手机 60fps 口径）。
-- [ ] **逐个路由直访**：页面标题/描述正确、无控制台报错（★OG 卡片已于 2026-09-11 移除，微信/QQ 分享不再出卡片）。
+- [ ] **逐个路由直访**：页面标题/描述正确、无控制台报错（★OG 分享卡已于 2026-10-03 用户令恢复：逐路由校验 og:title/description/url/image 齐备且 og:url == canonical；404 刻意不出卡）。
 - [x] ~~`npm run checklist` 的 🟢 开关处理：`contact.bilibili` 补真地址或维持「筹建中」~~ → **2026-09-26 已完成**：`contact.bilibili` 填真地址（`https://space.bilibili.com/1800744550`），页脚「联系」栏出「B 站 · 雨夜鱼龙舞yo」，🟢 归零。
 - [ ] 🟡 占位替换（不阻塞投递，素材来一张换一张）：案例封面 → `source/images/<slug>/cover.webp`（列表卡与案例页共用）。
 - [ ] 想挂简历 / 资料 PDF：文件放进 `site/source/site/`（如 `source/site/resume/du-kang.pdf`），再在 `site.yml` 的 `footer.columns` 加一栏，例：`{ id: files, title: 资料, links: [ { label: 简历, to: /resume/du-kang.pdf } ] }`——没有专门的简历字段，构建期会校文件是否落盘。

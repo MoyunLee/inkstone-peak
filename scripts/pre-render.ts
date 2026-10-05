@@ -89,7 +89,15 @@ const esc = (s: string): string => s.replace(/&/g, '&amp;').replace(/</g, '&lt;'
 
 function inject(page: Page, body: string): string {
   const m = pageMeta(page.urlPath, site, posts)
-  let html = shell.replace(/<title>[\s\S]*?<\/title>/, () => `<title>${esc(m.title)}</title>`)
+  // title 也是「替换锚点」，与下面 description/canonical/lang 同一套处置：壳若丢了 <title>，
+  // 裸 replace 会**静默**不替换（每页标题就退回壳里的入口页标题，且构建照样绿），故先断言锚点在。
+  let html = shell
+  const titleRe = /<title>[\s\S]*?<\/title>/
+  if (!titleRe.test(html)) {
+    console.error('✗ 替换锚点缺失：title（index.html 的 <title>…</title> 被改动，停下修锚）')
+    process.exit(1)
+  }
+  html = html.replace(titleRe, () => `<title>${esc(m.title)}</title>`)
   const setAttr = (re: RegExp, val: string, anchor: string): void => {
     if (!re.test(html)) {
       console.error(`✗ 替换锚点缺失：${anchor}（预渲染要求锚点全在 index.html 固定标签——壳被改动，停下修锚）`)
@@ -163,6 +171,11 @@ function inject(page: Page, body: string): string {
     console.error(`✗ 预渲染正文含「迟到 Suspense」标记（${late[0]}）：${page.urlPath}——把该段组件改为静态注册（见 src/site/sections.ts）`)
     process.exit(1)
   }
+  // Suspense 边界锚注释：路由级 React.lazy 让树里多了边界，renderToPipeableStream 遂给每个边界套一对
+  // <!--$--> / <!--/$-->（hydrate 定位用）。但预渲染块**从不 hydrate**——运行期是 createRoot 接管 #root、
+  // 本块由 CSS 隐去后交给 DropPrerender 摘除——留着只凭空多一份 React 内部标记，故在此剥掉。
+  // 剥掉后正文与「未做代码分割」时逐字节相同，比对基线才有意义。
+  body = body.replace(/<!--\/?\$[!?]?-->/g, '')
   // 预渲染正文：替换必须是函数式，否则正文里的 $& / $1 会被当成替换模式
   html = html.replace(PRERENDER_SLOT, () => `<div id="prerender">${body}</div>`)
   return html
