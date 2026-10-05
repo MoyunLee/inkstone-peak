@@ -89,7 +89,15 @@ const esc = (s: string): string => s.replace(/&/g, '&amp;').replace(/</g, '&lt;'
 
 function inject(page: Page, body: string): string {
   const m = pageMeta(page.urlPath, site, posts)
-  let html = shell.replace(/<title>[\s\S]*?<\/title>/, () => `<title>${esc(m.title)}</title>`)
+  // title 也是「替换锚点」，与下面 description/canonical/lang 同一套处置：壳若丢了 <title>，
+  // 裸 replace 会**静默**不替换（每页标题就退回壳里的入口页标题，且构建照样绿），故先断言锚点在。
+  let html = shell
+  const titleRe = /<title>[\s\S]*?<\/title>/
+  if (!titleRe.test(html)) {
+    console.error('✗ 替换锚点缺失：title（index.html 的 <title>…</title> 被改动，停下修锚）')
+    process.exit(1)
+  }
+  html = html.replace(titleRe, () => `<title>${esc(m.title)}</title>`)
   const setAttr = (re: RegExp, val: string, anchor: string): void => {
     if (!re.test(html)) {
       console.error(`✗ 替换锚点缺失：${anchor}（预渲染要求锚点全在 index.html 固定标签——壳被改动，停下修锚）`)
