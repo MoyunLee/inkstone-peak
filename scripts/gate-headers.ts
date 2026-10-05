@@ -68,7 +68,7 @@ const assetsCache = all.find((h) => h.key === 'Cache-Control' && h.source === '/
 if (!/immutable/.test(assetsCache)) fails.push('/assets/* 缺 immutable 缓存声明（文件名带内容哈希，可以放心一年）')
 const mediaCache = all.find((h) => h.key === 'Cache-Control' && h.source === '/(images|media)/(.*)')?.value
 if (!mediaCache) fails.push('缺 /images|media/* 的缓存声明')
-else if (/immutable/.test(mediaCache)) fails.push('/images|media/* 不许 immutable（路径不带哈希，标了它换素材将永远不生效）——要立刻生效用 max-age=0, must-revalidate')
+else if (/immutable/.test(mediaCache)) fails.push('/images|media/* 不许 immutable（路径不带哈希，标了它换素材将永远不生效）——用 max-age=3600, must-revalidate：短 TTL 兼顾「换素材尽快生效」与「少回源校验」')
 
 // ⑦ 嵌入 iframe 不许带 sandbox（代码里不行；注释里解释原因是可以的）
 // 为什么是硬闸：WebKit 的 MSE 在带 sandbox 的 iframe 里被误挡（bugs.webkit.org 252755，状态 NEW），
