@@ -1,4 +1,4 @@
-// 构建期素材：用 sharp 确定性生成 noise.webp / noise-dark.webp / hero-base.png / mist-a|b.png / favicon.svg / apple-touch-icon.png。
+// 构建期素材：用 sharp 确定性生成 noise.webp / noise-dark.webp / hero-base.png / mist-a|b.webp / favicon.svg / apple-touch-icon.png。
 // 产物落 source/site/（站点根静态件的唯一家）：dev 由 vite 插件直供、build 直写 dist/——不再有 public/ 暂存层。
 // ⚠ 七件都是**构建产物，不入仓**（配方 = 本文件 + site.yml 的印文 + tokens.css 的令牌）：改配置后重跑本步即可，
 //   仓库里没有副本可过期。手工静态件（简历 PDF 等）才是 source/site/ 的入仓内容。见 .gitignore。
@@ -46,7 +46,7 @@ async function main(): Promise<void> {
   await noiseWebp('noise.webp', 18)
   await noiseWebp('noise-dark.webp', 224)
   await heroBasePng()
-  await mistPngs()
+  await mistWebp()
   await brandMarks()
 }
 
@@ -112,8 +112,10 @@ async function heroBasePng(): Promise<void> {
   writeFileSync(P('source', 'site', 'hero-base.png'), out)
 }
 
-// ④ 云雾层预模糊 PNG
-async function mistPngs(): Promise<void> {
+// ④ 云雾层预模糊 WebP（★2026-10-05 由 PNG 改有损 WebP）：两张合计 50.3KB → 19.8KB，而 .mist.a 正是**首页 LCP 那张图**。
+//    q85 对「已经过 blur(16) 的纯渐变」没有肉眼差别；alphaQuality 必须拉满——雾整张都是 alpha 渐变，压 alpha 会出可见色带。
+//    仍然逐字节确定（同参数重复生成结果相同），不会给别的机器带来假 diff。
+async function mistWebp(): Promise<void> {
   const strip = (blobs: string): string =>
     `<svg xmlns="http://www.w3.org/2000/svg" width="720" height="180"><rect width="720" height="180" fill="transparent"/>${blobs}</svg>`
   const a = strip(
@@ -123,10 +125,10 @@ async function mistPngs(): Promise<void> {
     `<ellipse cx="330" cy="90" rx="230" ry="46" fill="rgba(20,22,26,.5)"/><ellipse cx="640" cy="110" rx="130" ry="36" fill="rgba(20,22,26,.35)"/>`,
   )
   for (const [name, svg] of [
-    ['mist-a.png', a],
-    ['mist-b.png', b],
+    ['mist-a.webp', a],
+    ['mist-b.webp', b],
   ] as const) {
-    const out = await sharp(Buffer.from(svg)).blur(16).png({ compressionLevel: 9 }).toBuffer()
+    const out = await sharp(Buffer.from(svg)).blur(16).webp({ quality: 85, alphaQuality: 100 }).toBuffer()
     writeFileSync(P('source', 'site', name), out)
   }
 }
