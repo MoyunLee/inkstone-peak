@@ -67,9 +67,11 @@ npm run checklist # 上线检查表：🔴 必须为 0
 | `X-Frame-Options` | **不发** | 与「开放被嵌」配套：老浏览器只认 XFO，同时发 `DENY` 就会把友链的 iframe 挡在门外（自相矛盾）。要回到锁死形态：CSP 改 `frame-ancestors 'none'` + 这里发 `DENY` |
 | `Permissions-Policy` | `camera=(), microphone=(), geolocation=(), payment=(), usb=()` | 关掉用不到的浏览器能力 |
 
-缓存：`/assets/*`（Vite 内容哈希）`public, max-age=31536000, immutable`；`/images|media/*`（**非哈希**）`public, max-age=0, must-revalidate` —— 换成素材**立刻全网生效**（每次回源带 ETag 复验，304 很便宜；Vercel 每次部署也会换掉边缘副本）。
+缓存：`/assets/*`（Vite 内容哈希）`public, max-age=31536000, immutable`；`/images|media/*` 与**站点根静态件**（`/mist-a.webp`、`/mist-b.webp`、`/hero-base.png`、`/noise.webp`、`/noise-dark.webp`、`/og/default.png`、`/favicon.svg`、`/apple-touch-icon.png`，共 8 件，均**非哈希**）`public, max-age=3600, must-revalidate` —— 短 TTL 兼顾「换素材一小时内全网生效」与「少回源校验」。
+站点根这 8 件既不在 `/assets/` 之下（无内容哈希，吃不了 immutable），也不在 `/images|media/` 之下，不吃任何规则时 Vercel 对静态件的默认值是 `max-age=0, must-revalidate`（2026-10-05 生产实测），**每访问一次都要为这约 70 KB 白跑一轮协商往返**，故在 `vercel.json` 里逐个点名。
+`/theme-init.js` **刻意不缓存**：它在样式表之前同步执行、属关键路径，缓存久了会把改版后的引导逻辑挡住（闸门会拦住给它加规则）。
 
-**内容侧闸门** `scripts/gate-headers.ts`（在 `npm run gate` 里，故 `npm run build` 与 CI 都会跑）：六件套齐备 · `frame-src` 与 `scripts/content/schemas/shared.ts` 的 `EMBED_HOSTS` **逐一相符**（多一个少一个都报错——防「内容层放行新平台、CSP 把它挡在门外」的静默失效）· 被嵌策略**自洽**（两种模式：锁死 `frame-ancestors 'none'` + XFO `DENY`；可被嵌 `frame-ancestors *` 且**不发** XFO）· `script-src` 不许出现 `'unsafe-inline'` · `/assets/*` 必须 immutable、`/images|media/*` **必须不是** immutable。
+**内容侧闸门** `scripts/gate-headers.ts`（在 `npm run gate` 里，故 `npm run build` 与 CI 都会跑）：五件套齐备 · `frame-src` 与 `scripts/content/schemas/shared.ts` 的 `EMBED_HOSTS` **逐一相符**（多一个少一个都报错——防「内容层放行新平台、CSP 把它挡在门外」的静默失效）· 被嵌策略**自洽**（两种模式：锁死 `frame-ancestors 'none'` + XFO `DENY`；可被嵌 `frame-ancestors *` 且**不发** XFO）· `script-src` 不许出现 `'unsafe-inline'` · `/assets/*` 必须 immutable、`/images|media/*` 与上述 8 件站点根静态件**必须不是** immutable 且缓存值逐字相符 · 站点根每件规则点名的文件必须真的在 `source/site/` 里（**文件一改名规则就静默失效**，这正是立闸的理由）· `/theme-init.js` **不许**有任何缓存规则。
 
 > ⚠ `vercel.json` 必须是**无 BOM** 的 UTF-8（PowerShell `Set-Content -Encoding UTF8` 会插 BOM → `JSON.parse` 直接炸）；闸门会以「vercel.json 读不出来」拦住。
 
