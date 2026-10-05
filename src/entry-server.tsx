@@ -6,7 +6,9 @@
 // （当前首页段落全部静态注册，正常不该命中该分支。）
 import { Writable } from 'node:stream'
 import { renderToPipeableStream } from 'react-dom/server'
-import { StaticRouter } from 'react-router'
+// StaticRouter 从 react-router-dom 取：package.json 只声明了它，'react-router' 是它的传递依赖（幽灵依赖），
+// 在 pnpm 那种严格 node_modules 下会直接解析失败。react-router-dom 的入口就是 export * from 'react-router'，同一模块实例。
+import { StaticRouter } from 'react-router-dom'
 import AppRoutes from './routes'
 
 const SSR_TIMEOUT_MS = 20000
