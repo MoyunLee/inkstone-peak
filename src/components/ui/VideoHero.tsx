@@ -10,6 +10,8 @@ import RespImg from './RespImg'
  * ③ 失败后由用户「重试」重新挂载（慢链路上一次失败往往是暂时的）。
  * 同时把封面当 poster：判定发生之前、以及无 JS 环境下也先显示封面，不会留黑框。
  * 触摸设备 preload=none：13MB 的片子不必在你点播放之前先偷偷下 moov（实测慢链路上一等就是十几秒）。
+ *   预渲染期没有 window，设备信息不可知 ⇒ touch 记作 'unknown'，SSR/预渲染 HTML 也输出 preload=none（最保守值）；
+ *   React 挂载拿到真实值后才按设备升级（非触屏 → metadata，触屏维持 none），故桌面端最终行为不变。
  *
  * ★2026-09-23 改（用户报「手机能放但加载一会就变成图片」）：旧实现把失败态渲染成一张裸封面图——
  *   用户既不知道发生了什么，也没有第二次机会。现在失败态 = 封面 + 「重试」+「用系统播放器打开」
@@ -56,7 +58,10 @@ export default function VideoHero({
   const [nonce, setNonce] = useState(0)
   const elRef = useRef<HTMLVideoElement | null>(null)
   const still = cover ?? poster ?? null
-  const touch = typeof window !== 'undefined' && (navigator.maxTouchPoints > 0 || window.matchMedia('(hover: none)').matches)
+  // 预渲染期没有 window：touch = 'unknown' ⇒ preload 取最保守的 none（静态 HTML 不偷下 moov）；
+  // 客户端挂载后才拿到真实布尔值，非触屏由此升回 metadata。
+  const touch: 'unknown' | boolean =
+    typeof window === 'undefined' ? 'unknown' : navigator.maxTouchPoints > 0 || window.matchMedia('(hover: none)').matches
   if (failed || !src) {
     if (!still) return <>{fallback ?? null}</>
     return (
@@ -88,7 +93,7 @@ export default function VideoHero({
       muted={!controls}
       loop={!controls}
       playsInline
-      preload={touch ? 'none' : 'metadata'}
+      preload={touch === false ? 'metadata' : 'none'}
       aria-label={label ?? title}
       onError={() => setFailed(true)}
       onLoadedMetadata={(e) => {
