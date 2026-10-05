@@ -52,7 +52,7 @@ export function isHttpUrl(v: string): boolean {
 
 /** 渲染成 href/src 的内容字段：站内绝对路径（/ 开头，排除协议相对 //host）或 http(s) 绝对地址。
  *  React 会拦 javascript: 协议（sanitizeURL），这里是内容层的第一道，别让坏值进 posts.json。 */
-export function isSafeRef(v: string): boolean {
+function isSafeRef(v: string): boolean {
   if (v.length === 0) return false
   if (v.startsWith('/') && !v.startsWith('//')) return true
   return isHttpUrl(v)

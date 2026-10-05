@@ -31,7 +31,7 @@ export function masterUrlOf(url: string): string {
 }
 
 /** 母版交付地址 → 某一档的交付地址。 */
-export function variantUrlOf(masterUrl: string, w: number): string {
+function variantUrlOf(masterUrl: string, w: number): string {
   return masterUrl.replace(/\.webp$/i, '.w' + String(w) + '.webp')
 }
 

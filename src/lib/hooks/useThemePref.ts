@@ -3,7 +3,7 @@ import { apply, getPref, setPref as writePref, subscribe } from '../theme'
 import type { ThemeName, ThemePref } from '../theme'
 
 /** useThemePref 的返回值。 */
-export interface ThemeState {
+interface ThemeState {
   /** 用户显式选择（'system' = 跟随系统）。 */
   pref: ThemePref
   /** 当前实际生效的主题（system 态即系统当前值）。 */

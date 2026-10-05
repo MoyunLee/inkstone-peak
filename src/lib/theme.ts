@@ -3,7 +3,7 @@
 // ⚠ 键名与取值口径同时住在 source/site/theme-init.js（防闪烁引导必须自持、不能 import TS），改一处必须两处一起改。
 
 /** localStorage 键（唯一真源；theme-init.js 里的同名常量必须一致）。 */
-export const THEME_KEY = 'inkstone-theme'
+const THEME_KEY = 'inkstone-theme'
 
 /** 三态：显式浅色 / 显式深色 / 跟随系统（默认，无记录即它）。 */
 export type ThemePref = 'light' | 'dark' | 'system'
@@ -39,7 +39,7 @@ export function getPref(): ThemePref {
 }
 
 /** 系统当前偏好；无 matchMedia（或 SSR）时按浅色。 */
-export function systemTheme(): ThemeName {
+function systemTheme(): ThemeName {
   if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return 'light'
   try {
     return window.matchMedia(DARK_QUERY).matches ? 'dark' : 'light'
@@ -55,7 +55,7 @@ export function systemTheme(): ThemeName {
  * @example
  * getTheme('system')  // 系统深色时 'dark'
  */
-export function getTheme(pref: ThemePref = getPref()): ThemeName {
+function getTheme(pref: ThemePref = getPref()): ThemeName {
   return pref === 'system' ? systemTheme() : pref
 }
 

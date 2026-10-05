@@ -7,7 +7,7 @@ import type { PostCopyright, TocItem } from '../../src/lib/types/content.ts'
 type ArticleFm = z.infer<typeof articleSchema>
 type Site = z.infer<typeof siteSchema>
 
-export interface ResolvedPost {
+interface ResolvedPost {
   updated: string | null
   categories: string[]
   keywords: string | null

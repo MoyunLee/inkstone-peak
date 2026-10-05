@@ -13,12 +13,12 @@ export interface Skill {
 }
 
 /** 技能等级档：name=卡面等级名（中文唯一家 = site.yml），max=本档经验值上界。 */
-export interface SkillLevel {
+interface SkillLevel {
   name: string
   max: number
 }
 
-export interface CareerNode {
+interface CareerNode {
   period: string
   text: string
 }

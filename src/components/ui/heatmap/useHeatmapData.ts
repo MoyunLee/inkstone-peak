@@ -7,9 +7,9 @@ export interface HeatItem {
 }
 
 /** 格态：day=年内可悬浮日 / future=年内未来日 / out=跨年留白日（首末列溢出日） */
-export type HeatState = 'day' | 'future' | 'out'
+type HeatState = 'day' | 'future' | 'out'
 
-export interface HeatDay {
+interface HeatDay {
   key: string
   count: number
   level: number
@@ -22,7 +22,7 @@ export interface HeatCol {
   days: HeatDay[]
 }
 
-export interface HeatModel {
+interface HeatModel {
   cols: HeatCol[]
   colsCount: number
   total: number

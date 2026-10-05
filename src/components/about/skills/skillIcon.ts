@@ -10,10 +10,10 @@ import { Brush, Circle } from 'lucide-react'
 import type { ComponentType } from 'react'
 
 /** 图标形状：兜底字形吃 size / strokeWidth；文件式图标不吃 props（尺寸与颜色全交 CSS）。 */
-export type IconShape = ComponentType<{ size?: number; strokeWidth?: number }>
+type IconShape = ComponentType<{ size?: number; strokeWidth?: number }>
 
 /** 图标文件在站点上的 URL 前缀（= source/site/skill/ 这个目录名）。 */
-export const ICON_URL_PREFIX = '/skill/'
+const ICON_URL_PREFIX = '/skill/'
 
 /** 'lucide:' 前缀 → 兜底字形。只收「不存在官方标」的条目（曾经还有一个 message-square，随「提示词工程」那行删掉）。 */
 const GLYPHS: Record<string, IconShape> = {
@@ -21,10 +21,10 @@ const GLYPHS: Record<string, IconShape> = {
 }
 
 /** 缺省图标：site.yml 未给 icon 时使用。 */
-export const FALLBACK_ICON: IconShape = Circle
+const FALLBACK_ICON: IconShape = Circle
 
 /** 解析结果：文件式（mask 上色）或字形式（直接画组件）。 */
-export type SkillIcon = { kind: 'file'; url: string } | { kind: 'glyph'; Glyph: IconShape }
+type SkillIcon = { kind: 'file'; url: string } | { kind: 'glyph'; Glyph: IconShape }
 
 /**
  * 解析 site.yml 里写的 icon。

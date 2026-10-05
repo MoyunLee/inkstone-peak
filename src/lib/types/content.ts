@@ -10,7 +10,7 @@ export interface TocItem {
 }
 
 /** 顶部槽的自托管视频（B 路线）；两型通用。 */
-export interface PortfolioVideo {
+interface PortfolioVideo {
   src: string | null
   poster?: string | null
   controls?: boolean
@@ -31,7 +31,7 @@ export interface PostCopyright {
 }
 
 /** 两型共有的事实：卡片级字段 + 全套 Post Settings 有效值（渲染层据此做事，不再分型）。 */
-export interface ArticleCommon {
+interface ArticleCommon {
   slug: string
   /** 详情页落点：work → /portfolio/<slug>｜post → /blog/<slug>。 */
   to: string

@@ -24,7 +24,7 @@ function subscribe(l: () => void): () => void {
 const getSnapshot = (): string => spyModule
 const getServerSnapshot = (): string => ''
 
-export interface NavState {
+interface NavState {
   active: number
   /** true=已处理（调用方 preventDefault），false=放行 Link 跳转 */
   onClick: (n: NavLink) => boolean

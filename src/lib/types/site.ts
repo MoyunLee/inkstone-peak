@@ -18,7 +18,7 @@ export interface HomeSection {
   cta?: SiteLink[]
 }
 
-export interface FooterColumn {
+interface FooterColumn {
   id: string
   title?: string | null
   from?: string
@@ -34,7 +34,7 @@ export interface BlogCfg {
   work_tag?: string
 }
 
-export interface PostMetaCfg {
+interface PostMetaCfg {
   post?: {
     /** created=仅发布 / updated=仅更新（缺则回落）/ both=都出 */
     date_type?: 'created' | 'updated' | 'both'
@@ -65,7 +65,7 @@ export interface SocialLink {
   pending?: string
 }
 
-export interface AboutCfg {
+interface AboutCfg {
   /** /about 唯一 h1 文本；必填。 */
   hero_title: string
   /** /about 声明的锚点段（可整键省）；给了须含 about + footer，作内链 /about#碎片 校验的事实源。 */
@@ -112,7 +112,7 @@ export type A11yKey =
   | 'embed_play' | 'embed_external' | 'embed_failed' | 'video_retry' | 'video_open_native'
   | 'theme_label' | 'theme_light' | 'theme_dark' | 'theme_system' | 'theme_switch_hint'
 
-export type A11yCfg = Partial<Record<A11yKey, string>>
+type A11yCfg = Partial<Record<A11yKey, string>>
 
 export interface SiteData {
   site: {

@@ -5,7 +5,7 @@
 //   本文件不写死任何站内路径：改 detailPrefix / 加一个导航条目，页面与元信息自动跟上。
 
 /** nav 条目（与 SiteData.nav 同形，只取元信息用到的字段）。 */
-export interface MetaNavInput {
+interface MetaNavInput {
   ink: string
   route?: string | null
   isDetailPage: boolean
@@ -42,7 +42,7 @@ export interface MetaArticleInput {
 }
 
 /** 社交分享卡（og:* / twitter:* / article:*）。**只由构建期 pre-render 消费**——SPA 换页不改写它，理由同 jsonld.ts。 */
-export interface OgModel {
+interface OgModel {
   /** og:type：静态页 / 列表页 = website；详情页 = article。 */
   type: 'website' | 'article'
   /** 绝对地址。全站共用一张手工默认卡 = source/site/og/default.png（1200×630，配方见 scripts/og-card.ts）。 */
@@ -54,7 +54,7 @@ export interface OgModel {
 }
 
 /** pageMeta 的返回值：一个路由完整的元信息。 */
-export interface RouteMetaModel {
+interface RouteMetaModel {
   title: string
   description: string
   canonical: string
@@ -98,7 +98,7 @@ export function navBase(route: string | null | undefined): string {
 }
 
 /** 路由的 basename：'/' → ''，'/portfolio' → 'portfolio'，'/a/b' → 'b'。 */
-export function routeKey(path: string): string {
+function routeKey(path: string): string {
   const p = normalizePath(path)
   return p === '/' ? '' : (p.split('/').filter(Boolean).pop() ?? '')
 }
