@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url'
 import MarkdownIt from 'markdown-it'
 import { BILI_PAGE_HOSTS, EMBED_HOSTS, hostOf } from './schemas/shared.ts'
 import { embedIframeHtml, escapeHtml } from '../../src/lib/data/embed.ts'
+import type { TocItem } from '../../src/lib/types/content.ts'
 
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..')
 export const P = (...segs: string[]): string => path.join(ROOT, ...segs)
@@ -13,12 +14,8 @@ export const OUT_DIR = P('.content')
 //   linkify:false 同时避免裸 URL 被自动变成链接。要支持自定义 HTML，必须同时上 DOMPurify，不能只改这一个开关。
 export const RENDER = new MarkdownIt({ html: false, linkify: false, typographer: false })
 
-/** 标题清单项（TOC 事实层，组件零解析）。 */
-export interface Heading {
-  level: number
-  id: string
-  text: string
-}
+/** 标题清单项（TOC 事实层，组件零解析）；形状与运行层契约同源，只此一处定义。 */
+export type Heading = TocItem
 
 /** 渲染期收集袋：标题清单（喂 TOC）+ 正文嵌入的诊断（构建期连同文件名报错）。 */
 export interface RenderEnv {

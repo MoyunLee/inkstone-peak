@@ -2,23 +2,10 @@
 import type { z } from 'zod'
 import type { articleSchema } from './schemas/article.ts'
 import type { siteSchema } from './schemas/site.ts'
-
-/** 标题清单项（= paths.ts 的 Heading，落盘供 TOC 消费）。 */
-export interface TocItem {
-  level: number
-  id: string
-  text: string
-}
+import type { PostCopyright, TocItem } from '../../src/lib/types/content.ts'
 
 type ArticleFm = z.infer<typeof articleSchema>
 type Site = z.infer<typeof siteSchema>
-
-export interface ResolvedCopyright {
-  author: string
-  author_href: string | null
-  url: string
-  info: string
-}
 
 export interface ResolvedPost {
   updated: string | null
@@ -33,7 +20,7 @@ export interface ResolvedPost {
   toc_number: boolean
   toc_style_simple: boolean
   tocItems: TocItem[]
-  copyright: ResolvedCopyright | null
+  copyright: PostCopyright | null
   mathjax: boolean
   katex: boolean
   aplayer: boolean

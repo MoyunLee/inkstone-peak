@@ -1,20 +1,9 @@
 import { useMemo, useState } from 'react'
+import type { HeatmapLabels } from '../../../lib/types/site'
 
 export interface HeatItem {
   date: string
   count: number
-}
-
-export interface HeatLabels {
-  title: string
-  less: string
-  more: string
-  tip: string
-  tip_empty: string
-  region_label: string
-  years_label: string
-  weekdays: string[]
-  months: string[]
 }
 
 /** 格态：day=年内可悬浮日 / future=年内未来日 / out=跨年留白日（首末列溢出日） */
@@ -98,7 +87,7 @@ export function useHeatmapData({
   defaultYear,
 }: {
   items: HeatItem[]
-  labels: HeatLabels
+  labels: HeatmapLabels
   years?: number[]
   defaultYear?: number
 }): { years: number[]; activeYear: number; setPicked: (y: number) => void; model: HeatModel } {
