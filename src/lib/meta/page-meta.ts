@@ -168,6 +168,8 @@ export function pageMeta(pathname: string, site: MetaSiteInput, posts: MetaArtic
     return out(title, post.description || info.description, keywords ? { keywords, og } : { og })
   }
 
-  // ③ 其余：404 口径（noindex）
-  return out(`${site.notfound.line} · ${info.title}`, site.notfound.line, { noindex: true })
+  // ③ 其余：404 口径（noindex）。canonical 指站点根而非 /404——/404 线上返回的正是 404，指过去不干净。
+  //    没做「404 不出 canonical」：壳里 canonical 是每页无条件替换的锚点（scripts/pre-render.ts 的 setHref），
+  //    删锚点得动 pre-render 与壳，超出本文件职责；此处只改本支输出，命中 ①/② 的 10 条路由不受影响。
+  return out(`${site.notfound.line} · ${info.title}`, site.notfound.line, { noindex: true, canonical: siteUrl + '/' })
 }
