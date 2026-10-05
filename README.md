@@ -2,7 +2,7 @@
 
 > 英文名 **INKSTONE PEAK** ｜ 作者：杜康 ｜ 仓库名 `inkstone-peak`
 
-一个纯静态的个人作品集 + 博客站点。长滚动首页、作品案例页、博客归档与详情、关于页、独立传音页与 404，
+一个纯静态的个人作品集 + 博客站点。长滚动首页、作品案例页、博客归档与详情、关于页与 404，
 全部在构建期完成内容校验、SEO 与正文预渲染，产物 `dist/` 可直接交给任意静态托管。
 
 - 运行层：React 19 · react-router 7 · TypeScript 5
@@ -33,7 +33,7 @@ source/              作者唯一入口（母版）
   images/<slug>/…          图片母版 → /images/<slug>/…
   video/…                  视频母版 → /media/video/…
   site/…                   站点根静态件（favicon、底图、简历 PDF…）→ /
-scripts/             构建期管线：content / media / assets / gate / ssr / prerender / headers / feeds
+scripts/             构建期管线：content / media / assets / gate / ssr / prerender / feeds
 src/                 运行层：页面、组件、样式（只读 .content/*.json 成品，不做默认值推理）
 dist/ .content/      构建产物（已 gitignore）
 ```
@@ -67,7 +67,7 @@ tags: [写作]
 | `npm run content` | 校验 `site.yml` 与全部文章，产出 `.content/*.json` |
 | `npm run media` | 素材闸：单文件 ≤ 25 MiB、MP4 编码、faststart |
 | `npm run assets` | 用 sharp 生成站点根素材（底图 / 云雾 / 噪点 / favicon） |
-| `npm run gate` | 中文闸 + 调试语句闸 |
+| `npm run gate` | 中文闸 + 调试语句闸 + 响应头闸（`vercel.json` 六件套 / CSP 自洽） |
 | `npm run build` | 完整链：content → media → assets → gate → tsc → vite build → ssr → prerender → feeds |
 | `npm run preview` | 本地预览 `dist/` |
 | `npm run checklist` | 上线检查表（硬阻塞 / 占位 / 素材体检 / 依赖审计） |
@@ -86,7 +86,7 @@ tags: [写作]
 
 - `dist/404.html` 会被 Vercel 自动用作 404 页；`/portfolio` 这类目录索引无需额外配置。
 - 托管方必须支持**目录索引**；SPA 回退式托管会让非首页首帧先闪首页内容，预渲染白做。
-- ✅ **安全响应头已配置**（2026-09-23）：仓库根 `vercel.json` 的 `headers` 声明 CSP / HSTS / X-Frame-Options / nosniff / Referrer-Policy / Permissions-Policy 与缓存策略；内容侧由 `scripts/gate-headers.ts` 核对（进 `npm run gate`）。被嵌策略为 `frame-ancestors *`（允许友链站内嵌，故不发 X-Frame-Options）；本地复验 `.shots/serve-with-headers.mjs` + `.shots/probe-csp-sweep.mjs` + `.shots/probe-embed-allowed.mjs`。
+- ✅ **安全响应头已配置**（2026-09-23）：仓库根 `vercel.json` 的 `headers` 声明 CSP / HSTS / nosniff / Referrer-Policy / Permissions-Policy 与缓存策略；内容侧由 `scripts/gate-headers.ts` 核对（进 `npm run gate`）。被嵌策略为 `frame-ancestors *`（允许友链站内嵌），故**不发** X-Frame-Options——老浏览器只认 XFO，同发 `DENY` 会把友链的 iframe 挡在门外；本地复验 `.shots/serve-with-headers.mjs` + `.shots/probe-csp-sweep.mjs` + `.shots/probe-embed-allowed.mjs`。
 - 绑域名只需改 `site.yml` 的 `site.url` 一行再重新构建（canonical / sitemap / rss 都由它派生）。
 - 更细的说明见 `DEPLOY.md`。
 
