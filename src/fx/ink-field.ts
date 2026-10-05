@@ -24,6 +24,9 @@ interface Slash {
   e: number
 }
 
+// 启动时机由调用方掌握：sections/Hero 在首屏 LCP 之后再动态 import 本模块并调用 createInkField，
+// 以免这里 4s 量级的主线程开销挤占 LCP 窗口。本模块只保证「被调用即初始化」，
+// 内部的 prefers-reduced-motion 判断与 rAF 生命周期不因推迟而改变。
 export function createInkField(canvas: HTMLCanvasElement): () => void {
   const ctx = canvas.getContext('2d')
   if (!ctx) return () => {}
