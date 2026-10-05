@@ -1,17 +1,16 @@
 // Hero 粒子水墨：采样 fx/scene-data 数据山；reduced-motion 静止成画，出视口暂停 rAF。
+import { createInkRenderer, type InkParticle, type InkRenderer } from './ink-render'
 import { makeRnd, sampleScene, OFF_W, OFF_H } from './scene-data'
 
-interface Particle {
+// 渲染层只关心其中一部分字段（见 fx/ink-render）：x/y/sharp/ph 每帧变，
+// inkW/sprite/half/quad 建场后就是常量，WebGL 侧拿它们当每实例常量一次上载。
+interface Particle extends InkParticle {
   tx: number
   ty: number
-  x: number
-  y: number
   vx: number
   vy: number
   ink: number
   size: number
-  ph: number
-  sharp: number // 0=散开偏软，1=归位 1.2s 缓入后满锐度
 }
 
 interface Slash {
@@ -28,8 +27,13 @@ interface Slash {
 // 以免这里 4s 量级的主线程开销挤占 LCP 窗口。本模块只保证「被调用即初始化」，
 // 内部的 prefers-reduced-motion 判断与 rAF 生命周期不因推迟而改变。
 export function createInkField(canvas: HTMLCanvasElement): () => void {
-  const ctx = canvas.getContext('2d')
-  if (!ctx) return () => {}
+  const made = createInkRenderer(canvas)
+  if (!made) return () => {}
+  // 显式标成非空：下面的渲染只发生在 build / frame / 主题回调这些嵌套函数里，
+  // 靠收窄推不出非空，写死类型比到处断言干净
+  const renderer: InkRenderer = made
+  // 走哪条渲染路要能被核验读到：WebGL2 不可用时必须静默退回 Canvas2D，功能不打折
+  canvas.dataset.inkBackend = renderer.backend
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
   const isMobile = window.innerWidth < 640
   const N_MAX = isMobile ? 2800 : 6500
@@ -88,10 +92,13 @@ export function createInkField(canvas: HTMLCanvasElement): () => void {
     return c
   }
   let SP = [sprite(6, inkRgb()), sprite(9, inkRgb()), sprite(13, inkRgb())]
-  // 主题切换的重绘入口：三张 12–26px 的小 canvas，重建成本可忽略（E1）
+  renderer.setSprites(SP)
+  // 主题切换的重绘入口：三张 12–26px 的小 canvas，重建成本可忽略（E1）；
+  // 这里同时要把新精灵交给渲染层（WebGL 侧会重打图集并重传纹理）
   const buildSprites = (): void => {
     const rgb = inkRgb()
     SP = [sprite(6, rgb), sprite(9, rgb), sprite(13, rgb)]
+    renderer.setSprites(SP)
   }
 
   // 采样成粒子（超预算随机稀疏化）
@@ -110,18 +117,28 @@ export function createInkField(canvas: HTMLCanvasElement): () => void {
     }
     const sx = W / OFF_W
     const sy = H / OFF_H
-    P = pts.slice(0, N_MAX).map((p) => ({
-      tx: p.x * sx,
-      ty: p.y * sy,
-      x: p.x * sx,
-      y: p.y * sy,
-      vx: 0,
-      vy: 0,
-      ink: p.ink,
-      size: (0.8 + p.ink * 1.8) * dpr,
-      ph: rnd() * 6.28,
-      sharp: 1,
-    }))
+    P = pts.slice(0, N_MAX).map((p) => {
+      const size = (0.8 + p.ink * 1.8) * dpr
+      return {
+        tx: p.x * sx,
+        ty: p.y * sy,
+        x: p.x * sx,
+        y: p.y * sy,
+        vx: 0,
+        vy: 0,
+        ink: p.ink,
+        size,
+        ph: rnd() * 6.28,
+        sharp: 1,
+        // 派生量：原式在每帧渲染循环里逐粒子重算，而它们由 ink/size 决定、建场后不再变。
+        // WebGL 侧更需要它们当**每实例常量**（只上载一次），故在这里一次算清。
+        inkW: Math.pow(p.ink, 1.6) * 0.95,
+        sprite: size < 2.2 ? 0 : size < 3.4 ? 1 : 2,
+        half: size * 2,
+        quad: size * 4,
+      }
+    })
+    renderer.setParticles(P)
   }
 
   // 物理 + 渲染主循环
@@ -129,8 +146,6 @@ export function createInkField(canvas: HTMLCanvasElement): () => void {
     const t = (now - t0) / 1000
     const dt = Math.min(0.05, (now - lastNow) / 1000 || 0.016)
     lastNow = now
-    ctx.clearRect(0, 0, W, H)
-    ctx.globalAlpha = 1
     const R2 = R * R
     for (const p of P) {
       let ax = (p.tx - p.x) * K
@@ -169,15 +184,8 @@ export function createInkField(canvas: HTMLCanvasElement): () => void {
       p.y += p.vy
     }
     slashes = slashes.filter((s) => ((s.p = (now - s.t0) / 300), s.p < 1 && ((s.e = Math.sin(s.p * Math.PI)), true)))
-    ctx.globalCompositeOperation = 'source-over'
-    for (const p of P) {
-      const br = reduce ? 0 : Math.sin(t * 0.9 + p.ph) * 0.35
-      const sp = p.size < 2.2 ? SP[0] : p.size < 3.4 ? SP[1] : SP[2]
-      ctx.globalAlpha = Math.min(0.92, Math.pow(p.ink, 1.6) * 0.95 * (0.6 + 0.4 * p.sharp))
-      const s2 = p.size * 2
-      const img = sp
-      if (img) ctx.drawImage(img, p.x - s2 + br, p.y - s2 - br, p.size * 4, p.size * 4)
-    }
+    // 整帧交给渲染层：WebGL2 走一次 drawArraysInstanced，取不到则回退成原来的逐粒子 drawImage
+    renderer.draw(P, t, reduce)
     if (!paused && !reduce) raf = requestAnimationFrame(frame)
   }
 
@@ -317,5 +325,6 @@ export function createInkField(canvas: HTMLCanvasElement): () => void {
     window.removeEventListener('scroll', onScroll)
     window.removeEventListener('resize', onResize)
     document.removeEventListener('visibilitychange', onVis)
+    renderer.dispose()
   }
 }
