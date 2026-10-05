@@ -5,13 +5,14 @@
 // 检查七项：
 //   ① 五件套响应头齐备 ② frame-src 恰好覆盖 EMBED_HOSTS（多一个少一个都报）
 //   ③ 被嵌策略**自洽**（两种模式，见下）④ script-src 不许 'unsafe-inline'
-//   ⑤ object-src 'none' ⑥ 缓存声明：/assets/* 必须 immutable；/images|media/* 必须**不是** immutable
+//   ⑤ object-src 'none' ⑥ 缓存声明：/assets/* 必须 immutable；/images|media/* 与站点根静态件必须**不是** immutable
+//      （后者逐个点名，缘由见该项处注释——Vercel 对它们的默认值是 max-age=0）
 //   ⑦ 嵌入属性母版（src/lib/data/embed.ts）不许给 iframe 加 sandbox——见该项处的注释
 // 被嵌策略两模式（2026-09-23 用户令：为友链开放被嵌）：
 //   A 锁死 = frame-ancestors 'none' + X-Frame-Options: DENY
 //   B 可被嵌 = frame-ancestors *（或域名清单）且**不发** X-Frame-Options——发了就自相矛盾：
 //     现代浏览器以 CSP 为准，老浏览器只认 XFO，等于白开。
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import process from 'node:process'
 import { P } from './content/paths.ts'
 import { EMBED_HOSTS } from './content/schemas/shared.ts'
@@ -70,6 +71,35 @@ const mediaCache = all.find((h) => h.key === 'Cache-Control' && h.source === '/(
 if (!mediaCache) fails.push('缺 /images|media/* 的缓存声明')
 else if (/immutable/.test(mediaCache)) fails.push('/images|media/* 不许 immutable（路径不带哈希，标了它换素材将永远不生效）——用 max-age=3600, must-revalidate：短 TTL 兼顾「换素材尽快生效」与「少回源校验」')
 
+// ⑥ 续：站点根静态件必须**逐个点名**。这批文件内容稳定，但路径不带内容哈希，既落不进 /assets/*（那条要 immutable，
+//   无哈希路径标 immutable 会「换图永远不生效」），也不在 /images|media/* 之下——于是全部吃 Vercel 对静态件的默认值
+//   max-age=0, must-revalidate：每访问一次就要为这 ~70KB 白白协商一轮往返（2026-10-05 生产实测确认）。
+//   清单与 source/site/ 逐一对账：规则点名的文件必须真的在——文件一改名，规则会**静默**失效（不报错、只是又不缓存了），
+//   这正是要立闸的理由。改动素材后用相同的文件名覆盖即可，规则无需跟着动。
+//   ★刻意**不含** /theme-init.js：它在样式表之前同步执行、属关键路径，必须每次校验；缓存久了会把改版后的引导逻辑挡住。
+const ROOT_CACHE = [
+  '/mist-a.webp',
+  '/mist-b.webp',
+  '/hero-base.png',
+  '/noise.webp',
+  '/noise-dark.webp',
+  '/og/default.png',
+  '/favicon.svg',
+  '/apple-touch-icon.png',
+] as const
+const ROOT_CACHE_VALUE = 'public, max-age=3600, must-revalidate'
+for (const asset of ROOT_CACHE) {
+  const rule = all.find((h) => h.key === 'Cache-Control' && h.source === asset)
+  if (!rule) fails.push('站点根静态件 ' + asset + ' 缺缓存声明（Vercel 默认 max-age=0，每次访问都要协商）——在 vercel.json 的 headers 里点名它')
+  else if (rule.value !== ROOT_CACHE_VALUE) fails.push(asset + ' 的缓存值应为 ' + ROOT_CACHE_VALUE + '，现在是 ' + rule.value)
+  if (!existsSync(P('source', 'site', ...asset.split('/').filter(Boolean)))) {
+    fails.push('缓存规则点名的 ' + asset + ' 在 source/site/ 里不存在——文件改名后这条规则会静默失效，删掉它或改成新名')
+  }
+}
+if (all.some((h) => h.key === 'Cache-Control' && h.source.includes('theme-init'))) {
+  fails.push('不许给 /theme-init.js 加缓存规则——它在样式表之前同步执行、属关键路径，必须每次校验，缓存久了会把改版后的引导逻辑挡住')
+}
+
 // ⑦ 嵌入 iframe 不许带 sandbox（代码里不行；注释里解释原因是可以的）
 // 为什么是硬闸：WebKit 的 MSE 在带 sandbox 的 iframe 里被误挡（bugs.webkit.org 252755，状态 NEW），
 // 而 B 站这类播放器靠 MediaSource + blob: 起播——2026-09-23「移动端视频一律播不了」正是它。
@@ -89,5 +119,5 @@ if (fails.length > 0) {
 }
 console.log(
   '✓ 响应头闸：五件套齐备 · frame-src 与 EMBED_HOSTS 一致（' + EMBED_HOSTS.size + ' 个平台）· 被嵌策略 ' + mode +
-    ' · 缓存 /assets/* immutable、/images|media/* ' + mediaCache + ' · 嵌入 iframe 无 sandbox',
+    ' · 缓存 /assets/* immutable、/images|media/* 与 ' + ROOT_CACHE.length + ' 件站点根静态件 ' + ROOT_CACHE_VALUE + ' · 嵌入 iframe 无 sandbox',
 )
