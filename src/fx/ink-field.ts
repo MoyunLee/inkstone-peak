@@ -1,4 +1,4 @@
-// Hero 粒子水墨：采样 fx/scene-data 数据山；reduced-motion 静止成画，出视口暂停 rAF。
+// Hero 粒子水墨：采样 fx/scene-data 数据山；静止成画（reduce-motion 或调用方指定的平板档），出视口暂停 rAF。
 import { createInkRenderer, type InkParticle, type InkRenderer } from './ink-render'
 import { makeRnd, sampleScene, OFF_W, OFF_H } from './scene-data'
 
@@ -25,8 +25,11 @@ interface Slash {
 
 // 启动时机由调用方掌握：sections/Hero 在首屏 LCP 之后再动态 import 本模块并调用 createInkField，
 // 以免这里 4s 量级的主线程开销挤占 LCP 窗口。本模块只保证「被调用即初始化」，
-// 内部的 prefers-reduced-motion 判断与 rAF 生命周期不因推迟而改变。
-export function createInkField(canvas: HTMLCanvasElement): () => void {
+// 内部的静止模式判断与 rAF 生命周期不因推迟而改变。
+// opts.still ＝ 调用方指定的**静止模式**（平板端只保留静态水墨，2026-10-08 用户令）：与
+// prefers-reduced-motion 走同一条内部路径——建场后只成画一帧，不启动 rAF，也不挂指针事件
+// （悬停散开与剑气是动效的全部来源，静止档下它们连监听器都不存在）。
+export function createInkField(canvas: HTMLCanvasElement, opts?: { still?: boolean }): () => void {
   const made = createInkRenderer(canvas)
   if (!made) return () => {}
   // 显式标成非空：下面的渲染只发生在 build / frame / 主题回调这些嵌套函数里，
@@ -34,7 +37,9 @@ export function createInkField(canvas: HTMLCanvasElement): () => void {
   const renderer: InkRenderer = made
   // 走哪条渲染路要能被核验读到：WebGL2 不可用时必须静默退回 Canvas2D，功能不打折
   canvas.dataset.inkBackend = renderer.backend
-  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  const still = opts?.still === true || window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  // 动态档同 inkBackend 一样要能被核验读到：still＝一帧定画，live＝常驻 rAF + 指针交互
+  canvas.dataset.inkMotion = still ? 'still' : 'live'
   const isMobile = window.innerWidth < 640
   const N_MAX = isMobile ? 2800 : 6500
   const PITCH = isMobile ? 6 : 4
@@ -185,8 +190,8 @@ export function createInkField(canvas: HTMLCanvasElement): () => void {
     }
     slashes = slashes.filter((s) => ((s.p = (now - s.t0) / 300), s.p < 1 && ((s.e = Math.sin(s.p * Math.PI)), true)))
     // 整帧交给渲染层：WebGL2 走一次 drawArraysInstanced，取不到则回退成原来的逐粒子 drawImage
-    renderer.draw(P, t, reduce)
-    if (!paused && !reduce) raf = requestAnimationFrame(frame)
+    renderer.draw(P, t, still)
+    if (!paused && !still) raf = requestAnimationFrame(frame)
   }
 
   // 尺寸 / 指针 / 剑气 / 暂停
@@ -198,7 +203,7 @@ export function createInkField(canvas: HTMLCanvasElement): () => void {
     canvas.style.height = window.innerHeight + 'px'
     build()
     if (over) toLocal(lx, ly) // 画布尺寸变了，局部坐标按新画布重算
-    if (reduce) {
+    if (still) {
       lastNow = performance.now()
       frame(lastNow) // 静止成画：只画一帧
     }
@@ -246,7 +251,7 @@ export function createInkField(canvas: HTMLCanvasElement): () => void {
     toLocal(lx, ly)
   }
   const onDown = (e: PointerEvent): void => {
-    if (reduce || slashLeft <= 0 || performance.now() < slashReadyAt) return
+    if (still || slashLeft <= 0 || performance.now() < slashReadyAt) return
     slashLeft--
     slashReadyAt = performance.now() + 2000 // 限 3 次/页、冷却 2s
     toLocal(e.clientX, e.clientY)
@@ -256,7 +261,7 @@ export function createInkField(canvas: HTMLCanvasElement): () => void {
     slashes.push({ x: mx, y: my, c: Math.cos(sweep), si: Math.sin(sweep), t0: performance.now(), p: 0, e: 1 })
   }
   const wake = (): void => {
-    if (!paused && !reduce) {
+    if (!paused && !still) {
       cancelAnimationFrame(raf)
       raf = requestAnimationFrame(frame)
     }
@@ -273,7 +278,7 @@ export function createInkField(canvas: HTMLCanvasElement): () => void {
   // data-theme 一变就换墨色重画：主题切换（含 system 态跟随系统）必须让水墨山跟着走。
   // canvas 读不到 CSS 变量，故监听 documentElement 的属性，而不是重设 canvas 自己的样式。
   const themeObs = new MutationObserver((): void => {
-    if (reduce) {
+    if (still) {
       buildSprites()
       lastNow = performance.now()
       frame(lastNow)
@@ -304,15 +309,19 @@ export function createInkField(canvas: HTMLCanvasElement): () => void {
 
   // 指针事件挂**段**而不是画布：画布上还压着 .hero-copy（大字标题 / 按钮），挂画布的话
   // 悬停标题只收得到 pointerleave（散开整个消失）；挂段则整个山门都跟手。
-  surface.addEventListener('pointermove', onMove)
-  surface.addEventListener('pointerleave', onLeave)
-  surface.addEventListener('pointerdown', onDown)
-  window.addEventListener('scroll', onScroll, { passive: true })
+  // 静止档一律不挂：没有 rAF 就没有重画，「散开 / 剑气」无从体现，留着只是白白吃 pointermove
+  // （触屏上手指划动会持续触发，每一次都做 getBoundingClientRect ⇒ 强制布局）。
+  if (!still) {
+    surface.addEventListener('pointermove', onMove)
+    surface.addEventListener('pointerleave', onLeave)
+    surface.addEventListener('pointerdown', onDown)
+    window.addEventListener('scroll', onScroll, { passive: true })
+  }
   window.addEventListener('resize', onResize)
   document.addEventListener('visibilitychange', onVis)
 
   fit()
-  if (!reduce) raf = requestAnimationFrame(frame)
+  if (!still) raf = requestAnimationFrame(frame)
 
   return () => {
     cancelAnimationFrame(raf)

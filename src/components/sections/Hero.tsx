@@ -26,6 +26,14 @@ const INK_IDLE_TIMEOUT_MS = 500
 // 「桌面窗口被收窄到手机宽」这种引擎已经在跑的情况；只改一处就会出现「不显示但照跑」或「引擎没起、画布空着」。
 const INK_MOBILE_QUERY = '(max-width: 640px)'
 
+// ★平板端只保留静态水墨（2026-10-08 用户令）：触屏设备（maxTouchPoints / hover:none，含 iPad 横屏 1024）
+// 或视口 641–1023px 都算平板——引擎照常建场并成画一帧，但不启动 rAF、不挂指针事件，悬停散开与剑气
+// 都没有。只有「桌面宽度 + 精细指针」保留动效。设备判定沿用 EmbedHero / VideoHero 的既有口径
+// （maxTouchPoints 优先：(hover: none) 在手机自带浏览器里有报错的先例）。
+const INK_TABLET_MAX_W = 1023
+const isInkStatic = (): boolean =>
+  navigator.maxTouchPoints > 0 || window.matchMedia('(hover: none)').matches || window.innerWidth <= INK_TABLET_MAX_W
+
 export default function Hero() {
   const site = useSite()
   const sec = sectionById(site, 'home')
@@ -36,6 +44,7 @@ export default function Hero() {
     const c = canvasRef.current
     if (!c) return
     if (window.matchMedia(INK_MOBILE_QUERY).matches) return // 手机端不出水墨：见 INK_MOBILE_QUERY 的注释
+    const still = isInkStatic() // 平板端只保留静态水墨：见 isInkStatic 的注释
     let dispose: (() => void) | null = null
     let cancelled = false
     let cancelIdle: () => void = () => {}
@@ -47,7 +56,7 @@ export default function Hero() {
     const startInk = (): void => {
       void import('../../fx/ink-field').then((m) => {
         if (cancelled) return
-        dispose = m.createInkField(c)
+        dispose = m.createInkField(c, { still })
       })
     }
     // 空闲等待：requestIdleCallback 并非所有环境都有（Safari 15.4 之前没有，至今仍未普遍支持），
