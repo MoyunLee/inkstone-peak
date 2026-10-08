@@ -335,5 +335,10 @@ export function createInkField(canvas: HTMLCanvasElement, opts?: { still?: boole
     window.removeEventListener('resize', onResize)
     document.removeEventListener('visibilitychange', onVis)
     renderer.dispose()
+    // 位图也要清掉：静止档不再重画，留着的就是一帧冻在页面上的画——Hero 在运行中改档时会 dispose 再重建，
+    // 那一下会看见旧档位的画还没走。顺便摘掉两枚核验钩子，免得探针读到已经收工的档位。
+    canvas.width = canvas.height = 0
+    delete canvas.dataset.inkBackend
+    delete canvas.dataset.inkMotion
   }
 }

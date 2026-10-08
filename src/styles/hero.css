@@ -21,9 +21,11 @@
   -webkit-mask-composite: source-in;
   mask-composite: intersect;
 }
-/* 手机端不出水墨（2026-10-08 用户令）：断点与 Hero.tsx 的 INK_MOBILE_QUERY 逐字同源。
-   原先这里只把遮罩收成单层纵向淡出；画布在手机端整块不显示后，那条 override 再无消费者，随之删除。 */
-@media (max-width: 640px) {
+/* 手机端不出水墨（2026-10-08 用户令）：判档主责在 Hero.tsx 的 inkMode()，这里是**同口径的 CSS 兜底**
+   ——口径是「触屏 且 设备短边 <640」，CSS 里只能写成「粗指针 且（宽 <640 或 高 <640）」。必须带
+   (pointer: coarse)：否则窄的桌面窗口（≤640px 属平板档、要出静态水墨）会被一起藏掉。
+   原先这里只把遮罩收成单层纵向淡出；画布在手机端不再出画，那条 override 再无消费者，随之退役。 */
+@media (pointer: coarse) and (max-width: 639.98px), (pointer: coarse) and (max-height: 639.98px) {
   #ink {
     display: none;
   }
