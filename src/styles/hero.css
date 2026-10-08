@@ -21,11 +21,11 @@
   -webkit-mask-composite: source-in;
   mask-composite: intersect;
 }
+/* 手机端不出水墨（2026-10-08 用户令）：断点与 Hero.tsx 的 INK_MOBILE_QUERY 逐字同源。
+   原先这里只把遮罩收成单层纵向淡出；画布在手机端整块不显示后，那条 override 再无消费者，随之删除。 */
 @media (max-width: 640px) {
   #ink {
-    --fade-y: linear-gradient(to bottom, #000 0 16%, rgba(0, 0, 0, 0.62) 30%, rgba(0, 0, 0, 0.28) 44%, rgba(0, 0, 0, 0.06) 56%, transparent 66%);
-    -webkit-mask-image: var(--fade-y);
-    mask-image: var(--fade-y);
+    display: none;
   }
 }
 /* 云雾层：构建期预模糊 WebP + 横漂 + 8s 呼吸；越界由 #home overflow-x:clip 封死 */

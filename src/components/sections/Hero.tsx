@@ -20,6 +20,11 @@ import { sectionById, useSite } from '../../lib/data/site'
 const INK_START_DEADLINE_MS = 3000 // 天花板而非下限：load 迟迟不来（某资源卡住）时到点强制进入空闲等待；桌面端根本不会触发
 // 空闲等待上限：进入空闲等待后最多再等这么久就强制启动；无 rIC 的回退路径用同一个延迟。
 const INK_IDLE_TIMEOUT_MS = 500
+// ★手机端不出水墨（2026-10-08 用户令）：≤640px 连触发链都不进——动态 import 与引擎初始化都不发生，
+// 全站最重的那段（4× CPU 节流实测 4116ms 主线程）在手机上直接不存在。平板与桌面行为不变。
+// 断点必须与 hero.css 的 @media (max-width:640px) 逐字同源：那边把 #ink 整块 display:none，兜住
+// 「桌面窗口被收窄到手机宽」这种引擎已经在跑的情况；只改一处就会出现「不显示但照跑」或「引擎没起、画布空着」。
+const INK_MOBILE_QUERY = '(max-width: 640px)'
 
 export default function Hero() {
   const site = useSite()
@@ -30,6 +35,7 @@ export default function Hero() {
   useEffect(() => {
     const c = canvasRef.current
     if (!c) return
+    if (window.matchMedia(INK_MOBILE_QUERY).matches) return // 手机端不出水墨：见 INK_MOBILE_QUERY 的注释
     let dispose: (() => void) | null = null
     let cancelled = false
     let cancelIdle: () => void = () => {}

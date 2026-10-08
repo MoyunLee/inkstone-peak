@@ -220,4 +220,11 @@
     filter: invert(1);
   }
 }
+/* 手机端不出水墨（2026-10-08 用户令）：无 JS 降级底图按同一档隐藏（断点与 Hero.tsx / hero.css 同源），
+   免得「手机端没有水墨」在关掉 JS 的设备上破例。无 JS 的手机端山门仍由预渲染正文（标题 + CTA）撑住。 */
+@media (max-width: 640px) {
+  .noscript-hero {
+    display: none;
+  }
+}
 
