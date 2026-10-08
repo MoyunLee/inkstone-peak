@@ -163,26 +163,57 @@ if (existsSync(P('.content', 'media-report.json'))) {
 }
 
 // 依赖审计（B8）：.npmrc 的 audit=false 让安装期不再提醒，故上线闸门显式补跑一次。
-// 离线 / 非 npm 会话一律降级为提示，不误报成硬阻塞。
+// ★2026-10-08 分账（用户拍板）：**产物里会跑的依赖**（`npm audit --omit=dev`）有 high/critical → 硬阻塞；
+// 只在**构建机工具链**上的（sharp 出图、gray-matter 解析 front-matter、js-yaml 等）→ 只播报不阻塞——
+// 它们一个字节都不进 dist，拿上线红灯去卡构建工具的 CVE，会让「可上线」长期挂着红（2026-10-08 实测正是如此：
+// 2 条 high 全在 dev 链，`--omit=dev` 为 0）。离线 / 非 npm 会话一律降级为提示，不误报成硬阻塞；
+// **分不清 prod 时退回老规矩**（全量 high 即阻塞），免得网断了就悄悄放宽闸门。
 const supply: string[] = []
 const npmCli = process.env.npm_execpath
+type AuditJson = { vulnerabilities?: Record<string, { severity?: string }> }
+const auditJson = (args: string[]): AuditJson | null => {
+  if (!npmCli) return null
+  const res = spawnSync(process.execPath, [npmCli, ...args], { encoding: 'utf8', timeout: 120000 })
+  if (res.error || typeof res.stdout !== 'string' || res.stdout.trim() === '') return null
+  try {
+    return JSON.parse(res.stdout) as AuditJson
+  } catch {
+    return null
+  }
+}
+const hi = (j: AuditJson | null): [string, string][] =>
+  Object.entries(j?.vulnerabilities ?? {})
+    .filter(([, x]) => x.severity === 'high' || x.severity === 'critical')
+    .map(([name, x]) => [name, String(x.severity)])
 if (!npmCli) {
   supply.push('npm audit 跳过：非 npm 会话（改用 npm run checklist 或手动 npm audit）')
 } else {
-  const res = spawnSync(process.execPath, [npmCli, 'audit', '--json'], { encoding: 'utf8', timeout: 120000 })
-  if (res.error || typeof res.stdout !== 'string' || res.stdout.trim() === '') {
-    supply.push('npm audit 未取到结果（离线？）：' + (res.error ? res.error.message : 'no output'))
+  const prod = auditJson(['audit', '--omit=dev', '--json']) // 产物依赖图
+  const all = auditJson(['audit', '--json']) // 含构建机工具链
+  const prodHi = hi(prod)
+  if (prod === null) {
+    // 分不清 prod / dev：宁可保守，按全量口径阻塞
+    for (const [name, sev] of hi(all)) blocking.push(`依赖 ${name} 有 ${sev} 漏洞（npm audit 详见；升级后重跑本表）`)
+    supply.push(
+      all === null
+        ? 'npm audit 未取到结果（离线？）——产物依赖是否干净未知，联网后重跑本表'
+        : `npm audit --omit=dev 未取到结果，无法分账 → 按全量口径保守处理：${hi(all).length} 个 high/critical 仍列硬阻塞`,
+    )
   } else {
-    try {
-      const j = JSON.parse(res.stdout) as { vulnerabilities?: Record<string, { severity?: string }> }
-      const hi = Object.entries(j.vulnerabilities ?? {}).filter(([, x]) => x.severity === 'high' || x.severity === 'critical')
-      if (hi.length === 0) supply.push('npm audit：无 high / critical')
-      else {
-        for (const [name, x] of hi) blocking.push(`依赖 ${name} 有 ${x.severity} 漏洞（npm audit 详见；升级后重跑本表）`)
-        supply.push(`npm audit：${hi.length} 个 high/critical（已列入硬阻塞）`)
-      }
-    } catch {
-      supply.push('npm audit 输出无法解析（npm 版本差异？）')
+    for (const [name, sev] of prodHi) blocking.push(`产物依赖 ${name} 有 ${sev} 漏洞（npm audit --omit=dev 详见；升级后重跑本表）`)
+    if (prodHi.length === 0) supply.push('产物依赖（--omit=dev）：无 high / critical')
+    if (all === null) supply.push('全量 npm audit 未取到结果：构建机工具链一侧未分账')
+    else {
+      const devOnly = Object.entries(all.vulnerabilities ?? {})
+        .filter(([n]) => !(n in (prod.vulnerabilities ?? {})))
+        .map(([n, x]) => [n, String(x.severity ?? '?')] as [string, string])
+      const devHi = devOnly.filter(([, s]) => s === 'high' || s === 'critical')
+      if (devHi.length > 0)
+        supply.push(
+          `构建机工具链（不进 dist，不阻塞）：${devHi.map(([n, s]) => `${n} ${s}`).join(' · ')}——非破坏升级见 npm audit fix`,
+        )
+      const devLo = devOnly.length - devHi.length
+      if (devLo > 0) supply.push(`构建机工具链另有 ${devLo} 条 moderate / low（明细见 npm audit）`)
     }
   }
 }
