@@ -138,9 +138,15 @@
 .prose code { font-family: var(--font-mono); font-size: 0.92em; }
 /* 行内 code 必须能断：路径类 token（`scripts/content/schemas/article.ts`）实测 282px 宽，
    而 360px 视口下正文栏只有 262px —— 不断行就是整页横向溢出 20px。
-   anywhere 而非 break-word：它参与 min-content 计算，表格单元格里的长路径也跟着能压窄。
+   anywhere 而非 break-word：它参与 min-content 计算，长 token 才压得下去。
    只作用于行内 code；pre 里的代码仍 overflow:auto 横向滚，不许折行。 */
 .prose :not(pre) > code { background: color-mix(in srgb, var(--ink-4) 45%, var(--paper)); border-radius: 3px; padding: 1px 5px; overflow-wrap: anywhere; }
+/* 表格内把 anywhere 收回：它也参与 min-content，于是**首列（键名）**被压到 1 字宽
+   —— 390px 实测首列 40px、`code_blocks` 断成「code/_bloc/ks」、`site-yml-guide` 单格高 673px，
+   而桌面同页只 4 行（只有窄屏塌）。
+   表格不靠压窄防溢出：表格一律被 paths.ts 无条件套进 `.tbl-wrap`（overflow-x:auto），
+   放开 min-content 后表格自然变宽、由壳横滚（390px 实测 8/15 张转为壳内横滑）。 */
+.prose table :not(pre) > code { overflow-wrap: normal; }
 .prose > .cs-wrap { margin: 1.5em 0; }
 .prose > .cs-wrap > pre { margin: 0; } /* 折叠壳持距，pre 自身归零，免得双份 */
 .cs-wrap { position: relative; }
