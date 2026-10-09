@@ -38,7 +38,7 @@ toc_number: false     # 本文标题自带编号（## 一、/ ### 3.1），再�
 | `contact` | ❌ 不能 | `email` | 页脚联系方式栏 |
 | `footer` | ❌ 不能 | `columns` `seal_text` `copyright`（`brand_bio` 2026-09-23 起可省） | 页脚 / 首页传音段 / favicon 印文 |
 | `notfound` | ❌ 不能 | `line` `cta` | 404 页 |
-| `a11y` | ✅ 可整节删 | —（35 键全可选） | 全站 aria 与可见小字 |
+| `a11y` | ✅ 可整节删 | —（40 键全可选） | 全站 aria 与可见小字 |
 
 一句话记法：**「骨架进必填，能力进可省」。** 站点身份、页面清单、首页结构、关于页标题、联系方式与页脚、404，这些是骨架；轮播、归档开关、热力图、文章默认值、aria 文案，这些是能力，删了只退场不报错。
 
@@ -88,7 +88,7 @@ page_meta:
   about: 观自
 ```
 
-`page_desc` 是与它成对的姊妹节（只管**静态页**；文章详情页的摘要一直取该篇 front-matter 的 `description`）：键法完全相同（键 = 路由 basename，首页用 `home`），值进 `<meta name="description">`。命中即用；未命中回落 `page-meta.ts` 的 `STATIC_DESC` 策略小表（`''`/`portfolio`/`about` → `site.description`，`blog` → 该段 `intro`，`footer` → 该段 `heading`；未列出的新页默认 `site`）——所以**新页面零配置也有摘要**，写这几条只为让 `/` 与三个列表页两两不同。**本站一律只写一句短语**（与页面专名同构）：摘要是 title 的补充说明，不靠它堆词。
+`page_desc` 是与它成对的姊妹节（只管**静态页**；文章详情页的摘要一直取该篇 front-matter 的 `description`）：键法完全相同（键 = 路由 basename，首页用 `home`），值进 `<meta name="description">`。命中即用；未命中回落 `page-meta.ts` 的 `STATIC_DESC` 策略小表（`''`/`portfolio`/`about` → `site.description`，`blog` → 该段 `intro`（缺则回落 `site.description`）；未列出的新页默认 `site`）——所以**新页面零配置也有摘要**，写这几条只为让 `/` 与三个列表页两两不同。**本站一律只写一句短语**（与页面专名同构）：摘要是 title 的补充说明，不靠它堆词。
 
 ```yaml
 page_desc:
@@ -163,7 +163,7 @@ page_desc:
 | `aplayer.enable` | `false` | 音乐播放器开关 |
 | `aplayer.per_page` | `true` | 同 math 的逐篇语义 |
 | `code_blocks.shrink` | `false` | 代码框默认折叠 |
-| `aside.enable` | **`false`** | ⚠ 整节删掉文章就**没有右侧信息栏**（提要与元信息只剩标题下的回落行）；本站现配 `true` |
+| `aside.enable` | **`false`** | ⚠ 整节删掉文章就**没有右侧信息栏**（只剩标题下的元信息行；提要只住侧栏，随之消失）；本站现配 `true` |
 
 ### 3.8 `heatmap`（可整节省；给了就要给全）
 
@@ -191,7 +191,7 @@ page_desc:
 | `hero_title` | ✅ | `/about` 顶部书法大题，**本页唯一 h1** 的文本 |
 | `anchors` | 可选 | 本页声明的锚点段；**给了就必须含 `about` + `footer`**，作内链 `/about#碎片` 校验的事实源（**构建期硬校验**：缺一端点即报错）。不写就不校验 |
 
-以下 20 个文案键**全部可省**，删键即不渲染对应元素：
+以下 17 个文案键**全部可省**，删键即不渲染对应元素：
 
 | 键 | 管哪一块 | 删了会怎样 |
 |---|---|---|
@@ -287,6 +287,7 @@ contact:
 |---|---|---|
 | `columns` | ✅ | 栏目数组（见下） |
 | `email_label` | 可选 | 「联系」栏邮箱行的前缀标签（本站 `邮箱`，渲染成「邮箱 · 2106996916@qq.com」）；删键＝裸地址。界面中文的家仍是 `site.yml`，组件不写死 |
+| `tab_label` | 可选 | 侧栏题签里那条「直达脚页」的题签名（本站 `传音`）；落点由题签按 `home.sections` 的 `footer` 段推导，**不写进 `nav`**（`nav` 每行只有那五个字段）；删键＝右侧题签不出现这一条 |
 | `brand_bio` | 可选 | 栏1 印章下方的简介段；**曾承载求职意向/地域口径的全站唯一落点**。删键＝整段不渲染、印章照常居中（本站 2026-09-23 已删，原句以注释留底在 `site.yml`） |
 | `seal_text` | ✅ | 印文；页脚大印与**构建期生成**的 favicon / apple-touch-icon 都用它 |
 | `copyright` | ✅ | 版权行 |
@@ -297,7 +298,7 @@ contact:
 ```yaml
 columns:
   - { id: brand,     title: null }              # 特例：居中印章（brand_bio 可省），无栏题
-  - { id: site,      title: 站内, from: nav }    # 从 nav 自动生成，加页面自动出现
+  - { id: site,      title: 导航, from: nav }    # 从 nav 自动生成，加页面自动出现
   - { id: social,    title: 联系, from: contact }            # 从 contact 自动生成
   # 想再加一栏就照这样内联写（示例：作品 / 流程 / 关于我）：
   # - { id: portfolio, title: 创作, links: [ { label: 作品, to: /portfolio }, { label: 流程, to: /blog }, { label: 关于我, to: /about } ] }
@@ -313,15 +314,16 @@ columns:
 
 `line`（提示语）+ `cta`（`{ label, to }`）。同一套文案生成 `dist/404.html` 并注入 noindex。
 
-### 3.13 `a11y`（可整节省；35 键全可选）
+### 3.13 `a11y`（可整节省；40 键全可选）
 
-缺键 = 不输出该属性；但键名仍走 strict 白名单，**拼错照样报错**。35 键按用途分五组：
+缺键 = 不输出该属性；但键名仍走 strict 白名单，**拼错照样报错**。40 键按用途分六组：
 
 - 布局：`nav_label` `tabs_label` `brand_label` `seal_top_hint`（页脚大印：回到本页顶部）`skip_link_label`
 - 详情页与按钮：`case_period`（周期题词）`case_embeds`（嵌入分节标题）`detail_cta` `detail_aria`（支持 `{ink}`）`carousel_prev` `carousel_next` `carousel_pause` `carousel_play`（轮播暂停/播放键，WCAG 2.2.2）
 - 关于：`about_seal_label` `about_tags_label` `about_timeline_label`
 - 详情页共用：`post_date` `post_updated` `post_categories` `post_toc_label` `post_aside_label`（两型同一枚侧栏可访问名）`post_comments_label` `post_copyright_heading` `post_copyright_author` `post_copyright_link` `post_copyright_notice` `post_code_expand` `post_code_collapse`
 - 内容层：`lightbox_label`（点图放大层）`lightbox_close`（关闭大图）`embed_play` `embed_external` `embed_failed`（嵌入海报三态）`video_retry` `video_open_native`（自托管视频失败态）
+- 外观：`theme_label`（三态切换组的 aria-label）`theme_light` `theme_dark` `theme_system`（三个选项文案，默认态＝跟随系统）`theme_switch_hint`（窄屏收起按钮的 title/aria-label 兜底）
 
 ## 四、删了会怎样（速查）
 
@@ -330,9 +332,9 @@ columns:
 | `site.tagline` | 无影响（当前无消费者） |
 | `page_meta.<某页>` | 该页 `<title>` 回落 `site.title` |
 | `page_meta.home` | 首页 `<title>` 回落 `site.title`（首页标题只剩站名：无作者、无职业词） |
-| `page_desc` 整节 | 四页摘要回落策略小表（`''`/`portfolio`/`about` → `site.description`；`blog` → 该段 `intro`，现为 `null` 故仍回落 `site.description`；`footer` → 该段 `heading`） |
+| `page_desc` 整节 | 四页摘要回落策略小表（`''`/`portfolio`/`about` → `site.description`；`blog` → 该段 `intro`，现为 `null` 故仍回落 `site.description`） |
 | `portfolio` 整节 | 轮播不限张数、间隔 5000ms |
-| `blog` 整节 | 新在前 / 卡不显示日期 / 标签不限 / 首页预览 6 张 / 不出「作品」标签 |
+| `blog` 整节 | 新在前 / 标签不限 / 首页预览 6 张 / 不出「作品」标签 |
 | `heatmap` 整节 | 首页造境段与 `/blog` 的热力图整块不出 |
 | `about` 任一文案键 | 对应那一行 / 那一块不出 |
 | `about.skills` | 技能卡整张不出 |
@@ -340,7 +342,7 @@ columns:
 | `about.location` | 坐标卡的 `{city}` 填空（卡片仍在） |
 | `about.anchors` | 不再校验 `/about#碎片`（页面无变化） |
 | Post Settings 任一节 | 走第三节「内置缺省」列 |
-| `aside` 整节 | 文章不出右侧信息栏卡片（提要与日期 / 分类 / 标签回落到标题下那一行） |
+| `aside` 整节 | 文章不出右侧信息栏卡片；回落到标题下的只有**元信息行**（日期 / 分类 / 周期 / 标签），**提要只住侧栏那一处**，关掉即不出现 |
 | `footer.demo_note` | 页脚右下小字消失 |
 | `about.place_coord` | 坐标卡右下角坐标消失 |
 | `a11y` 任一键 | 该 aria / 可见小字不输出 |
@@ -378,7 +380,7 @@ about:
   hero_title: 观自
 ```
 
-这份配置跑 `npm run content`、`npx tsc --noEmit`、中文闸与完整 `npm run build` 全部通过：页面只出顶部大题，标签列、深墨卡第三行、生涯卡、数据卡与坐标卡 meta 行全部安静退场。这就是「缺省即隐藏」的实际手感——**删键 = 删除 UI，不是删除校验**。
+这份配置跑 `npm run content`、`npx tsc --noEmit`、中文闸与完整 `npm run build` 全部通过：页面只出顶部大题，标签列、深墨卡第三行、生涯卡、技能卡与坐标卡 meta 行全部安静退场。这就是「缺省即隐藏」的实际手感——**删键 = 删除 UI，不是删除校验**。
 
 ## 八、加东西的完整清单
 

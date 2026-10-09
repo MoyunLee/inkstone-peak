@@ -166,7 +166,7 @@ aplayer:
 code_blocks:
   shrink: false         # true=代码框默认折叠（逐篇 highlight_shrink 覆盖）
 
-# 文章侧栏（Butterfly aside；本站只做「作者/日期/分类/目录」信息栏）
+# 文章侧栏（Butterfly aside；本站只做「作者 / 提要 / 发布·更新于 / 分类 / 标签」卡片，目录在卡外）
 # enable: true = 全站文章默认出右侧信息栏；某篇不想要就在它的 front-matter 写 aside: false
 aside:
   enable: true
@@ -194,7 +194,7 @@ about:
   hero_title: 观自
   tags_left:  [游戏美术, TA, AIGC内容导演, 独立跑通角色管线]
   tags_right: [2027届毕业生, 12集AI短剧导演, 接受远程合作]
-  # —— 六卡：label_*=卡片左上极小字；title_*=大字题 ——
+  # —— 五卡：label_*=卡片左上极小字；title_*=大字题 ——
   label_intro: 你好，很高兴认识你 👋
   intro_lead: 我叫
   # 有意不设 intro_sub：职业身份由 tags_left / tags_right 承载，地域口径在便当盒里只留一处＝坐标卡 place_avail（「在哪住 · 能去哪」同卡）
