@@ -16,14 +16,13 @@ import { sectionById, useSite } from '../../lib/data/site'
 //   · 再叠一层：requestIdleCallback 只在「本帧渲染完之后还有余力」时才回调，所以引擎**必然在至少一次
 //     绘制之后**才起步——React 首次提交引起的那次 LCP 重绘因此不会被它顶掉。
 //   · 比 PerformanceObserver 观察 LCP 更简单、代码路径更少，且 Safari 不支持 LCP 观测，仍需回退。
-// 推迟期间山门只有纸底 + 云雾：预烘底图 source/site/hero-base.png 只在 <noscript> 里出现（无 JS 降级），
-// 运行期没有任何地方画它——「推迟期间由它兜住画面」曾写在这里，2026-10-08 核对（dist 全树该图只在
-// noscript 命中、assets/*.css 命中 0）后确认与代码不符，删掉。
+// 推迟期间山门只有纸底 + 云雾：预烘底图 source/site/hero-base.png 只服务 <noscript> 降级，
+// 运行期没有任何地方画它。
 const INK_START_DEADLINE_MS = 3000 // 天花板而非下限：load 迟迟不来（某资源卡住）时到点强制进入空闲等待；桌面端根本不会触发
 // 空闲等待上限：进入空闲等待后最多再等这么久就强制启动；无 rIC 的回退路径用同一个延迟。
 const INK_IDLE_TIMEOUT_MS = 500
 
-// ★水墨三档（2026-10-08 用户令）：**手机端没有水墨 · 平板端只有静态水墨 · 桌面端才是动态**。
+// ★水墨三档：**手机端没有水墨 · 平板端只有静态水墨 · 桌面端才是动态**。
 //   · 手机（触屏 且 设备短边 <640，含横屏手机）：连触发链都不进——动态 import 与引擎初始化都不发生，
 //     全站最重的那段（4× CPU 节流实测 4116ms 主线程）在手机上直接不存在。
 //   · 平板（触屏，或视口 ≤1023px 的窄窗口）：引擎照常建场，但只成画一帧——不启动 rAF、不挂指针事件。
@@ -31,7 +30,7 @@ const INK_IDLE_TIMEOUT_MS = 500
 // 两处口径有意与别处不同，理由留在这里：
 //   · 触屏用 (pointer: coarse)，而不是 EmbedHero / VideoHero 那套 maxTouchPoints>0——那边问的是「能不能
 //     摸」，这里问的是「有没有真正的悬停与精细指针」：带鼠标的触屏笔记本主指针仍是精细指针，不算平板。
-//   · 手机按「设备短边」而不是宽度：横屏手机宽 844px，按宽度判会被当成平板（2026-10-08 用户拍板）。
+//   · 手机按「设备短边」而不是宽度：横屏手机宽 844px，按宽度判会被当成平板。
 //   · CSS 侧（hero.css / layout.css）各有一条**同口径**的兜底，改这里必须同步改那两处。
 const INK_COARSE_QUERY = '(pointer: coarse)'
 const INK_PHONE_SHORT_EDGE = 640

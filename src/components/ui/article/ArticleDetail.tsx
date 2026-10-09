@@ -24,7 +24,7 @@ function tocPlacement(entry: ArticleEntry): 'aside' | 'inline' | null {
 }
 
 /**
- * 详情页外壳——**作品 / 博文只有这一个**（2026-09-21 统一）：主题变量注入 · 顶图槽 · .bd-layout 骨架 ·
+ * 详情页外壳——**作品 / 博文只有这一个**：主题变量注入 · 顶图槽 · .bd-layout 骨架 ·
  * 标题区（标题 / 回落的元信息行）· 侧栏（信息卡 + 卡外目录）· 正文 · 嵌入槽 · 版权槽。
  *
  * 内容全由 articleRecipe 按文章数据算（题头 / 侧栏 / 顶图 / 嵌入 / 版权 / 评论），本组件只按顺序落位、
@@ -47,7 +47,7 @@ export default function ArticleDetail({ entry }: { entry: ArticleEntry }) {
   if (entry.background) Object.assign(style, { '--post-bg': entry.background })
   const where = tocPlacement(entry)
   const tocProps = { items: entry.tocItems, number: entry.toc_number, simple: entry.toc_style_simple, label: a.post_toc_label }
-  // 题头进场（2026-10-09）：只观察 .bd-head，**正文 .bd-body 永不隐藏**——它是阅读内容，
+  // 题头进场：只观察 .bd-head，**正文 .bd-body 永不隐藏**——它是阅读内容，
   // 也是 hash 深链的落点，藏了会在跳转后先闪一下空白。
   // 题头若本就在首屏内则停在终态（useReveal 的既定口径，见该 hook 注释），
   // 所以这段只在「顶图很高、题头被推到折下」的篇幅上看得见——那不是没生效，是无闪策略的必然结果。

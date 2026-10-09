@@ -42,7 +42,7 @@ const esc = (s: string): string =>
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
 
-// ── sitemap：固定页 + 每篇文章（作品落 /portfolio/<slug>，博文落 /blog/<slug>）──
+// sitemap：固定页 + 每篇文章（作品落 /portfolio/<slug>，博文落 /blog/<slug>）
 // 页面清单与 pre-render 同一事实源：site.yml 的 nav（每个条目都有自己那份页面，详情条目另出文章页）
 const STATIC_PATHS = site.nav.map((n) => ((n.route ?? '/').split('#')[0] || '/'))
 const lastmod = new Map<string, string>()
@@ -62,7 +62,7 @@ const sitemap = [
   '',
 ].join('\n')
 
-// ── RSS 2.0：全站中心库口径（/blog 是中心库，作品同为其一类），按日期倒序 ──
+// RSS 2.0：全站中心库口径（/blog 是中心库，作品同为其一类），按日期倒序
 const sorted = [...posts].sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0))
 const itemDate = (d: string): string => {
   const t = new Date(d)
@@ -101,7 +101,7 @@ const rss = [
   '',
 ].join('\n')
 
-// ── robots.txt：无敏感路径；404 不索引由预渲染的 noindex meta 承担，这里只补 sitemap 指路 ──
+// robots.txt：无敏感路径；404 不索引由预渲染的 noindex meta 承担，这里只补 sitemap 指路
 const robots = [
   'User-agent: *',
   'Allow: /',

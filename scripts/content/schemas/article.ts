@@ -1,8 +1,7 @@
-// 统一文章契约（2026-09-16 通用化）：source/posts/ 单一目录，一份 schema，类型由 tags 里的标记判定。
+// 统一文章契约：source/posts/ 单一目录，一份 schema，类型由 tags 里的标记判定。
 //   tags 含 PORTFOLIO_TAG → 作品（走 /portfolio/<slug>）
 //   否则                 → 博文（走 /blog/<slug>）
 // 字段空间是全类型打平的：任何字段任何类型都允许（缺省即隐藏），两型都没有额外必填组。
-// 2026-09-16 作品必填组退役：tldr/role/team 删除，提要复用可选 description，period 改可选。
 import { z } from 'zod'
 import { BILI_PAGE_HOSTS, EMBED_HOSTS, hostOf, isHttpUrl, mediaRef, safeRef } from './shared.ts'
 
@@ -31,14 +30,14 @@ const isoDate = (label: string) => z.string().regex(/^\d{4}-\d{2}-\d{2}$/, `${la
  */
 export const articleSchema = z
   .object({
-    // ── 全类型必填（统一事实层三件套）──
+    // 全类型必填（统一事实层三件套）
     title: z.string().min(1),
     date: isoDate('date'),
     tags: strList.refine((a) => a.length > 0, 'tags 至少一个（作品须含 ' + PORTFOLIO_TAG + '）'),
     // 发布开关：draft=true 的文章不进 posts.json（不出页面 / sitemap / rss），只在构建日志里报数
     draft: z.boolean().optional(),
 
-    // ── 内容槽（两型通用·全可选，缺省即不渲染）──
+    // 内容槽（两型通用·全可选，缺省即不渲染）
     // A 路线·外链：任何时长，点链接跳去平台
     links: z.array(z.object({ label: z.string(), url: z.string() }).strict()).optional(),
     // B 路线·自托管视频：占顶部槽位（两型同一套壳子）
@@ -56,13 +55,13 @@ export const articleSchema = z
     // 嵌入占顶开关：true = 第一条嵌入占顶部槽（缺省 false = 嵌入全部留在正文前的「视频」分节）
     embed_hero: z.boolean().optional(),
 
-    // ── 作品字段（全可选，缺省即不渲染）──
+    // 作品字段（全可选，缺省即不渲染）
     // 提要复用通用 `description`（见下方）；`period` 只是案例页展示口径。
     period: z.coerce.string().optional(), // YAML 会把 `2026.09` 读成数字 → 统一转字符串
     // 观山顶部轮播（只对作品有意义；缺省不上）
     carousel: z.boolean().optional(),
 
-    // ── 博文 / 通用字段（Butterfly Post Settings；缺省回落 site.yml）──
+    // 博文 / 通用字段（Butterfly Post Settings；缺省回落 site.yml）
     updated: isoDate('updated').optional(),
     categories: strList.optional(),
     keywords: z.string().optional(),

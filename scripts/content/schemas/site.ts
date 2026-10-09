@@ -65,19 +65,19 @@ export const siteSchema = z.object({
         if (s.heading_lines && s.heading_lines.length > 2) ctx.addIssue({ code: 'custom', path: ['heading_lines'], message: '横排断句标题最多两行（09-05 七轮终版）' })
       }),
   ).min(1) }, ).strict(),
-  // ── Portfolio（观山顶部轮播：成员由作品 front-matter 声明，这里只限张数）──
-  // 作品详情页目录默认值曾住本节的 toc.*，2026-09-21 随统一壳子退役——两型同走 Post Settings 的 toc.*。
+  // Portfolio（观山顶部轮播：成员由作品 front-matter 声明，这里只限张数）
+  // 作品详情页的目录默认值不在本节（portfolio.toc 已退役）：两型同走 Post Settings 的 toc.*。
   portfolio: z.object({
     carousel: z.object({ max_slides: z.number().int().positive().optional(), interval_ms: z.number().int().positive().optional() }).strict().optional(),
   }).strict().optional(),
-  // ── Blog（归档列表与卡片）──
+  // Blog（归档列表与卡片）
   blog: z.object({
     order: z.enum(['desc', 'asc']).optional(),
     tags_max: z.number().int().positive().optional(),
     preview_max: z.number().int().positive().optional(),
     work_tag: z.string().min(1).optional(),
   }).strict().optional(),
-  // ── Post Settings（逐篇 front-matter 的站点级默认值）──
+  // Post Settings（逐篇 front-matter 的站点级默认值）
   cover: z.object({ enable: z.boolean().optional() }).strict().optional(),
   top_img: z.object({ enable: z.boolean().optional() }).strict().optional(),
   post_meta: z.object({
@@ -109,7 +109,7 @@ export const siteSchema = z.object({
   aplayer: z.object({ enable: z.boolean().optional(), per_page: z.boolean().optional() }).strict().optional(),
   code_blocks: z.object({ shrink: z.boolean().optional() }).strict().optional(),
   aside: z.object({ enable: z.boolean().optional() }).strict().optional(),
-  // ── Heatmap（weekdays/months 长度即刻度，写死长度防错位）──
+  // Heatmap（weekdays/months 长度即刻度，写死长度防错位）
   heatmap: z.object({
     title: z.string(),
     less: z.string(),
@@ -121,7 +121,7 @@ export const siteSchema = z.object({
     weekdays: z.array(z.string()).length(7),
     months: z.array(z.string()).length(12),
   }).strict().optional(),
-  // ── About（/about 便当盒话术；标题/标签/卡内文案唯一家）──
+  // About（/about 便当盒话术；标题/标签/卡内文案唯一家）
   // 除 hero_title（本页唯一 h1）外全部可缺省：删键即不渲染该元素（缺省即隐藏）。
   about: z.object({
     hero_title: z.string().min(1),
@@ -142,13 +142,13 @@ export const siteSchema = z.object({
     place_note: z.string().optional(),
     place_avail: z.string().optional(),
     place_coord: z.string().optional(),
-    //  事实层（2026-09-16 由 content/about/about.md 整份并入）──
+    //  事实层
     timeline: z.array(z.object({ period: z.string().min(1), text: z.string().min(1) }).strict()).min(1).optional(),
 
     location: z.string().min(1).optional(),
     // /about 声明的锚点段（整键可省）：给了就必须含 about + footer（构建期硬校验）
     anchors: z.array(z.string()).optional(),
-    // 技能卡「开启创造力」等级体系（唯一事实源，2026-09-27 立）：max=本档经验值上限，档位号=下标+1
+    // 技能卡「开启创造力」等级体系（唯一事实源）：max=本档经验值上限，档位号=下标+1
     skill_levels: z
       .array(z.object({ name: z.string().min(1), max: z.number().int().positive() }).strict())
       .min(1)
@@ -182,14 +182,14 @@ export const siteSchema = z.object({
       })
       .optional(),
   }).strict(),
-  // ── Footer（联系方式 + 结构化页脚）──
+  // Footer（联系方式 + 结构化页脚）
   contact: z.object({ email: z.string() }).catchall(socialShape()),
   footer: z.object({
     // links：内联 [{label,to}]
     columns: z.array(z.object({ id: z.string(), title: urlOrNull.optional(), from: z.string().optional(), links: z.array(linkShape).optional() }).strict()),
-    brand_bio: z.string().optional(),   // 2026-09-23 转可选：栏1 只留印章时整键省（缺省即隐藏）
+    brand_bio: z.string().optional(),   // 可省：栏1 只留印章时整键省（缺省即隐藏）
     email_label: z.string().optional(),  // 「联系」栏邮箱行的前缀标签（本站「邮箱」）；缺省＝裸地址
-    tab_label: z.string().optional(),    // 2026-10-09：侧栏题签里那条「直达脚页」的题签名；缺省＝该条不出现
+    tab_label: z.string().optional(),    // 侧栏题签里那条「直达脚页」的题签名；缺省＝该条不出现
     seal_text: z.string(),
     copyright: z.string(),
     demo_note: z.string().optional(),

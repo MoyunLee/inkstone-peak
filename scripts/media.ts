@@ -1,9 +1,9 @@
-// source/ 媒体交付闸（2026-09-16 免暂存改造）：图片/视频不再经 public/ 镜像——
+// source/ 媒体交付闸：图片/视频不再经 public/ 镜像——
 // dev 由 vite.config.ts 的 staticFromSource 直供 source/、build 由它直接写进 dist；本步只做闸 + 落报告，不碰 source/ 里的文件。
 // 闸：单文件 ≤25MiB（托管单文件上限，保守取值）· 视频编码须浏览器安全 · mp4 须 faststart（moov 在 mdat 前）。
 // 落两份报告（都不进发布产物）：
 //   ① .content/media-report.json —— 闸的明细，素材质量提醒由 npm run checklist 播报；
-//   ② .content/images.json       —— 封面多档清单（2026-09-26 加）：档位口径与出图见 scripts/srcset.ts，
+//   ② .content/images.json       —— 封面多档清单：档位口径与出图见 scripts/srcset.ts，
 //      变体文件由 vite 插件发（build 写进 dist/、dev 按需现出），故本步只出清单、不出图。
 import { existsSync, readFileSync, readdirSync, statSync, mkdirSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
@@ -36,7 +36,7 @@ function walk(dir: string, base = ''): string[] {
   const out: string[] = []
   if (!existsSync(dir)) return out
   for (const name of readdirSync(dir)) {
-    // ★2026-09-23：~1 这类后缀是导出/备份工具留下的临时文件——实测混进过一个无音轨、无 faststart 的旧副本
+    // ~1 这类后缀是导出/备份工具留下的临时文件——实测混进过一个无音轨、无 faststart 的旧副本
     // （source/video/18th-ada~1.mp4），被当正片扫进 dist 并随部署上传。它们不是交付件：跳过并记账，末尾报一行。
     if (name.startsWith('.') || name.includes('~')) {
       skipped.push(base ? base + '/' + name : name)
@@ -149,7 +149,7 @@ async function main(): Promise<void> {
     }
   }
 
-  // 封面多档清单（2026-09-26）：本步顺手出这一份——它已经在走 source/images，不另开一步。
+  // 封面多档清单：本步顺手出这一份——它已经在走 source/images，不另开一步。
   // 变体文件不在这里出：build 由 vite 插件写进 dist/、dev 由它按需现出（见 vite.config.ts 的 staticFromSource）。
   const { manifest, unreadable } = await planImages(path.join(SOURCE, 'images'))
   const manifestAbs = path.join(ROOT, MANIFEST_REL)
@@ -162,7 +162,7 @@ async function main(): Promise<void> {
   writeFileSync(REPORT, JSON.stringify({ generatedAt: new Date().toISOString(), urls: seen, warnings, errors }, null, 2) + '\n', 'utf8')
 
   // 只拦硬错误（超 25MiB = 部署必炸）；编码 / faststart 这类「素材质量」提醒不再每趟构建都念——
-  // 它们已经完整写进 .content/media-report.json，由 `npm run checklist` 播报（2026-09-17 用户令）。
+  // 它们已经完整写进 .content/media-report.json，由 `npm run checklist` 播报。
   if (errors.length > 0) {
     console.error(`\n【媒体闸拦截】${errors.length} 处硬错误：`)
     for (const e of errors) console.error(`  ✗ ${e}`)

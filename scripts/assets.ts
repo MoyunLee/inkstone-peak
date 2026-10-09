@@ -57,7 +57,6 @@ async function main(): Promise<void> {
 //      而 PNG 要走 sharp 光栅化——带字就得靠本机字体，缺字变豆腐、字面也随机器变。
 //      只画几何底 ⇒ 产物逐字节确定，任何机器重跑都不产生假 diff。
 async function brandMarks(): Promise<void> {
-  // 读 site.yml 母版本身（早先读 .content/site.json，于是 dev 必须先跑 content；2026-09-26 改正源）
   if (!existsSync(SITE_YML)) {
     console.error('✗ 缺 site.yml——印文取它的 footer.seal_text')
     process.exit(1)
@@ -112,7 +111,7 @@ async function heroBasePng(): Promise<void> {
   writeFileSync(P('source', 'site', 'hero-base.png'), out)
 }
 
-// ④ 云雾层预模糊 WebP（★2026-10-05 由 PNG 改有损 WebP）：两张合计 50.3KB → 19.8KB，而 .mist.a 正是**首页 LCP 那张图**。
+// ④ 云雾层预模糊 WebP：两张合计 50.3KB → 19.8KB，而 .mist.a 正是**首页 LCP 那张图**。
 //    q85 对「已经过 blur(16) 的纯渐变」没有肉眼差别；alphaQuality 必须拉满——雾整张都是 alpha 渐变，压 alpha 会出可见色带。
 //    仍然逐字节确定（同参数重复生成结果相同），不会给别的机器带来假 diff。
 async function mistWebp(): Promise<void> {

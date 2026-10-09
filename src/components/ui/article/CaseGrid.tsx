@@ -9,7 +9,7 @@ import ArticleCard, { COVER_TONES } from './ArticleCard'
  *
  * 卡片按序轮换五档占位色；序号封顶 12——--i 的进场阶梯延迟不再随列表长度增长。
  *
- * 一个 ref 两用（2026-10-09）：既是瀑布流的量高容器（useMasonry），也是滚动进场的观察目标（useReveal）。
+ * 一个 ref 两用：既是瀑布流的量高容器（useMasonry），也是滚动进场的观察目标（useReveal）。
  * threshold 必须给 0——本容器随作品数增长，比例阈值会被超高的目标稀释到永远凑不满（同 Section 的注释）。
  * 进场只动 opacity/transform，而 translateY 不改盒高 ⇒ useMasonry 读出的行轨跨度不受影响（契约见 tokens.css）。
  *

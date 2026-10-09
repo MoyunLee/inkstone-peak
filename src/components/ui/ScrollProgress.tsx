@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'react'
 /**
  * 顶部阅读进度：固定在下缘的 2px 细线，随文档滚动比例 scaleX(0→1)。
  *
- * 驱动分两条互斥的路（2026-10-09 收成一处实现——原先只有首页内联了一份）：
+ * 驱动分两条互斥的路：
  *  · 支持 animation-timeline 的浏览器走 CSS 滚动时间线（合成线程，零 JS，见 responsive.css）；
  *  · 不支持的走本组件的被动 scroll 监听 + rAF 合并。
  *    ★刻意**不用**常驻 rAF 循环：那样每帧都要读一次 scrollHeight，页面静止时也在烧 CPU；

@@ -29,7 +29,7 @@ export default function ArticleGrid({
   limit?: number
   workTag?: string
 }) {
-  // 滚动进场总闸（2026-10-09）：/blog 列表页与首页造境段共用本容器。threshold 给 0 的理由同 Section
+  // 滚动进场总闸：/blog 列表页与首页造境段共用本容器。threshold 给 0 的理由同 Section
   // ——本容器随文章数增长，比例阈值会被稀释到永远凑不满。补间契约见 tokens.css。
   const { ref, revealed } = useReveal<HTMLDivElement>({ rootMargin: '0px 0px -12% 0px', threshold: 0 })
   const sorted = entries.slice().sort((a, b) => compareArticles(a, b, cfg?.order === 'asc' ? 'asc' : 'desc'))

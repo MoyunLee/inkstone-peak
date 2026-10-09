@@ -1,14 +1,14 @@
-/* 字体：一律走系统回退栈，**不引入任何外来字体文件**（2026-09-16 用户令）。
+/* 字体：一律走系统回退栈，**不引入任何外来字体文件**。
    标题吃 --font-kai、正文吃 --font-song，两栈都在下面 :root 里；全站没有 @font-face、没有 /fonts/。
    「子集自托管」一度做过又撤掉：为了跨机一致多背 177KB，且云端无法再生（需本机 Python），
-   与「只用系统自带字体」的取向不符。真要恢复：得重新生成子集并随仓库提交——2026-09-16 用户令已否掉这条路线。 */
+   与「只用系统自带字体」的取向不符。真要恢复：得重新生成子集并随仓库提交。 */
 :root {
   color-scheme: light; /* S1：原生控件/滚动条/<video> 跟随。深色见文件下方两块（勿在此写第二条） */
   /* 色墨：纸底禁纯白；印朱=全站唯一彩色（面积 <2%） */
   --paper: #f7f4ee;
   --ink: #14161a; /* 浓墨 */
   --ink-2: #3e4148; /* 次墨 */
-  /* 淡墨（小字档：日期 / 卡片提要 / 眉标 / 导航 / 元信息）——2026-10-03 用户令 D7 调深：
+  /* 淡墨（小字档：日期 / 卡片提要 / 眉标 / 导航 / 元信息）：
      原 #8a8d93 在纸底只有 3.03:1，不达 WCAG AA 小字 4.5:1；现值 #6b6f77 在 --paper 上 4.59、在 --card 上 4.79。
      ★它不只管字：另有 6 处图形消费者（.cover-ph 占位色块 / .bd-rule 发丝线 / .card:hover 描边 /
        .ph 虚线框 / 技能条兜底色），改这个值要连带回归那几处——尤其占位色块（--cover-mix 62% 混墨）。
@@ -17,7 +17,7 @@
   --ink-4: #c9cbd0; /* 清墨（发丝界） */
   --seal: #9e2b25; /* 印朱 */
   --card: #fbf9f3; /* 宣纸册页 */
-  /* 卡面白洗（2026-09-27 上收为真源）：原先只是 bento.css 里的两个字面量。半透明白压在纸纹上，
+  /* 卡面白洗（唯一真源）：原先只是 bento.css 里的两个字面量。半透明白压在纸纹上，
      纸的噪点透得出来才像「册页」而不像塑料板。技能模块是全站面积最大的浅面，只按比例取更淡的一档，
      比例在 .bento-skill 里给（材料只有一个真源，改这里全站卡面一起走）。 */
   --card-wash: rgba(255, 255, 255, 0.5);
@@ -33,7 +33,7 @@
   --heat-3: #74906a;
   --heat-4: #47603f;
 
-  /* 技能等级五档（2026-09-27 立，同日改为单色墨水阶）：一档一色，由浅墨递进到浓墨 ——
+  /* 技能等级五档（单色墨水阶）：一档一色，由浅墨递进到浓墨 ——
      越熟练墨越浓，与全站「纸墨」语义同构；因此不引入任何传统彩色，
      「印朱=全站唯一彩色（面积 <2%）」的旧律继续成立。
      五档一律由 --ink 混 --paper 派生、不写死色值：改纸底或改墨，整条色阶自动跟着走。
@@ -44,7 +44,7 @@
   --lv-4: color-mix(in srgb, var(--ink) 76%, var(--paper)); /* 熟练 */
   --lv-5: var(--ink); /* 精通：浓墨 */
 
-  /* ── 深色模式语义令牌地基（2026-10-04）──
+  /* 深色模式语义令牌地基
      浅色值＝原先散落在各分片里的写死色**等价搬家**（浅色视觉逐像素不变）；
      深色覆盖只写在下面 :root[data-theme='dark'] 与 @media (prefers-color-scheme: dark) 两处。
      组件/页面侧一律只许取用，不许再写死颜色。 */
@@ -86,7 +86,7 @@
   --inset-x: calc(6vw + var(--gutter));
   --prose-max: 34rem; /* rem 不是 em：正文宽必须全站同一个像素值，em 会随各块字号浮动 */
   --card-radius: 6px; /* 卡片圆角唯一真源（观山卡与归档卡＝同一张 .card；日后热力图卡片化直接复用，勿新开第二个值） */
-  --card-pad: clamp(12px, 1.3vw, 16px); /* 卡片内边距唯一真源（原 .archive 的 --arc-pad，2026-09-20 随卡片统一上收） */
+  --card-pad: clamp(12px, 1.3vw, 16px); /* 卡片内边距唯一真源 */
   --section-h: 100svh; /* 禁 100vh */
   --nav-h: 64px;
 
@@ -99,7 +99,7 @@
   --font-mono: 'LXGW WenKai Mono', '霞鹜文楷等宽', ui-monospace, monospace;
 }
 
-/* ── 深色（三态之一 light|dark）──
+/* 深色（三态之一 light|dark）
    ★下面两块必须**逐值同步**，改一处必须改两处（CSS 没有 mixin，只能写两份）：
      ① :root[data-theme='dark']      —— 用户显式选深色（JS 在 <html> 上打的属性，见 source/site/theme-init.js）
      ② @media (prefers-color-scheme: dark) —— 系统跟随；:not([data-theme='light']) 保证「显式选浅色」不被系统深色盖掉，
@@ -206,13 +206,13 @@
   }
 }
 
-/* ── 共用动效原语（2026-09-16 统一渲染层）──
-   区块/卡片进场级联：/about 便当盒消费这一条（原 /blog、/portfolio 列表的挂载级联已于 2026-10-09
+/* 共用动效原语（统一渲染层）
+   区块/卡片进场级联：/about 便当盒消费这一条（/blog、/portfolio 列表的挂载级联不在这一条，
    迁往下方「滚动进场契约」，那条按 --i 逐项给阶梯延迟）。
    ★便当卡用 both 而非 backwards 无碍——它 hover 不动位移，故收尾的 translateY(0) 钉住也压不到谁；
      列表卡当年正是因此才必须用 backwards（both 会把 translateY(0) 永久钉住、压掉 .card:hover 的上浮）。
-     2026-10-09 复核更正：这两条通道今天的现状是「进场走 translate（见下方滚动进场契约）、
-     悬停上浮走 transform（arc.css 的 .card:hover）」——本节上一句原写「上浮走 translate」，与 arc.css 不符。 */
+     ★这两条通道的现状：「进场走 translate（见下方滚动进场契约）、
+     悬停上浮走 transform（arc.css 的 .card:hover）」。 */
 @keyframes rise-in {
   from {
     opacity: 0;
@@ -224,7 +224,7 @@
   }
 }
 
-/* ── 滚动进场契约（2026-10-09 立）──
+/* 滚动进场契约
    观感与上面 rise-in 同源（14px 上浮 + 淡入、--i 阶梯 50ms 封顶 12），
    但**触发权从「挂载」交给「进视口」**：容器挂 data-revealed（唯一写入方 = lib/hooks/useReveal），
    CSS 只负责补间。原 `.blog-list/.portfolio-list .card { animation: rise-in … }` 两条挂载级联已删——
@@ -237,18 +237,18 @@
      ③ 只动 opacity / translate / scale 这类**不改盒子**的属性，且**不许对 .card 本体用 scale**——
         瀑布流行轨跨度由 useMasonry 读 getBoundingClientRect（**含 transform**）算出；translate 不改高所以安全，scale 会改。
      ④ 进场走 translate、悬停上浮（arc.css 的 .card:hover）走 transform：两条**独立位移通道**，互不覆盖。
-        2026-10-09 复核修正：原先两者同写 transform，进场那条高特异性表把悬停表整表压掉（上浮从 160ms 变 560ms、
-        还带上 --i 阶梯延迟，第 12 张要等 600ms；hover 描边补间也一并消失）。
+        ★两条通道一旦同写 transform，进场那条高特异性表会把悬停表整表压掉（上浮从 160ms 变 560ms、
+        还带上 --i 阶梯延迟，第 12 张要等 600ms；hover 描边补间也一并消失。
    分工：段壳 Section 管 .heading/.sec-intro，网格容器 CaseGrid/ArticleGrid 管 .card，
    详情页 .bd-head 管自己那几行。
-   ★两类挂法**写法不同**（2026-10-09 独立复核抓出）：Section / 网格 / 页脚 / 热力图把属性挂在**容器**上、
+   ★两类挂法**写法不同**：Section / 网格 / 页脚 / 热力图把属性挂在**容器**上、
      要藏的是它**后代**，故写 `[data-revealed=…] .目标`；而详情页题头是把属性挂在 **.bd-head 自己**身上
      （ArticleDetail 的 headRef 就挂在这个 div 上），故必须写 `.bd-head[data-revealed=…] > *`。
      原先七条一律写成 `[data-revealed=…] .bd-head > *`——要求祖先带属性，而祖先链上没有任何写入方，
      于是一条都不匹配、题头压根没有进场；探针也照不出（那条检查只验「可见的没被藏住」，
      规则不匹配时反而全绿）。新加同类块之前先问：属性挂在谁身上、要藏的是谁。
    ★嵌套（Section → Heatmap/ArticleGrid、Featured → CaseGrid）：**任意** false 祖先都能藏住后代——
-     true 侧只声明过渡、不声明可见值，内层 true 翻不了案（2026-10-09 独立复核指出本节原写
+     true 侧只声明过渡、不声明可见值，内层 true 翻不了案（本节原写
      「嵌套时以最靠内的那个 false 为准」只说对一半）。今天不出问题是因为外层容器顶边更高、
      同帧或更早触发；给嵌套容器改 rootMargin 时必须让外层不晚于内层，否则会出现
      「外层已亮、卡仍全隐」，而 CSS 里找不到任何冲突对象。 */
@@ -273,7 +273,7 @@
     translate 560ms var(--ease);
   transition-delay: calc(var(--i, 0) * 50ms);
 }
-/* 卡片单列一张表（2026-10-09 复核修正）：transition 是**整表覆盖**而不是叠加，
+/* 卡片单列一张表：transition 是**整表覆盖**而不是叠加，
    而 .card 自己在 arc.css 里还有一条 transform/border-color 的表；两张表不并成一张的话，
    本片这条 (0,2,0) 会把悬停上浮压成 560ms + --i 阶梯延迟，描边补间也一起消失。
    故按属性分列：进场两项吃阶梯，悬停两项延迟恒为 0（background-color 也进来，
@@ -315,7 +315,7 @@
   }
 }
 
-/* ── 脚页进场（2026-10-09 补，滚动进场契约的第二个消费方）──
+/* 脚页进场（滚动进场契约的第二个消费方）
    脚页每页都有，且总在最后一次滚动之后才出现 —— 这一下是「抵达」而不是「路过」，故给足层次：
    眉标 → 大标 → 栏题 → 栏内逐行涟漪（--i 由 SiteFooter 挂在 <li> 上，站内统一阶梯变量）→ 大印落款 → 底栏。
    复用现成契约（useReveal + [data-revealed]）而不是另起一套：无 JS / 爬虫 / reduced-motion 的静止终态
@@ -398,17 +398,17 @@ html {
   scroll-behavior: smooth;
   background: var(--paper);
 }
-/* 主题切换的颜色补间（2026-10-09）：窗口由 lib/theme.ts 的 setPref 在**用户显式点选**时开，
+/* 主题切换的颜色补间：窗口由 lib/theme.ts 的 setPref 在**用户显式点选**时开，
    到点自行摘除。首帧加载（theme-init.js 引导）与「跟随系统」的被动变化都不开窗——
    前者本来就该以纸底出现，后者是系统事件、没有「此刻」可言。
    ★只列属性白名单，不用 `transition: all`：opacity/transform 刻意不在其中，
      免得和滚动进场、悬停上浮抢同一段补间。
-   ★后代选择器包在 :where() 里（特异性 0，2026-10-09 复核修正）：本片是**全局**开关，
+   ★后代选择器包在 :where() 里（特异性 0）：本片是**全局**开关，
      绝不能靠特异性去压别的规则自己的过渡表——那会在窗口内让那些元素的悬停/进场一起失效。
      于是分工是：没自持过渡表的元素（html/body、标题、链接、边框……）跟着补间；
      自持过渡表的（.card、.card-tags li）由各自那张表决定，本片不插手。
    ★本片**不分层**（站点样式整体没进 @layer）：级联里未分层规则优先于任何 @layer，故窗口期内它也会
-     压过 Tailwind v4 `@layer utilities` 里的 transition-*/duration-* 工具类。站内今天没有这类工具类，
+     压过 Tailwind v4 `@layer utilities` 里的 transition-* 与 duration-* 工具类。站内今天没有这类工具类，
      所以只是埋雷；真要用，得先把本片挪进 @layer base——那会同时改变它与其它站点规则的关系，别顺手改。 */
 .theme-anim,
 :where(.theme-anim *) {
@@ -460,8 +460,8 @@ section {
 .site-foot {
   scroll-margin-top: calc(var(--nav-h) + 8px);
 }
-/* 2026-10-04 用户令：页脚不再吃整屏。原为 min-height: var(--section-h)（100svh）＋ #footer 内容居中，
-   结果滚到页末时页脚内容悬在屏幕中段、下方空出一大块（实测 1280×860 下 158px，1403 高的窗口下约 394px）。
+/* 页脚不吃整屏：整屏高会让内容悬在屏幕中段，
+   下方空出一大块（实测 1280×860 下 158px，1403 高的窗口下约 394px）。
    页脚是收尾块不是展示段：按内容高收口。滚动吸附仍保留（全站是 y proximity，不会把页脚顶出可达范围）。 */
 .site-foot.as-section {
   min-height: auto;

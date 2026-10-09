@@ -1,4 +1,4 @@
-// 落盘：把构建产物写进 .content/（JSON，两空格缩进 + 尾换行）。当前调用方传 2 份（site / posts）：
+// 落盘：把构建产物写进 .content/（JSON，两空格缩进 + 尾换行）。当前调用方（content/build.ts）传 3 份：site / posts / drafts。
 import { mkdirSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { OUT_DIR } from './paths.ts'

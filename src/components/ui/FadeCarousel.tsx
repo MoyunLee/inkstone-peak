@@ -16,7 +16,6 @@ export interface CarouselItem {
 interface CarouselLabels {
   /** 上一张（缺了就只剩一个「‹」字形当名字，勉强能读）。 */
   prev?: string
-  /** 下一张，同 prev。 */
   next?: string
   /** 暂停键的可访问名（rotation 正在跑时用）。**与 play 成对**：缺任一个就不渲染这个键。 */
   pause?: string

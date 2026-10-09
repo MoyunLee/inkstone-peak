@@ -16,7 +16,7 @@ export type { HeatItem } from './useHeatmapData'
  * 只读 props：组件不 import content / site 数据，喂 items + labels 即可复用。
  * 悬浮提示只对「年内已过日」出，未来日与跨年留白日不出。
  *
- * 生长进画（2026-10-09）：触发权交给站内 useReveal（唯一写入方），属性挂在本段根节点上，
+ * 生长进画：触发权交给站内 useReveal（唯一写入方），属性挂在本段根节点上，
  * 补间与逐列错开全住 heat.css —— 首屏就在视口内的热力图（/blog 归档页）直接停在终态、不重播不闪。
  * threshold 给 0 的理由同 Section / ArticleGrid：本段随年份页签与列数增长，比例阈值会被稀释。
  *

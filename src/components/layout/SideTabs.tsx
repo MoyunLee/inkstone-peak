@@ -20,7 +20,7 @@ export default function SideTabs() {
   const { pathname } = useLocation()
   const { active, onClick } = useNavState(site.nav)
   const reduceMotion = useMotionSafe()
-  // 第五条题签「传音 · 直达脚页」（2026-10-09 用户令）：题签名住 site.yml footer.tab_label，
+  // 第五条题签「传音 · 直达脚页」：题签名住 site.yml footer.tab_label，
   // 落点 = home.sections 里 footer 段的 id（不写死字符串，段改名/移位照样命中）。
   // ★不并进 useNavState 的 items：那份状态是模块级单例、被顶栏共用；塞进去既会多起一套观察器
   //   （数组每次渲染都是新引用 → effect 反复重建），也会把 active 的下标体系搅乱。
@@ -30,7 +30,7 @@ export default function SideTabs() {
     footSec && site.footer.tab_label
       ? { ink: site.footer.tab_label, route: `/#${footSec.id}`, isDetailPage: false, detailPrefix: null, module: footSec.id }
       : null
-  // 传音的点亮（2026-10-09 用户令「滑到最低部，传音没有朱标，也不会加粗」）：
+  // 传音的点亮（滑到最低部时必须点亮：有朱标、也加粗）：
   // 判据取两条、取或 ——
   //   ① 脚页段越过视口中线：与滚动监听同构（spy 的 -45%/-45% 就是中线上下各 5% 的窄带），
   //      于是「观自交班 → 传音接管」是同一拍，不会两条同时亮、也不会空档；

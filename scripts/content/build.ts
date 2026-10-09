@@ -1,4 +1,4 @@
-// 内容管线主流程（2026-09-16 通用化）：单一 source/posts/ 目录 + 一份文章契约。
+// 内容管线主流程：单一 source/posts/ 目录 + 一份文章契约。
 // 类型由 front-matter 的 tags 判定（含 PORTFOLIO_TAG=作品 / 否则=博文）——判定**只在构建期这一处**；
 // 标记词随后从产物的 tags 里剔除（运行层只看 kind、不认识那个词），产出单份 .content/posts.json。
 // 读事实 → zod 三集合校验 → 交叉规则 → 写盘；runOnce 负责报错与退出码。
@@ -28,7 +28,7 @@ export function build(report = true): boolean {
   errors.length = 0
   warnings.length = 0
 
-  // ── 统一文章集合：单一 source/posts/ 目录，一份契约 ──
+  // 统一文章集合：单一 source/posts/ 目录，一份契约
   //    类型不再靠目录或布尔标记，改由 tags 判定：含 PORTFOLIO_TAG=作品（/portfolio/<slug>），否则=博文（/blog/<slug>）。
   const SOURCES = readMdDir('source/posts')
   const entries: { slug: string; data: z.infer<typeof articleSchema>; bodyHtml: string; headings: Heading[] }[] = []
@@ -160,11 +160,11 @@ export function build(report = true): boolean {
         seenModule.add(n.module)
       }
     }
-    // 锚点段事实源（2026-09-16 由 content/about 并入；整键可省）：给了就必须含 about + footer 双锚点
+    // 锚点段事实源（整键可省）：给了就必须含 about + footer 双锚点
     for (const need of ['about', 'footer']) {
       if (s.about.anchors && !s.about.anchors.includes(need)) issue('site.yml', 'about.anchors', `声明了 anchors 就必须同时含 about 与 footer 双锚点（构建期硬校验），缺「${need}」`)
     }
-    // 技能等级 ↔ 经验值同档（2026-09-27）：档位由 skill_levels 的上界切分，而 level 与 exp 是两处各写 →
+    // 技能等级 ↔ 经验值同档：档位由 skill_levels 的上界切分，而 level 与 exp 是两处各写 →
     // 必然可能漂移（改了 exp 忘了改 level，卡面就会「Lv.2 却跑 700 经验」）。构建期钉死，报错直接给可落地的区间。
     const levels = s.about.skill_levels ?? []
     const list = s.about.skills ?? []
@@ -186,7 +186,7 @@ export function build(report = true): boolean {
         }
       }
     }
-    // 技能图标文件落盘（2026-09-27 用户令：图标改住 source/site/skill/，丢文件 + 改配置即可）：
+    // 技能图标文件落盘（图标住 source/site/skill/，丢文件 + 改配置即可）：
     // 不带「集:」前缀的 icon 就是该目录下的文件名 → 在这里查存在。不查的话页面上只是「一个空洞」——
     // mask 取不到图 = 空白，预渲染 HTML 里也看不出异常，所以必须在构建期钉死；报错顺手列出目录里现有的文件名。
     const iconDir = P('source', 'site', 'skill')
@@ -260,9 +260,9 @@ export function build(report = true): boolean {
   }
 
   // front-matter × site.yml Post Settings → 有效值钉进 posts.json（运行层零默认值推理）
-  // 统一渲染层（2026-09-16）：**两型都算全套 Post Settings**（aside / toc / 版权 / 代码框 / 主色…），
+  // 统一渲染层：**两型都算全套 Post Settings**（aside / toc / 版权 / 代码框 / 主色…），
   // 渲染层因此不再分型做默认值推理——作品与博文的差别只剩「作品专属字段」。
-  // 目录默认值不分家（2026-09-21 统一壳子）：两型同走 site.yml toc.*，逐篇 front-matter 仍可覆盖。
+  // 目录默认值不分家：两型同走 site.yml toc.*，逐篇 front-matter 仍可覆盖。
   const items = entries.map((e) => {
     const d = e.data
     const isWork = d.tags.includes(PORTFOLIO_TAG)
@@ -274,7 +274,7 @@ export function build(report = true): boolean {
     const to = isWork ? `${detailBase('portfolio', '/portfolio')}/${e.slug}` : `${detailBase('blog', '/blog')}/${e.slug}`
     const settings = resolvePost(to, d, e.headings, siteData)
     // 双份编号守卫：标题自带编号（「一、」「3.1 」）× 自动编号 = 目录与正文各出两套数字。
-    // 实测案例：2026-09-17 site-yml-guide（## 一、… + ### 3.1 …，而 toc.number 默认开）。
+    // 实测案例：site-yml-guide（## 一、… + ### 3.1 …，而 toc.number 默认开）。
     if (settings.toc_number) {
       const dup = e.headings.find((h) => SELF_NUMBERED.test(h.text))
       if (dup) {
@@ -296,7 +296,7 @@ export function build(report = true): boolean {
       // 运行层因此完全不需要知道那个词（身份看 kind、展示看这枚 tags），配置与常量的双源从根上消失。
       tags: d.tags.filter((t) => t !== PORTFOLIO_TAG),
       bodyHtml: e.bodyHtml,
-      // 内容槽**两型通用**（2026-09-23）：嵌入 / 外链 / 自托管视频不再按 kind 剥掉——
+      // 内容槽**两型通用**：嵌入 / 外链 / 自托管视频不再按 kind 剥掉——
       // 详情页本就是同一套壳子，博文同样能挂播放器；period / carousel 才是作品专属。
       links: d.links,
       video: d.video,

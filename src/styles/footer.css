@@ -1,4 +1,4 @@
-/* ---------- S5 传音 · 结构化页脚（版心 1320 双居中） ---------- */
+/* S5 传音 · 结构化页脚（版心 1320 双居中） */
 #footer {
   display: flex;
   align-items: center;
@@ -13,7 +13,6 @@
   padding-inline: var(--gutter);
 }
 .foot-head {
-  /* 2026-09-24：题头右侧的「查看详细 / 联系我」两枚按钮整体移除 → 这里只剩题头本身 */
   margin-bottom: clamp(20px, 3.2vh, 36px);
 }
 .foot-head h2 {
@@ -38,7 +37,7 @@
   row-gap: clamp(26px, 3.6vh, 38px);
 }
 .fcol-brand {
-  /* 2026-09-24：印章竖向居中于本栏（＝对齐「导航」栏中段的观山～造境），横向也居中 */
+  /* 印章竖向居中于本栏（＝对齐「导航」栏中段的观山～造境），横向也居中 */
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -84,7 +83,7 @@
   color: var(--ink-3);
 }
 .foot-brand {
-  /* 大印是「回本页顶部」的按钮（2026-09-24）：宽度贴合印体 + 自动外边距居中，
+  /* 大印是「回本页顶部」的按钮：宽度贴合印体 + 自动外边距居中，
      按钮默认外观全部清零（否则会带系统底色/边框/内距），焦点框也因此贴着印走。 */
   display: flex;
   align-items: center;
@@ -105,13 +104,13 @@
   border-radius: 4px;
 }
 .big-seal {
-  width: 128px;   /* 2026-09-24 放大：96 → 128 */
+  width: 128px;
   height: 128px;
   flex: none;
   transform: rotate(-4deg); /* JS 轻震关键帧写死此角，不得改 */
   cursor: pointer;
 }
-/* 悬停＝揭印（2026-10-09 用户令）：印从纸上轻轻揭起、纸面落一道浅影；按下再压回去（见下面 :active）。
+/* 悬停＝揭印：印从纸上轻轻揭起、纸面落一道浅影；按下再压回去（见下面 :active）。
    ★只走独立的 translate / filter 两条通道：transform 上钉着 rotate(-4deg)（JS 轻震也写这个角），
      动 transform 会跟那两处打架。取 drop-shadow 而不是 box-shadow：它贴的是形状，
      崩口那道不规则的边因此也照得出来，不是给印章套个矩形影子。

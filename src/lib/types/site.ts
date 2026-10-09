@@ -22,7 +22,6 @@ interface FooterColumn {
   id: string
   title?: string | null
   from?: string
-  /** 内联链接数组。 */
   links?: SiteLink[]
 }
 
@@ -88,7 +87,7 @@ interface AboutCfg {
   place_note?: string
   place_avail?: string
   place_coord?: string
-  /** 事实层（2026-09-16 由 content/about 并入）：生涯卡时间轴；缺省即隐藏。 */
+  /** 事实层：生涯卡时间轴；缺省即隐藏。 */
   timeline?: { period: string; text: string }[]
 
   /** 事实层：现居城市，填 place_note 的 {city}。 */

@@ -51,7 +51,7 @@ RENDER.core.ruler.push('heading_anchor', (state) => {
   return true
 })
 
-// ── 正文内嵌视频（C 路线的正文内形态）：块级 `@[标签](播放器地址)`，独立成行 ──
+// 正文内嵌视频（C 路线的正文内形态）：块级 `@[标签](播放器地址)`，独立成行
 //   html:false 的安全不变量照旧不动（见上方注释）：这一条是**自定义语法**，不是放行原始 HTML。
 //   构建期就校验（与 front-matter 的 embeds 同三道闸：https / B 站页面地址教换 / host 白名单），
 //   并渲染成与「视频」分节**同一套 markup**（.embeds），故零新增 CSS、零前端 JS、预渲染照旧带播放器。
@@ -100,7 +100,7 @@ RENDER.renderer.rules.body_embed = (tokens, idx) => {
   return '<div class="embeds"><ul><li>' + embedIframeHtml(meta.url ?? '', meta.label ?? '') + '</li></ul></div>'
 }
 
-// ── 表格：构建期套一层横向滚动壳（.tbl-wrap） ──
+// 表格：构建期套一层横向滚动壳（.tbl-wrap）
 //   表格的 min-content 宽度天然超过正文栏（390px 视口实测：表 421px / 栏 288px）。不套壳时表格直接撑破版心、
 //   整页横向溢出；手机端还会触发 shrink-to-fit，把**整页连正文一起**缩小（实测 innerW 465 / 可视宽 390）。
 //   正文是直出 HTML（PostBody 的 dangerouslySetInnerHTML），运行层补不上这一层，只能在这里加。
@@ -115,7 +115,7 @@ export function renderBody(src: string): { html: string; headings: Heading[]; pr
   return { html, headings: env.headings, problems: env.problems }
 }
 
-// ── source/ 素材：磁盘母版位置 ↔ 对外交付 URL 的单一映射 ──
+// source/ 素材：磁盘母版位置 ↔ 对外交付 URL 的单一映射
 // 与 vite.config.ts 的 staticFromSource.MIRRORS 同构（source/images/** → /images/**；source/video/** → /media/video/**）。
 // front-matter 的图片/视频槽一律先经 toMediaUrl 归一成 URL 再落 posts.json，故页面层只见对外地址。
 const MEDIA_MIRRORS: readonly (readonly [from: string, url: string])[] = [

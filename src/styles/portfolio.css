@@ -1,4 +1,4 @@
-/* ---------- S2 观山 · 响应式两列瀑布流 ---------- */
+/* S2 观山 · 响应式两列瀑布流 */
 .portfolio {
   display: grid;
   grid-template-columns: 1fr;
@@ -23,14 +23,14 @@
 .portfolio .card:nth-child(even) .card-cover {
   aspect-ratio: 4/3;
 }
-/* 列表页进场（2026-09-16 挂载级联 → 2026-10-09 改为滚动进场）：
+/* 列表页进场：
    原 `animation: rise-in … backwards` 已删——理由同 arc.css（挂载即播时用户还没滚到网格）。
    现行触发权在网格容器（CaseGrid 的 .portfolio）的 data-revealed 上；补间与 --i 阶梯见 tokens.css。 */
 .portfolio-page {
   gap: clamp(20px, 2.6vw, 44px);
 }
 
-/* ---------- 淡入淡出轮播 FadeCarousel ---------- */
+/* 淡入淡出轮播 FadeCarousel */
 /* 只淡变不滑动；交叉淡变 500ms=动效预算第三例外 */
 .fade-carousel {
   --fc-fade: 500ms;
@@ -65,9 +65,9 @@
   object-fit: cover;
   object-position: center;
 }
-/* 2026-10-03 用户令 D7：本组 override 整体退役。原实现给的是「纸色字 + 极淡投影」（深色画面里看得见），
-   而 D7 把底衬搬进 .fc-arrow 基样式后，这条会把尖角染成纸色 ⇒ 纸色字压在纸色圆底上＝自己把自己抹掉
-   （改完首轮截图实测确认）。有底衬就不需要再按「有无图」切字色了。 */
+/* 不按「有无图」切换箭头字色：原实现给的是「纸色字 + 极淡投影」（深色画面里看得见），
+   而底衬已在 .fc-arrow 基样式里，再叠一层纸色字 ⇒ 纸色字压在纸色圆底上＝自己把自己抹掉
+   有底衬就不需要再按「有无图」切字色了。 */
 .fade-carousel.has-photo .fc-dot {
   background-color: color-mix(in srgb, var(--on-media) 72%, transparent); /* 压在照片上：用媒体前景常量，不跟主题翻（--paper 深色下会变暗） */
   opacity: 1;
@@ -81,7 +81,7 @@
   transform: translateY(-50%);
   z-index: 2;
   /* 箭头压在封面**照片**上（.fc-stage 的图）。
-     2026-10-03 用户令「按钮所在的背景全部透明化」：D7 那层半透明纸色圆底整体退役，按钮盒子回到**全透明**。
+     按钮盒子**必须全透明**（不要加半透明纸色圆底）：
      可见性随之只能落在字形上，而底图有亮/暗/花色三种 ⇒ 任何单一字色都必有一头消失；
      所以留浓墨字形 + 一圈**纸色光晕**：亮照片上靠字本身、暗照片上靠光晕。
      光晕贴着字形走（text-shadow 不铺满 46×46 的盒子），所以"背景透明"这条仍然成立。
@@ -142,7 +142,7 @@
      axe 的 target-size（WCAG 2.5.8）当场判 serious（实测 10/14px 各 2 点违规）；命中框要互不重叠，
      心距就得 ≥24px ⇒ gap ≥16px。16px 在 320/360/375/390/414/768/1024/1280/1440/1920 十档实测全过
      （375px 那种 .5px 边界也是恰好相切，因为三框共享同一小数部分、不会累积误差）。
-   ★已知项（2026-10-03 记，未修）：非激活圆点也是压在照片上的 UI 点，--ink-4 + opacity .6 在浅色照片上几乎看不见；
+   ★已知项（未修）：非激活圆点也是压在照片上的 UI 点，--ink-4 + opacity .6 在浅色照片上几乎看不见；
      激活点有 .fade-carousel.has-photo 的纸色override 兜着。要修就照 .fc-arrow 的思路给底衬，别只改颜色。 */
 .fc-dot {
   width: 24px;

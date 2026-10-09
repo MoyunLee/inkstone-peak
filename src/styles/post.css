@@ -1,9 +1,9 @@
 /* 详情页骨架（作品 / 博文同源：顶图 / 标题区 / 目录 / 侧栏 / 版权 / 代码折叠；开关关时 DOM 不存在） */
 
-/* ── 顶图槽（两型同源）：16/9 定比媒件块，独占整个版心（与轮播图同宽）。
+/* 顶图槽（两型同源）：16/9 定比媒件块，独占整个版心（与轮播图同宽）。
    图 / 视频 / 第三方嵌入一视同仁——媒件是视频就 <video>、是图就 <img>、是嵌入就 <iframe>，
    比例同一档、不裁两侧。
-   圆角：方角（2026-09-20 用户裁定案例页顶图不圆角；2026-09-21 统一后两型同此，见 Dev_Docs 90 §3），
+   圆角：方角（案例页顶图不圆角，两型同此，见 Dev_Docs 90 §3），
    底边压一条发丝界把媒件与纸面分开。 */
 .bd-hero {
   margin: 0 0 2.2em;
@@ -20,7 +20,7 @@
 /* 嵌入（C 路线）占顶：铺满 16/9 槽位；iframe 自带背景，加载前不留白 */
 .bd-hero iframe { display: block; width: 100%; height: 100%; border: 0; background: var(--cover); }
 
-/* ── 标题区（两型同源）：详情页唯一 h1，尺度取原博文那一档 ── */
+/* 标题区（两型同源）：详情页唯一 h1，尺度取原博文那一档 */
 .bd-head h1 {
   font-size: clamp(26px, 3.6vw, 42px);
   line-height: 1.35; /* 标题不继承正文的 1.75 行高 */
@@ -28,9 +28,9 @@
   margin-bottom: 0.5em;
 }
 
-/* ── 详情两栏：窄屏单列、≥1024 两栏 ──
+/* 详情两栏：窄屏单列、≥1024 两栏
    DOM 顺序恒为「标题区 .bd-head → 侧栏 .post-aside → 正文 .bd-body」，窄屏单列即是这个顺序
-   （标题 → 信息卡与目录 → 正文，2026-09-21 用户指定）；宽屏用命名栅格区把侧栏整列右移，
+   （标题 → 信息卡与目录 → 正文）；宽屏用命名栅格区把侧栏整列右移，
    标题区与正文区同占左列。侧栏关掉时（data-aside=false）单列照旧，DOM 里也没有 aside 节点。
    整块铺满版心（= 轮播图同宽）：正文栏 1fr、间距 48、侧栏 240；开侧栏时正文即「版心 − 288」，
    与观山详情的正文栏同宽同左边界。 */
@@ -56,7 +56,7 @@
   .bd-layout[data-aside='true'] > .post-aside { grid-area: side; }
 }
 
-/* ── 题头：标题之下只有一条发丝线 ──
+/* 题头：标题之下只有一条发丝线
    提要与元信息都收进了侧栏（.pa-desc / .pa-rows / .pa-tags）——两处同时出就是重复。
    唯一的例外是关掉侧栏（aside: false）的篇目：元信息回落到这里。 */
 /* 回落的元信息行：日期 / 分类 / 周期（作品）/ 标签——开关住 site.yml post_meta.post，
@@ -73,7 +73,7 @@
   letter-spacing: 0.12em;
 }
 
-/* ── 标题下的发丝分割线 ──
+/* 标题下的发丝分割线
    设计总则「分隔用 1px 发丝线，不加装饰框」。上方间距由 h1 自身的 margin-bottom（0.5em）给，
    本类只管线本身与下方节奏。 */
 .bd-rule {
@@ -85,7 +85,7 @@
   margin: 1.5em 0 1.3em;
 }
 
-/* ── 目录（TOC）：number=CSS counters 编号；simple=扁平 ── */
+/* 目录（TOC）：number=CSS counters 编号；simple=扁平 */
 /* 左侧强调线取「与朱点同一个颜色式」：不设 main_color 的文章不再落灰（原回退 --ink-4），
    全局都是朱；设了 main_color 的文章则是线、点、hover、激活四处同色，永不走散。 */
 .post-toc { margin: 0 0 2.4em; padding: 16px 20px; border-left: 2px solid var(--post-accent, var(--seal)); background: color-mix(in srgb, var(--card) 72%, transparent); border-radius: 0 var(--card-radius) var(--card-radius) 0; }
@@ -124,20 +124,20 @@
 [data-toc-number='true'] .prose h3::before { content: counter(prose-h2) '.' counter(prose-h3) ' '; color: var(--ink-3); }
 .prose :is(h1, h2, h3, h4, h5, h6) { scroll-margin-top: calc(var(--nav-h) + 16px); }
 
-/* ── 强调色：只染链接与引用侧线，不铺面（印朱面积纪律）──
-   两型同源（原来只写了 .blog-detail，作品页正文链接落回正文色——2026-09-21 一并收口）。 */
+/* 强调色：只染链接与引用侧线，不铺面（印朱面积纪律）
+   两型同源（作品页正文链接不落回正文色）。 */
 .bd-body .prose a,
 .post-copyright a { color: var(--post-accent-ink); }
 /* 引用块左线同目录左线一式：与朱点同色（原回落 --ink-4 落灰）。只染线不染字——引文仍 --ink-3。 */
 .prose blockquote { margin: 1.2em 0; padding: 0 1.1em; border-left: 2px solid var(--post-accent, var(--seal)); color: var(--ink-3); }
 
-/* ── 代码块与折叠（highlight_shrink） ──
+/* 代码块与折叠（highlight_shrink）
    preflight 把 pre 外边距清零了：上一段 16px 挤着它、下一段却贴到 0px。
    按正文段距节奏补成上下对称（1.5em＝24px），别再让代码块和后文连成一片。 */
 .prose pre { margin: 1.5em 0; background: var(--code-bg); color: var(--code-fg); border-radius: var(--card-radius); padding: 14px 16px; overflow: auto; font-family: var(--font-mono); font-size: 13px; line-height: 1.7; }
 .prose code { font-family: var(--font-mono); font-size: 0.92em; }
 /* 行内 code 必须能断：路径类 token（`scripts/content/schemas/article.ts`）实测 282px 宽，
-   而 360px 视口下正文栏只有 262px —— 不断行就是整页横向溢出 20px（2026-09-26 实测）。
+   而 360px 视口下正文栏只有 262px —— 不断行就是整页横向溢出 20px。
    anywhere 而非 break-word：它参与 min-content 计算，表格单元格里的长路径也跟着能压窄。
    只作用于行内 code；pre 里的代码仍 overflow:auto 横向滚，不许折行。 */
 .prose :not(pre) > code { background: color-mix(in srgb, var(--ink-4) 45%, var(--paper)); border-radius: 3px; padding: 1px 5px; overflow-wrap: anywhere; }
@@ -148,7 +148,7 @@
 .cs-btn { position: absolute; right: 10px; bottom: 10px; font: inherit; font-size: 12px; letter-spacing: 0.08em; color: var(--code-btn-fg); background: var(--code-btn-bg); border: 1px solid var(--code-btn-line); border-radius: 999px; padding: 3px 12px; cursor: pointer; }
 .cs-btn:hover { background: var(--code-btn-bg-hover); }
 
-/* ── 侧栏（aside）：信息卡 + 卡外目录 ──
+/* 侧栏（aside）：信息卡 + 卡外目录
    卡只框信息（署名 / 提要 / 行 / 标签）：纸色微底 + 1px 发丝界 + 圆角，与版权模块同一套卡片语言。
    目录自成一块（自己的强调色左线 + 纸色微底，见 .post-toc）——不与信息同框：目录条目多时它要自己滚，
    同框会把整张卡一起顶高。元信息（日期 / 分类 / 标签）自此只住这张卡。 */
@@ -199,7 +199,7 @@
   }
 }
 
-/* ── 版权模块（post_copyright） ── */
+/* 版权模块（post_copyright） */
 /* tokens.css 的裸 `section` 选择器带的是**首页段落规格**（min-height: var(--section-h) = 100svh）。
    详情页里这两个 <section> 是内容块而非段落：不摘掉该规格，版权框会被撑成一整屏
    （实测内容 143px / 盒子 900px，758px 纯空）。与 .section-auto 同一思路，就地归零。 */
@@ -215,7 +215,7 @@
 .pc-info { margin: 12px 0 0; font-size: 13px; color: var(--ink-2); }
 .pc-info b { font-weight: 400; color: var(--ink-3); letter-spacing: 0.1em; margin-right: 8px; }
 
-/* ── 作者主题色（front-matter 的 main_color / background，2026-10-04 三态外观补齐）──
+/* 作者主题色（front-matter 的 main_color / background）
    这两样是**内容**给的浅色底料，直接内联到 <main> 上就与主题脱钩：深色下会留下一整块浅色纸底。
    于是改为：内容只注入 --post-bg / --post-accent 两个自定义属性，怎么用由这里按主题决定——
      · 页底：浅色照用作者给的纸色；深色把它当一层淡染压回纸底（保留每篇的色调身份，不再整块翻白）。
@@ -234,5 +234,5 @@
   }
 }
 
-/* ── 评论区挂载点（provider 配好后才进 DOM；本片只给容器规格） ── */
+/* 评论区挂载点（provider 配好后才进 DOM；本片只给容器规格） */
 .post-comments { margin-top: 2.6em; }

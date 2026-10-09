@@ -19,7 +19,7 @@ export function markPlaceholders(html: string): string {
 }
 
 /** 读某目录下的 *.md（参数=相对 site/ 的路径，如 source/posts）。
- *  2026-09-16：支持子目录分组（source/posts/portfolio/x.md）——**递归**读取。
+ *  支持子目录分组（source/posts/portfolio/x.md）——**递归**读取。
  *  子目录只作归档习惯：slug 仍取文件名（全站唯一），类型仍看 tags 里的标记，URL 不受目录影响。
  *  返回 rel = 相对该目录的路径（用于报错定位），name = 文件名去后缀（=slug）。 */
 export function readMdDir(dir: string): { name: string; rel: string; raw: string }[] {

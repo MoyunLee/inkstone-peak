@@ -1,10 +1,9 @@
-/* 详情页内容配方（2026-09-21 统一壳子）：**作品与博文共用这一份**。
+/* 详情页内容配方：**作品与博文共用这一份**。
    题头（元信息行）、侧栏（提要 / 行 / 标签）、以及顶图 / 嵌入 / 版权三个槽，全在这里按数据算——
    外壳 ArticleDetail 只按顺序落位，**不认识 kind**；两型的差别只剩「显示标签」与 `period`（案例页展示口径）——
    links / video / embeds 是两型通用的内容槽，缺省即不出。
 
-   收口前两页各写一份配方：博文没提要、没嵌入槽与版权槽，作品没日期与分类，
-   同一条 front-matter 长出两套页面。 */
+   */
 import type { ReactNode } from 'react'
 import EmbedHero from '../EmbedHero'
 import type { ArticleEntry, PortfolioEmbed, WorkArticle } from '../../../lib/types/content'
@@ -53,7 +52,7 @@ function metaDates(entry: ArticleEntry, site: SiteData): DateItem[] {
 }
 
 /**
- * 元信息行——**只在侧栏关掉（`aside: false`）时回落到标题下**（2026-09-21 起元信息只有侧栏一处，
+ * 元信息行——**只在侧栏关掉（`aside: false`）时回落到标题下**（元信息只有侧栏一处，
  * 两处同时出就成了重复；有侧栏时外壳不调用本函数）。
  *
  * 内容：日期 / 分类 / 周期（作品）/ 标签——标签恒在末位（与侧栏那排胶囊的位置呼应）。
@@ -216,7 +215,7 @@ export function articleHero(entry: ArticleEntry, site: SiteData): ReactNode {
   return (
     <figure className="bd-hero">
       {/* 顶图是**内容图**（读者要看的就是这张画），给文章标题当文本替代——与自托管视频、嵌入海报两条
-          顶部槽口径一致（★2026-10-03 用户令：三处不再各说各话）。卡片/轮播仍留空：那两处的图在带标题的链接里。 */}
+          顶部槽口径一致。卡片/轮播仍留空：那两处的图在带标题的链接里。 */}
       <RespImg src={entry.top_img} sizes={HERO_SIZES} alt={entry.title} eager />
     </figure>
   )

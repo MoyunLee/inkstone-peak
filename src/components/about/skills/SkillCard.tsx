@@ -1,10 +1,10 @@
 /* /about 技能卡里的一张技能卡：名称 + 等级签 + XP 条。
-   经验数值不上行（2026-09-27 用户定）：值只由条长表达，读屏口径留在条的 aria-valuenow/valuemax。
+   经验数值不上行：值只由条长表达，读屏口径留在条的 aria-valuenow/valuemax。
    动效引擎 = motion（framer-motion 13 的现行包名）；「何时动」仍由父级 useReveal 的观察器决定。
    为什么不直接用 framer 的 whileInView：本站是预渲染站，静态 HTML 就是交付物本身（无 JS / 爬虫 /
    截图都得看到满条满数真值），而 framer 的 initial 会把「起点」写进静态 HTML。于是分工为：
    触发留在自己的观察器（可保住预渲染真值 + 绘制前归零），怎么动全部交给 Framer。
-   指针倾斜（2026-10-09 立）：卡面跟着指针轻倒 ±6°，移出由弹簧回正 —— 只在真能悬浮的指针上挂（判据与
+   指针倾斜：卡面跟着指针轻倒 ±6°，移出由弹簧回正 —— 只在真能悬浮的指针上挂（判据与
    实现住 useCardTilt.ts），静态 HTML 里既不写角度也不需要 JS 才能读：无 JS 就是一张端正的卡。 */
 import { animate, m, useMotionValue, useTransform } from 'motion/react'
 import { useEffect } from 'react'
@@ -18,16 +18,14 @@ import { useCardTilt } from './useCardTilt'
 const STAGGER_S = 0.045
 /** 收势缓出（与站点 --ease 同族）：末段贴住目标值，不像刹车。 */
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1]
-/** 条生长时长（秒）。 */
 const DURATION = 0.9
-/** 进场位移量（px）。 */
 const RISE = 14
 
 const HIDDEN = { opacity: 0, y: RISE }
 const SHOWN = { opacity: 1, y: 0 }
 /** 悬停上浮位移（px）：原 CSS :hover 已交给 Framer，因为 Framer 写的 inline transform 会压死 CSS hover。 */
 const HOVER_LIFT = -4
-/** 倾斜的透视距离（px，2026-10-09）：近侧放大、远侧缩小的强度由它定；越短越"近"，700 是「轻微」一档。 */
+/** 倾斜的透视距离（px）：近侧放大、远侧缩小的强度由它定；越短越"近"，700 是「轻微」一档。 */
 const PERSPECTIVE = 700
 
 interface SkillCardProps {
@@ -36,7 +34,6 @@ interface SkillCardProps {
   levelName: string
   /** 经验值满分（= 等级体系末档 max，父级派生后下发，卡内不写死 1000）。 */
   expMax: number
-  /** 列表序号：给条做阶梯延迟。 */
   index: number
   /** 是否已展开（父级 useReveal 的结果）。 */
   revealed: boolean
@@ -49,7 +46,7 @@ export default function SkillCard({ skill, levelName, expMax, index, revealed }:
   const reduce = useMotionSafe()
   // 行首方章的图标：文件式（source/site/skill/ 里的图，mask 取形状、颜色由 CSS 给）或兜底字形
   const icon = skillIcon(skill.icon)
-  // 指针倾斜（2026-10-09）：角度链一律住 useCardTilt —— 真能悬浮的指针且非 reduced-motion 才挂监听。
+  // 指针倾斜：角度链一律住 useCardTilt —— 真能悬浮的指针且非 reduced-motion 才挂监听。
   // 键盘用户完全不经过这条链：只多一个 ref 与两个 rotate 值，不动 tab 顺序、不加焦点、不吃按键。
   const { ref: tiltRef, rotateX, rotateY } = useCardTilt<HTMLLIElement>()
   // 初值＝终值：服务端渲染出的静态 HTML 直接是真数真条（不是 0）

@@ -1,4 +1,5 @@
 // 抽取全站实际用到的字符集：读 .content/ 全部文件 + 追加 UI 静态字符，去重写入 .shots/glyph-set.txt。
+// ⚠ 遗留工具：字体子集方案已否决，产物（glyph-set.txt）当前无消费者，仅在排查字体覆盖时手动跑。
 import { readdirSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'

@@ -11,10 +11,10 @@ interface RevealOptions {
   /**
    * 挂载时已经在视口内怎么办（默认 'stay'）。
    *  · 'stay'    —— 停在预渲染的终态、不归零不重播。全站默认：首屏可见的内容绝不闪一下。
-   *  · 'animate' —— 照归零、照播。给「这一块长出来本身就是看点」的地方（技能条，2026-10-09 用户令）。
+   *  · 'animate' —— 照归零、照播。给「这一块长出来本身就是看点」的地方（技能条）。
    *    代价写在②里：慢网下用户会先看到预渲染的满条，JS 到位后才清空重长——折上专属的一次闪，
    *    是拿它换「这一下生长」。所以只给真正需要的那一处，不要当默认值用。
-   *    ★这是**全站唯一一处**、也是用户明令换来的例外（SkillBoard，2026-10-09）：它按构造违反铁律③
+   *    ★这是**全站唯一一处**、例外（SkillBoard）：它按构造违反铁律③
    *      （折上首帧出现 opacity:0），独立复核两次点名过。换别处用之前先问，别把它当先例抄。
    */
   inViewAtMount?: 'stay' | 'animate'
@@ -91,7 +91,7 @@ export function useReveal<T extends Element>({ rootMargin = '0px 0px -8% 0px', t
     return () => io.disconnect()
   }, [reduce, revealed, rootMargin, threshold])
 
-  // 打印兜底（2026-10-09 自查补）：从页首直接 Ctrl+P 时，文档里没滚到的段仍停在 [data-revealed='false']
+  // 打印兜底：从页首直接 Ctrl+P 时，文档里没滚到的段仍停在 [data-revealed='false']
   // （opacity:0），而打印走的是**整篇**渲染 —— 不兜这一手就印出半篇空白（卡片、段题头、脚页全没）。
   // beforeprint 只在真要打印/预览时才来，命中即锁终态；此后也不再回隐藏态（本来滚到也会揭开，无碍）。
   useEffect(() => {

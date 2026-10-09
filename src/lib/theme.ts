@@ -152,7 +152,7 @@ export function subscribe(fn: Listener): () => void {
 
 /** 颜色补间窗口时长（ms）：与 tokens.css 里 .theme-anim 的过渡时长同值，改一处要两处一起改。 */
 const COLOR_ANIM_MS = 220
-/** 摘窗比补间略晚（2026-10-09 独立复核）：补间要等类名生效后的下一次样式重算才开始（最多晚一帧），
+/** 摘窗比补间略晚：补间要等类名生效后的下一次样式重算才开始（最多晚一帧），
     同值收尾会把最后那一两帧 snap 掉。 */
 const COLOR_ANIM_TAIL_MS = 80
 

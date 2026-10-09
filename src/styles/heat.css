@@ -156,7 +156,7 @@
   box-shadow: none;
 }
 
-/* ── 生长进画（2026-10-09 立）──
+/* 生长进画
    触发权 = 站内 useReveal（唯一写入方，写在 .heat 的 data-revealed 上，见 ui/heatmap/index.tsx），
    这里只管补间。三条铁律照抄 tokens.css 的「滚动进场契约」：
      ① 隐藏态只写在 [data-revealed='false'] 下 —— SSR / 无 JS 输出的就是 true，
@@ -166,7 +166,7 @@
         缩放只在渲染层发生，本段的行高列宽不受影响。
         ★但「只在渲染层」不等于「量出来的也一样」：getBoundingClientRect **含**这个 scale 与位移，
           而 tooltip 锚点正是这么算的（ui/heatmap/index.tsx 取 cell 的 rect 减 body 的 rect）——
-          故生长途中禁出提示，那一手写在 onOver 里（2026-10-09 独立复核指出此处原写「不受影响」是错的）。
+          故生长途中禁出提示，那一手写在 onOver 里。
           另：opacity:0 不挡指针事件，隐藏期格子照样可悬停，所以那道闸是必需的而不是保险。
    ★逐列错开：--heat-i 由 HeatmapGrid 写在列壳上（.heat-col 是 display:contents，不生成盒子，
      格子仍是 .heat-grid 的直接子项，网格逐像素不变）；行内的 --heat-r 由下面 7 条 :nth-child 给，

@@ -31,7 +31,7 @@ export function selfHeadedIds(): string[] {
 /** source/site/ 下的静态交付件（带扩展名）：不属路由表，改校落盘。 */
 const STATIC_ASSET_RE = /\.(pdf|zip|7z|txt|md|png|jpe?g|webp|gif|svg|ico|mp4|webm|mp3|wav|woff2?)$/i
 
-// ── 内部链接：path 段命中路由表，碎片命中目标页锚点段 ──
+// 内部链接：path 段命中路由表，碎片命中目标页锚点段
 export interface LinkCtx {
   homeIds: string[]
   aboutAnchors: string[]

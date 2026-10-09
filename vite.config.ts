@@ -17,7 +17,7 @@ import type { ImageManifest } from './src/lib/types/images.ts'
  * 两道关：
  *   ① decodeURIComponent 遇畸形 %xx 会抛 URIError——不兜住就是一个 500。
  *   ② Windows 上反斜杠与 / 同为路径分隔符：只按 / 切分判 .. 时，..%5C..%5C 会整段躲过检查，
- *      再喂给 path.resolve 就变成任意文件读取（2026-09-18 实测）。故先把反斜杠归一成 / 再逐段比对。
+ *      再喂给 path.resolve 就变成任意文件读取。故先把反斜杠归一成 / 再逐段比对。
  */
 function safeRelPath(pathname: string): string | null {
   let decoded: string
@@ -35,7 +35,7 @@ function safeRelPath(pathname: string): string | null {
 
 /** source/site = publicDir：Vite 会原样整份拷进 dist/，这里按后缀把关（B2）。
  *  **不要**放宽成「_ 开头的都放行」——那等于给任意笔记开后门。
- *  `.js` 是 2026-10-04 为三态外观的防闪烁引导 source/site/theme-init.js 开的：CSP 是 script-src 'self'（禁内联），
+ *  `.js` 是为三态外观的防闪烁引导 source/site/theme-init.js 开的：CSP 是 script-src 'self'（禁内联），
  *  该脚本必须走同源外部文件、且要在样式表与模块脚本之前以**经典脚本**同步执行（type=module 会推迟到解析后，起不到防闪作用），
  *  所以它只能住 publicDir 直发、不能进打包管线。见 index.html 里那行 <script src="/theme-init.js">。 */
 const PUBLISHABLE_EXT = new Set(['.png', '.jpg', '.jpeg', '.webp', '.avif', '.gif', '.svg', '.ico', '.pdf', '.woff', '.woff2', '.txt', '.xml', '.json', '.js'])
@@ -138,10 +138,10 @@ async function emitDerivedImages(root: string, outDir: string): Promise<void> {
 }
 
 /**
- * source/ 直供与直写（2026-09-16：public/ 暂存层取消，改由「源即输入」两段拼成）。
+ * source/ 直供与直写（public/ 暂存层取消，改由「源即输入」两段拼成）。
  *
- *   `source/site/**`   → `/**`           站点根静态件（favicon / apple-touch-icon / hero-base / mist / noise
- *                                          六件是 `npm run assets` 的产物、**不入仓**；手工件如简历 PDF 才入库，
+ *   `source/site/**`   → `/**`           站点根静态件（favicon / apple-touch-icon / hero-base / mist-a|b / noise·noise-dark
+ *                                          均为 `npm run assets` 的产物、**不入仓**；手工件如简历 PDF 才入库，
  *                                          放这里 URL 即 /resume/x.pdf）
  *                                          —— 这一段走 **Vite 原生 publicDir**（见下方 `publicDir: 'source/site'`）：
  *                                             dev 直接供、build 直接拷进 `dist/`，且 CSS 里的 `url(/noise.webp)` 被视为公共资源不再报警。
@@ -183,7 +183,7 @@ function staticFromSource(): Plugin {
         const pathname = (() => { try { return decodeURIComponent(raw) } catch { return raw } })()
         const hit = MIRRORS.find((m) => pathname.startsWith(m.url))
         if (!hit) return next()
-        // 反斜杠归一后再判 ..：原实现按 / 切分，Windows 上 ..%5C..%5C 会整段躲过（2026-09-18 实测漏洞）
+        // 反斜杠归一后再判 ..：不归一时，Windows 上 ..%5C..%5C 会整段躲过
         const guarded = safeRelPath(pathname)
         if (guarded === null || !('/' + guarded).startsWith(hit.url)) return next()
         const rel = guarded.slice(hit.url.length - 1)

@@ -27,7 +27,7 @@ export default function SiteFooter() {
   }
   const sec = sectionById(site, 'footer')
   const f = site.footer
-  // 脚页进场（2026-10-09）：把整个脚页当一个动效对象，隐藏态/补间/阶梯全在 tokens.css 的「脚页进场」段。
+  // 脚页进场：把整个脚页当一个动效对象，隐藏态/补间/阶梯全在 tokens.css 的「脚页进场」段。
   // rootMargin 下边收 20%：等脚页真探进画面一段再开演，别刚露个边就把底下看不见的那半也演完。
   // threshold 取 0：脚页比视口还高，比例阈值一大就永远凑不满（同 Section 的那条注记）。
   // ★为什么不跟技能栏一样要 inViewAtMount:'animate'：实测五条路由挂载时脚页 top 在 1468–5169（视口 900），
@@ -51,7 +51,6 @@ export default function SiteFooter() {
   return (
     <footer ref={footRef} id={sec?.id ?? 'footer'} data-revealed={revealed ? 'true' : 'false'} className={`site-foot${isHomeSection ? ' as-section' : ''}`}>
       <div className="foot">
-        {/* 2026-09-24 用户令：页头两枚按钮（查看详细 → / 联系我 →）整体移除，页头只剩题头 */}
         <header className="foot-head">
           <div>
             {sec?.en ? <small>{sec.en}</small> : null}
@@ -64,7 +63,7 @@ export default function SiteFooter() {
             if (col.id === 'brand') {
               return (
                 <div key={col.id} className="fcol fcol-brand">
-                  {/* 大印＝回本页顶部（2026-09-24 用户令；原为 mailto 写信，邮箱仍住在「联系」栏） */}
+                  {/* 大印＝回本页顶部（邮箱在「联系」栏） */}
                   <button type="button" className="foot-brand" onClick={scrollTop} title={site.a11y.seal_top_hint} aria-label={site.a11y.seal_top_hint}>
                     <Seal variant="foot" />
                   </button>

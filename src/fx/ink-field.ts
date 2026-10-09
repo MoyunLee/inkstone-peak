@@ -26,7 +26,7 @@ interface Slash {
 // 启动时机由调用方掌握：sections/Hero 在首屏 LCP 之后再动态 import 本模块并调用 createInkField，
 // 以免这里 4s 量级的主线程开销挤占 LCP 窗口。本模块只保证「被调用即初始化」，
 // 内部的静止模式判断与 rAF 生命周期不因推迟而改变。
-// opts.still ＝ 调用方指定的**静止模式**（平板端只保留静态水墨，2026-10-08 用户令）：与
+// opts.still ＝ 调用方指定的**静止模式**（平板端只保留静态水墨）：与
 // prefers-reduced-motion 走同一条内部路径——建场后只成画一帧，不启动 rAF，也不挂指针事件
 // （悬停散开与剑气是动效的全部来源，静止档下它们连监听器都不存在）。
 export function createInkField(canvas: HTMLCanvasElement, opts?: { still?: boolean }): () => void {
@@ -216,7 +216,7 @@ export function createInkField(canvas: HTMLCanvasElement, opts?: { still?: boole
   // 视口坐标 → 画布位图坐标（**唯一换算处**）。
   // 画布虽由 fit() 定成「视口尺寸」，却挂在山门段里随文档滚动（position:absolute）——
   // 直接拿 clientX/clientY 当画布坐标，滚动后散开中心会顶到指针上方整整一个 scrollY
-  // （2026-09-19 实测：scrollY=260 时散开中心偏高 254px）。
+  // （实测：scrollY=260 时散开中心偏高 254px）。
   const toLocal = (cx: number, cy: number): void => {
     const r = canvas.getBoundingClientRect()
     mx = (cx - r.left) * (r.width > 0 ? canvas.width / r.width : 1)
@@ -255,7 +255,7 @@ export function createInkField(canvas: HTMLCanvasElement, opts?: { still?: boole
     slashLeft--
     slashReadyAt = performance.now() + 2000 // 限 3 次/页、冷却 2s
     toLocal(e.clientX, e.clientY)
-    // 剑气方向 = 指针**划动方向**（原实现取「上一帧坐标 − 当前坐标」，两值几乎相同 ⇒ 恒为竖直扫过，2026-09-19 实测比值 0.84）；
+    // 剑气方向 = 指针**划动方向**（原实现取「上一帧坐标 − 当前坐标」，两值几乎相同 ⇒ 恒为竖直扫过，实测比值 0.84）；
     // 原地点击无位移时回落竖直下扫，保持原手感。
     const sweep = Math.hypot(pvx, pvy) > 1 ? Math.atan2(pvy, pvx) : Math.PI / 2
     slashes.push({ x: mx, y: my, c: Math.cos(sweep), si: Math.sin(sweep), t0: performance.now(), p: 0, e: 1 })

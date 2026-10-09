@@ -1,7 +1,7 @@
 /* /about 技能便当卡「开启创造力」：一整列软件技能，逐条长经验条。
    跨列宽度由调用方给（AboutIntro / pages/About）：/about 独占末行整行、首页「观自」预览整行。
-   2026-09-27 二次定版（用户定）：分类名与分类图标删除、技能名统一为软件名、行尾经验数值删除
-   —— 分组在界面上不再存在，数据层同步拍平（site.yml about.skills），故这里就是一个平列表；
+   分组在界面上不存在（分类名、分类图标与行尾经验数值都不出）
+   —— 数据层已拍平（site.yml about.skills），故这里就是一个平列表；
    经验值只由条长表达，读屏口径留在条自身的 aria-valuenow / aria-valuemax 上。
    LazyMotion 只用来收窄特性集：静态喂 domAnimation（动画 + variants + 退场 + 悬停/点按手势），
    不含 domMax（拖拽 + layout 动画，技能区用不到）。
@@ -21,7 +21,7 @@ export default function SkillBoard({ className = '' }: { className?: string }) {
   const levels = skillLevels(site)
   const expMax = skillExpMax(site)
   // 观察器挂在整张列表上：列表整体进视口即整列一起长，喜好由列表内部的阶梯延迟给。
-  // inViewAtMount:'animate'（2026-10-09 用户令）：本卡在 /about 正好压在首屏内，用默认策略会被判「已在视口」
+  // inViewAtMount:'animate'：本卡在 /about 正好压在首屏内，用默认策略会被判「已在视口」
   // 而直接停在终态——生长就永远不播了（首页「观自」那一份在折下，所以照播）。这一下生长正是本块的看点，
   // 故显式要它；代价是慢网下会先看到满条再清空重长，取舍已记在 useReveal 的 RevealOptions。
   const { ref, revealed } = useReveal<HTMLUListElement>({ inViewAtMount: 'animate' })

@@ -74,7 +74,6 @@ export default function ThemeToggle() {
     focusChecked()
   }, [open])
 
-  // 点块外任何地方收起
   useEffect(() => {
     if (!open) return
     const onPointerDown = (event: PointerEvent): void => {

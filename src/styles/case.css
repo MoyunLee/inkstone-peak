@@ -1,4 +1,4 @@
-/* ---------- 子页公共（/portfolio /about /blog） ---------- */
+/* 子页公共（/portfolio /about /blog） */
 .page-pad {
   padding-top: calc(var(--nav-h) + 8vh);
   padding-bottom: 8vh;
@@ -59,9 +59,9 @@
   font-size: 0.86em;
   letter-spacing: 0.05em;
 }
-/* ── 详情页统一：案例页与文章页共用同一套骨架（.bd-layout / .bd-head / .bd-body / .bd-hero / .post-aside）
+/* 详情页统一：案例页与文章页共用同一套骨架（.bd-layout / .bd-head / .bd-body / .bd-hero / .post-aside）
    ——标题区、顶图槽、元信息、正文栏宽度全在 post.css，案例页在这里只剩嵌入与外链两块的尺度。 ── */
-/* ── C 路线·视频嵌入：16/9 定比容器；用 div 不用 section（全局 section 带首页段落规格）── */
+/* C 路线·视频嵌入：16/9 定比容器；用 div 不用 section（全局 section 带首页段落规格） */
 .embeds {
   max-width: var(--prose-max);
   margin-top: 34px;

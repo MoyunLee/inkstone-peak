@@ -1,4 +1,4 @@
-/* ---------- 预渲染交接 ----------
+/* 预渲染交接
    #prerender 是构建期 SSR 写进 HTML 的正文：首帧、无 JS、爬虫都靠它。
    #root 一旦非空（React 首次提交完成），同一帧内隐去预渲染块，随后由 DropPrerender 从 DOM 摘除——
    两者内容同源（同一批组件渲染），故交接不可见，也不会出现双份内容。 */
@@ -6,7 +6,7 @@
   display: none;
 }
 
-/* ---------- 跳转正文（a11y） ----------
+/* 跳转正文（a11y）
    默认移出视口：鼠标用户看不见，Tab 第一下到达时浮到左上角。目标 = 各页 <main id="main-content">。 */
 .skip-link {
   position: absolute;
@@ -29,7 +29,7 @@
   outline-offset: 2px;
 }
 
-/* ---------- 视觉隐藏（a11y） ----------
+/* 视觉隐藏（a11y）
    只该给读屏与爬虫的标题/标签：移出布局与视口，但仍在可访问树里（不占位、不参与栅格）。
    与 .skip-link 的分工：那个是"聚焦时浮出来"的链接，这个永远不显示。
    ★别借 .vh 干这事——它住在 embed.css，是视频/嵌入顶图槽的定比壳（可见的），名字只是像。 */
@@ -45,7 +45,7 @@
   white-space: nowrap;
 }
 
-/* ---------- 顶栏 ---------- */
+/* 顶栏 */
 .topbar {
   position: fixed;
   inset: 0 0 auto 0;
@@ -147,7 +147,7 @@
   background: var(--seal);
 }
 
-/* ---------- 右侧题签（首页专属：只在 '/' 挂载，子页 DOM 无 .side-tabs） ---------- */
+/* 右侧题签（首页专属：只在 '/' 挂载，子页 DOM 无 .side-tabs） */
 .side-tabs {
   position: fixed;
   right: clamp(10px, 2.2vw, 28px);
@@ -202,7 +202,7 @@
   }
 }
 
-/* ---------- 无 JS 降级底图（index.html 的 <noscript> 里那张 hero-base.png） ----------
+/* 无 JS 降级底图（index.html 的 <noscript> 里那张 hero-base.png）
    原先这些定位/混合模式写在内联 style 上，深色下 multiply 会把整块压成黑；搬到这里才能用媒体查询兜底。
    无 JS 时 <html> 上没有 data-theme（引导脚本也没跑），所以深色只能按 prefers-color-scheme 判——
    该 PNG 是「深墨 + alpha」，反相后即浅墨，再用 screen 叠到暗纸上，山形才留得住。 */
@@ -220,7 +220,7 @@
     filter: invert(1);
   }
 }
-/* 手机端不出水墨（2026-10-08 用户令）：无 JS 降级底图与 #ink 同口径隐藏（见 hero.css 那条），
+/* 手机端不出水墨：无 JS 降级底图与 #ink 同口径隐藏（见 hero.css 那条），
    免得「手机端没有水墨」在关掉 JS 的设备上破例。无 JS 的手机端山门仍由预渲染正文（标题 + CTA）撑住，
    平板与桌面（含横屏平板 1024×768）照常出这张预烘图。 */
 @media (pointer: coarse) and (max-width: 639.98px), (pointer: coarse) and (max-height: 639.98px) {

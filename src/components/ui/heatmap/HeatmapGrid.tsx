@@ -6,7 +6,7 @@ import type { HeatCol } from './useHeatmapData'
  *
  * 方块只作视觉编码，合计由标题与 aria-label 承载，故整图 aria-hidden（读屏不会逐格朗读）。
  *
- * 生长进画（2026-10-09）：每周外包一层 `.heat-col`（display:contents，不生成盒子）只为挂 `--heat-i`，
+ * 生长进画：每周外包一层 `.heat-col`（display:contents，不生成盒子）只为挂 `--heat-i`，
  * 行列错开的补间住 heat.css；触发权在 index.tsx 的 useReveal，属性在段根上。
  *
  * @param cols 列模型，每列 7 天。

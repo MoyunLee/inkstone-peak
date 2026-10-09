@@ -41,7 +41,7 @@ function pickImage(target: EventTarget | null): HTMLImageElement | null {
 }
 
 /**
- * 点图放大层（2026-09-23 新功能：用户令「点图片能像图库那样单独看这张照片」）。
+ * 点图放大层：点图片能像图库那样单独看这张照片。
  *
  * 挂在应用根（routes.tsx），用**委托**监听 document 的 click：正文是构建期直出的 HTML
  * （PostBody 的 dangerouslySetInnerHTML），React 不认识那些 <img>，事件委托是唯一能覆盖全站的一处。

@@ -1,4 +1,4 @@
-// 构建期日志（2026-09-17 第三～五轮输出治理）：
+// 构建期日志：
 //   默认 → 仿 `hexo g` 的构建报告：横幅 · INFO Start processing · INFO Files loaded in … ·
 //          逐产物 INFO Generated: … · INFO N files generated in …
 //   BUILD_QUIET=1         → 成功零输出（沉默即健康）；拦截 / 内容 ⚠ / 素材提醒照旧出声。

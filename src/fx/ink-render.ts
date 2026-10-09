@@ -1,13 +1,10 @@
 // Hero 粒子水墨的渲染层：优先 WebGL2 实例化，取不到就**原样退回** Canvas2D 逐粒子 drawImage。
-//
-// 为什么单独立这一层（2026-10-05 实测）：Canvas2D 路径每帧要发 6500 次 drawImage、每粒子改一次 globalAlpha，
+// 为什么单独立这一层（实测）：Canvas2D 路径每帧要发 6500 次 drawImage、每粒子改一次 globalAlpha，
 // 4x CPU 节流下主线程忙 101%、rAF 只剩 13fps；更要紧的是**指针离场后与静置时的开销完全一样** ——
 // 它是常驻空转，不是交互开销。实例化渲染把同样这 6500 个精灵合成**一次** draw call。
-//
 // 画面一致性靠「预乘混合」对齐：Canvas2D 的 globalAlpha 作用于源色（画布内部即预乘存储），
 // 故 WebGL 侧同样用 UNPACK_PREMULTIPLY_ALPHA_WEBGL + blendFunc(ONE, ONE_MINUS_SRC_ALPHA)，
 // 片元只把采样值乘 alpha —— 两边是逐项同一个合成公式，残差只来自缩放采样滤镜。
-//
 // 回退是硬要求：探针失败（无 WebGL2 / 上下文被策略禁用 / 着色器编译不过）必须还能画。
 // 探针刻意跑在**弃用画布**上：同一张 canvas 一旦拿到 webgl2 上下文就再也拿不到 2d 上下文，
 // 所以必须在碰真画布之前把后端定死。走哪条路落在 canvas.dataset.inkBackend 上，供核验读取。
@@ -184,7 +181,6 @@ function compile(gl: WebGL2RenderingContext): GlCore | null {
     return null
   }
   gl.bindVertexArray(c.vao)
-  // 每个实例的四个角
   gl.bindBuffer(gl.ARRAY_BUFFER, c.cornerBuf)
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0, 0, 1, 0, 0, 1, 1, 1]), gl.STATIC_DRAW)
   gl.enableVertexAttribArray(c.aCorner)

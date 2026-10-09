@@ -1,8 +1,7 @@
 // 第三方嵌入 iframe 的属性母版（**唯一家**）：构建期正文渲染（scripts/content/paths.ts）与运行层 JSX
 // （components/ui/article/articleRecipe.tsx）共用同一份——权限属性一旦长在两处，收口就名存实亡。
 // 它不是数据源（数据是 .content/posts.json），只是「嵌入长什么样」的唯一事实源，故与 content.ts 同目录放着。
-//
-// ★2026-09-23 撤 sandbox（用户报「移动端视频一律播不了」）：
+// ★撤 sandbox（移动端视频一律播不了）：
 //   WebKit 的 MSE 在带 sandbox 的 iframe 里被误挡（bugs.webkit.org 252755，状态仍是 NEW，Safari 桌面/iPad 均可复现），
 //   而 B 站这类播放器靠 MediaSource + blob: 起播——于是同一个嵌入「电脑能放、手机（Safari/WebKit）不能放」。
 //   旧值 sandbox=allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox

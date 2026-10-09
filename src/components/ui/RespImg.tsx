@@ -1,7 +1,7 @@
 import { srcSetOf } from '../../lib/data/images'
 
 /**
- * 响应式图（2026-09-26）：全站 `<img>` 的唯一出口。
+ * 响应式图：全站 `<img>` 的唯一出口。
  *
  * `srcSet` 由构建期清单（.content/images.json）给——母版一张，交付时按需多档；
  * `sizes` 由调用方按**容器几何**给（口径住 src/lib/data/images.ts 的 HERO_SIZES / CARD_SIZES_2 / CARD_SIZES_3）。
@@ -13,7 +13,7 @@ import { srcSetOf } from '../../lib/data/images'
  * @param src 交付地址（front-matter 归一后的 cover / top_img / video.poster）。
  * @param sizes 容器几何口径。
  * @param className 皮肤类名。
- * @param alt 文本替代的口径（2026-10-03 定，见 20-设计规范 §8）：图**在带名字的链接里**（卡片 / 轮播）留空——
+ * @param alt 文本替代的口径（见 20-设计规范 §8）：图**在带名字的链接里**（卡片 / 轮播）留空——
  *   名字由链接文字或 `aria-label` 给，免得读屏念两遍；图**独立出现**（详情页顶部槽：`figure.bd-hero` / 嵌入海报 `.em-cover`）
  *   给文章标题。装饰图（占位色块、印章）留空 + `aria-hidden`。
  * @param eager true = 首屏内不延迟（顶图槽）；缺省 lazy（列表卡 / 正文分节）。

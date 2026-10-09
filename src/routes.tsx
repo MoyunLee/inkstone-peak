@@ -20,7 +20,7 @@ const NotFound = lazy(() => import('./pages/NotFound'))
 function ScrollReset() {
   const { pathname, hash } = useLocation()
   const prev = useRef(pathname)
-  // 用 layout 阶段而不是被动 effect（2026-10-09）：换页回顶必须落在新页这一帧里，
+  // 用 layout 阶段而不是被动 effect：换页回顶必须落在新页这一帧里，
   // 被动 effect 排在绘制之后，会先露出「停在上次滚动位置的新页」再跳一下。
   // 同一处顺手开换页进场窗（写 data-nav，样式见 ui.css 的 page-in）：
   // 只写不撤，所以硬加载没有这个属性、首帧永远不播进场，只有 SPA 换页这一次提交才播。
@@ -48,7 +48,7 @@ function DropPrerender() {
  *
  * 路由表与 site.yml 的 nav 派生的页面一一对应；入口在 main.tsx（客户端）与 entry-server.tsx（构建期 SSR）。
  *
- * ★整棵树包在一个 Suspense 边界里，边界内外必须分得清（2026-10-05 代码分割）：
+ * ★整棵树包在一个 Suspense 边界里，边界内外必须分得清：
  *   路由 chunk 到位前边界**什么都不提交** ⇒ #root 保持 :empty ⇒ 壳里的
  *   `#root:not(:empty) ~ #prerender` 不触发，预渲染正文一直可见（与无 JS 时同一观感）。
  *   边界一旦提交，同一帧隐去预渲染块，DropPrerender 再把它摘掉。

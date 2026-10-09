@@ -1,5 +1,5 @@
 // 诊断与报错：字段路径中文化、errors/warnings 收集、zod 结果翻译、构建失败用的错误类型。
-// ── 报错中文化：字段路径 → 中文说明 ─────────────────
+// 报错中文化：字段路径 → 中文说明
 const FIELD_CN: Record<string, string> = {
   site: '站点元信息段', title: '标题', author: '作者', lang: '语言', description: '定位句（只进 meta/OG，不上首页）',
   url: 'URL（site.url=预渲染 canonical 唯一来源；links/embeds 的 url=外部地址）', tagline: '副题（备用字段）',

@@ -1,4 +1,4 @@
-/* 技能卡指针倾斜（2026-10-09 立）：卡面随指针在卡内的相对位置轻微倾倒，移出由弹簧回正。
+/* 技能卡指针倾斜：卡面随指针在卡内的相对位置轻微倾倒，移出由弹簧回正。
    为什么不用 CSS :hover 做：倾斜量是连续量（跟着指针走），CSS 只给得出两个定点；
    为什么用 motion 的 useSpring：站内 motion 已按需加载在这条路由（SkillBoard 的 LazyMotion），
    弹簧的中间帧由 motion 自己的 frameloop 合并写 DOM，不经 React 重渲染、也不进渲染树。
@@ -41,7 +41,7 @@ export function useCardTilt<T extends HTMLElement>() {
     let frame = 0
     let px = 0
     let py = 0
-    // ★基准矩形在进卡那一刻量一次就冻住（2026-10-09 独立复核指出）：aim 里现读 getBoundingClientRect 时，
+    // ★基准矩形在进卡那一刻量一次就冻住：aim 里现读 getBoundingClientRect 时，
     //   本元素的 transform 里已经躺着上一帧写进去的 rotateX/rotateY，而 rect 是**含变换**的包围盒 ——
     //   指针 → 角度 → 变大的矩形 → 角度，成了反馈回路，指针压在角上会持续过冲/发抖。
     //   冻住之后同一次悬停的分母恒定（卡面滚动位移时也不追着改，角度不会因滚动漂移）。

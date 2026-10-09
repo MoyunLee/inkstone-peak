@@ -5,7 +5,7 @@ import { toMediaUrl } from '../paths.ts'
 /** 可空字符串：site.yml 里「不填」与「显式 null」都合法的字段统一用它。 */
 export const urlOrNull = z.union([z.string(), z.null()])
 
-// ── 第三方播放器嵌入白名单 ──
+// 第三方播放器嵌入白名单
 // 新增平台 = 此处加一行 host
 export const EMBED_HOSTS = new Set([
   'player.bilibili.com',

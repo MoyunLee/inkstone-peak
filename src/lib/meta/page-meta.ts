@@ -71,9 +71,8 @@ interface RouteMetaModel {
  *   intro → 该页 module 对应首页段的 intro，缺则回落 site.description
  * 键 = 路由 basename（'/' 记作 ''）。**未列出的新页默认 site**，所以从 nav 新增页面无需改这里。
  * 前置：site.yml 的 page_desc 命中该页时优先（见 pageMeta 内），本表只管「没专写」的页。
- * ★2026-10-03 清理：原先还有第三档 heading（取该段 heading）——它唯一的消费者是独立传音页，
- *   页面一退役即成**不可达分支**，连同表里那一行一起删。要用它：表里加回「键: 'heading'」，
- *   并在 pageMeta 的三元里补回 heading 那一支（经过见 80 该日行）。
+ * ★本表没有 heading 档：要用它，需在表里加回「键: 'heading'」，
+ *   并在 pageMeta 的三元里补回 heading 那一支。
  */
 /** 分享卡默认图（站点根静态件，手工入仓；改图重跑 scripts/og-card.ts）。 */
 const OG_IMAGE = '/og/default.png'

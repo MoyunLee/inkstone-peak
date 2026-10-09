@@ -8,7 +8,7 @@
 //   ⑤ object-src 'none' ⑥ 缓存声明：/assets/* 必须 immutable；/images|media/* 与站点根静态件必须**不是** immutable
 //      （后者逐个点名，缘由见该项处注释——Vercel 对它们的默认值是 max-age=0）
 //   ⑦ 嵌入属性母版（src/lib/data/embed.ts）不许给 iframe 加 sandbox——见该项处的注释
-// 被嵌策略两模式（2026-09-23 用户令：为友链开放被嵌）：
+// 被嵌策略两模式（为友链开放被嵌）：
 //   A 锁死 = frame-ancestors 'none' + X-Frame-Options: DENY
 //   B 可被嵌 = frame-ancestors *（或域名清单）且**不发** X-Frame-Options——发了就自相矛盾：
 //     现代浏览器以 CSP 为准，老浏览器只认 XFO，等于白开。
@@ -73,7 +73,7 @@ else if (/immutable/.test(mediaCache)) fails.push('/images|media/* 不许 immuta
 
 // ⑥ 续：站点根静态件必须**逐个点名**。这批文件内容稳定，但路径不带内容哈希，既落不进 /assets/*（那条要 immutable，
 //   无哈希路径标 immutable 会「换图永远不生效」），也不在 /images|media/* 之下——于是全部吃 Vercel 对静态件的默认值
-//   max-age=0, must-revalidate：每访问一次就要为这 ~70KB 白白协商一轮往返（2026-10-05 生产实测确认）。
+//   max-age=0, must-revalidate：每访问一次就要为这 ~70KB 白白协商一轮往返。
 //   清单与 source/site/ 逐一对账：规则点名的文件必须真的在——文件一改名，规则会**静默**失效（不报错、只是又不缓存了），
 //   这正是要立闸的理由。改动素材后用相同的文件名覆盖即可，规则无需跟着动。
 //   ★刻意**不含** /theme-init.js：它在样式表之前同步执行、属关键路径，必须每次校验；缓存久了会把改版后的引导逻辑挡住。
@@ -102,7 +102,7 @@ if (all.some((h) => h.key === 'Cache-Control' && h.source.includes('theme-init')
 
 // ⑦ 嵌入 iframe 不许带 sandbox（代码里不行；注释里解释原因是可以的）
 // 为什么是硬闸：WebKit 的 MSE 在带 sandbox 的 iframe 里被误挡（bugs.webkit.org 252755，状态 NEW），
-// 而 B 站这类播放器靠 MediaSource + blob: 起播——2026-09-23「移动端视频一律播不了」正是它。
+// 而 B 站这类播放器靠 MediaSource + blob: 起播——「移动端视频一律播不了」正是它。
 // 改回去等于让同一个嵌入「电脑能放、手机不能放」，且不报任何错，只有用户看得出来。
 const embedCode = readFileSync(P('src/lib/data/embed.ts'), 'utf8')
   .split(/\r?\n/)

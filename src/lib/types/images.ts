@@ -11,9 +11,7 @@ export interface ImageVariant {
 export interface ResponsiveImage {
   /** 母版自身的交付地址——**最大一档**（不重编码，故画质与字节都不重复）。 */
   src: string
-  /** 母版原始像素宽。 */
   w: number
-  /** 母版原始像素高。 */
   h: number
   /** 小档候选，按 w 升序；空数组 = 母版已是最小可用档，调用方不必写 srcSet。 */
   variants: ImageVariant[]

@@ -1,4 +1,4 @@
-/* ---------- S1 山门 ---------- */
+/* S1 山门 */
 #home {
   padding: 0;
   display: block;
@@ -21,7 +21,7 @@
   -webkit-mask-composite: source-in;
   mask-composite: intersect;
 }
-/* 手机端不出水墨（2026-10-08 用户令）：判档主责在 Hero.tsx 的 inkMode()，这里是**同口径的 CSS 兜底**
+/* 手机端不出水墨：判档主责在 Hero.tsx 的 inkMode()，这里是**同口径的 CSS 兜底**
    ——口径是「触屏 且 设备短边 <640」，CSS 里只能写成「粗指针 且（宽 <640 或 高 <640）」。必须带
    (pointer: coarse)：否则窄的桌面窗口（≤640px 属平板档、要出静态水墨）会被一起藏掉。
    原先这里只把遮罩收成单层纵向淡出；画布在手机端不再出画，那条 override 再无消费者，随之退役。 */
@@ -110,7 +110,7 @@
   margin-top: clamp(56px, 12vh, 140px);
   flex-wrap: wrap;
 }
-/* ── 首页动态（2026-10-09）──
+/* 首页动态
    ① 云雾视差：时间线取文档滚动的前 100vh，正好是山门出画的那一段；两层雾各滞后不同的量
       （下层 b 滞后更多＝更像远景）。位移刻意走 **translate** 属性而不是 transform：
       transform 已被 drift 占用，两个动画同写 transform 只会有一个赢；
@@ -150,6 +150,6 @@
     translate: 0 30%;
   }
 }
-/* 2026-10-09 用户令「取消掉首页首屏的文字动态效果」：`.hero-line` 的 hero-settle 与 `.hero-cta` 的
-   hero-cta-settle（含两条 @keyframes）整块删除，首屏文字与按钮保持静止。
+/* 首屏文字与按钮保持静止：`.hero-line` / `.hero-cta` 不挂任何进场动画，
+   也不要再加回 hero-settle / hero-cta-settle。
    雾气的滚动视差不受影响——它动的是雾、不是字，规则在上面 @supports 那段里（滚动时间线驱动）。 */

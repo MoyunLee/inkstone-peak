@@ -1,4 +1,4 @@
-/* ---------- .seal-btn 全站唯一墨框按钮族 ---------- */
+/* .seal-btn 全站唯一墨框按钮族 */
 .seal-btn {
   display: inline-flex;
   align-items: center;
@@ -66,7 +66,7 @@
   align-self: center;
 }
 
-/* ---------- 段标题行公共 ---------- */
+/* 段标题行公共 */
 .heading {
   display: flex;
   align-items: baseline;
@@ -91,7 +91,7 @@
   letter-spacing: 0.15em;
 }
 
-/* ---------- 三态外观徽章（浅色 / 深色 / 跟随系统，2026-10-04） ----------
+/* 三态外观徽章（浅色 / 深色 / 跟随系统）
    结构住在 src/components/layout/ThemeToggle.tsx；这里只管皮肤。
    形态：视口**左下角**常驻一枚圆形朱印徽章（印面 --seal + 印文色图标 --seal-fg + 内圈，与 Seal 同一支笔，
    不新增任何色），悬浮 / 聚焦 / 点按即在徽章**上方**展开三枚 44×44 圆选项，选完收起回徽章。
@@ -147,7 +147,7 @@
 .theme-switch[data-open='true'] .theme-panel {
   display: flex;
 }
-/* 悬浮桥（2026-10-04 用户反馈「鼠标无法上移切换模式」）：
+/* 悬浮桥（鼠标无法上移切换模式）：
    面板在徽章上方 10px 处，那 10px 空隙原先不属于任何元素——鼠标从徽章往上移的瞬间，
    指针已落在 .theme-switch 的命中区之外，mouseleave 立刻把面板收掉，选项永远够不着。
    这里用挂在**面板**上的伪元素把空隙填进命中区：它是 .theme-switch 的后代，
@@ -229,7 +229,7 @@
   }
 }
 
-/* ── 内容换页入场（2026-10-09 立，同日复核后重做）──
+/* 内容换页入场
    ★先说被撤掉的那版，免得后人再走一遍：原先走 View Transitions API（`::view-transition-old/new(root)`
    ＋各 `<Link viewTransition>`）。复核查明**这条路在本站是死的**：viewTransition 只在数据路由
    （createBrowserRouter + RouterProvider）里落地，而本站是声明式 <BrowserRouter>（main.tsx）——
@@ -240,7 +240,7 @@
    做法：进场只挂 <main>。data-nav 由 ScrollReset 在**首次换页**时写到 <html>（只写不撤），
    于是硬加载永远没有这个属性、首帧永远不播进场，只有 SPA 换页那一次提交才播。
    顶栏、页脚、题签都在 <main> 之外，保持不动——「内容换、外框不换」正是要的观感。
-   ★播放条件其实是两条（2026-10-09 独立复核）：① <html> 带 data-nav——换页后一直成立；
+   ★播放条件其实是两条：① <html> 带 data-nav——换页后一直成立；
      ② <main> 在本次提交里被重建——这才是变量。于是同组件的兄弟详情页互跳（/blog/a → /blog/b，
      BlogDetail 无 key、React 复用同一 DOM 节点）不会重播；反过来，任何其它原因导致的重挂载都会补播。
      要「每次换页必定播一次」，得给各页的 <main> 加 key={pathname}（今天没加：那会多一处要维护的一致性）。
