@@ -52,6 +52,29 @@
   outline: 2px solid var(--seal); /* 全站唯一朱框 */
   outline-offset: 2px;
 }
+/* 悬停增量（2026-10-09）：卡本体「上浮 + 描边」早在上面（.card:hover），这里只补内里的动静——
+   封面缓推 + 标签提亮。★三条边界：
+     ① 只给真能悬浮的设备（hover:hover + pointer:fine）：触屏会把 tap 合成 hover，效果会粘住不收；
+     ② 缩放**只给封面里的 img**，绝不给 .card 本体——瀑布流行轨跨度由 useMasonry 读
+        getBoundingClientRect（**含 transform**）算出，卡一缩高度就变，行轨跟着算错（tokens.css 第③条）；
+     ③ 标签只改色、不动几何：这一处的语言是「提亮」，不是「弹跳」（也省掉一个会溢出的位移）。 */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .card-cover img {
+    transition: transform var(--t-seal);
+  }
+  .card:hover .card-cover img {
+    transform: scale(1.04);
+  }
+  .card-tags li {
+    transition:
+      color var(--t) var(--ease),
+      border-color var(--t) var(--ease);
+  }
+  .card:hover .card-tags li {
+    color: var(--ink);
+    border-color: color-mix(in srgb, var(--ink-3) 70%, transparent);
+  }
+}
 /* 封面槽：真图与占位色块共用这一块几何（16:9 基准；观山偶数卡的 4:3 在 portfolio.css 覆写）。
    底边发丝线＝封面与卡文的分界，与卡自身的发丝界同一语言。 */
 .card-cover {
@@ -71,17 +94,10 @@
   height: 100%;
   object-fit: cover;
 }
-/* 列表页进场级联（2026-09-16）：与 /about 同一条 rise-in；--i 由 ArticleCard 逐项给（封顶 12）。
-   只挂在 .blog-list 下——首页造境段用的是同一组件，不该跟着动。 */
-.blog-list .card {
-  animation: rise-in 560ms var(--ease) backwards;
-  animation-delay: calc(var(--i, 0) * 50ms);
-}
-@media (prefers-reduced-motion: reduce) {
-  .blog-list .card {
-    animation: none;
-  }
-}
+/* 列表页进场（2026-09-16 挂载级联 → 2026-10-09 改为滚动进场）：
+   原 `animation: rise-in 560ms … backwards` 已删——挂载即播时用户多半还没滚到网格，等于白播
+   （首页造境段当年正因同一理由被排除在动画之外）。
+   现行触发权在网格容器（ArticleGrid 的 .archive）的 data-revealed 上；补间与 --i 阶梯见 tokens.css。 */
 /* 封面占位皮肤（唯一真源）：屏上「色块 + 噪纹」只此一份，观山卡与归档卡共用；
    宽高比等几何由 .card-cover（本片上方）自持；本片晚于它 ⇒ 同权时盖掉 --cover 的浅米底。 */
 .cover-ph {

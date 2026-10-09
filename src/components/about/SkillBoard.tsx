@@ -20,8 +20,11 @@ export default function SkillBoard({ className = '' }: { className?: string }) {
   const b = site.about
   const levels = skillLevels(site)
   const expMax = skillExpMax(site)
-  // 观察器挂在整张列表上：列表整体进视口即整列一起长，喜好由列表内部的阶梯延迟给
-  const { ref, revealed } = useReveal<HTMLUListElement>()
+  // 观察器挂在整张列表上：列表整体进视口即整列一起长，喜好由列表内部的阶梯延迟给。
+  // inViewAtMount:'animate'（2026-10-09 用户令）：本卡在 /about 正好压在首屏内，用默认策略会被判「已在视口」
+  // 而直接停在终态——生长就永远不播了（首页「观自」那一份在折下，所以照播）。这一下生长正是本块的看点，
+  // 故显式要它；代价是慢网下会先看到满条再清空重长，取舍已记在 useReveal 的 RevealOptions。
+  const { ref, revealed } = useReveal<HTMLUListElement>({ inViewAtMount: 'animate' })
   const list = skills(site)
   return (
     <LazyMotion strict features={domAnimation}>

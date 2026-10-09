@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useRef } from 'react'
 import { Route, Routes, useLocation } from 'react-router-dom'
 import { unlockAllNav } from './lib/nav/navlock'
+import { useIsoLayoutEffect } from './lib/hooks/useIsoLayoutEffect'
 import RouteMeta from './components/layout/RouteMeta'
 import Lightbox from './components/ui/Lightbox'
 import ThemeToggle from './components/layout/ThemeToggle'
@@ -19,10 +20,15 @@ const NotFound = lazy(() => import('./pages/NotFound'))
 function ScrollReset() {
   const { pathname, hash } = useLocation()
   const prev = useRef(pathname)
-  useEffect(() => {
+  // 用 layout 阶段而不是被动 effect（2026-10-09）：换页回顶必须落在新页这一帧里，
+  // 被动 effect 排在绘制之后，会先露出「停在上次滚动位置的新页」再跳一下。
+  // 同一处顺手开换页进场窗（写 data-nav，样式见 ui.css 的 page-in）：
+  // 只写不撤，所以硬加载没有这个属性、首帧永远不播进场，只有 SPA 换页这一次提交才播。
+  useIsoLayoutEffect(() => {
     if (prev.current !== pathname) {
       prev.current = pathname
       unlockAllNav()
+      document.documentElement.dataset.nav = '1'
       if (!hash) window.scrollTo(0, 0)
     }
   }, [pathname, hash])

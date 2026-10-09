@@ -32,9 +32,31 @@
 @media (max-width: 640px) {
   .scroll-prog {
     display: block;
+  }
+}
+/* 滚动时间线只在支持的浏览器里挂（2026-10-09 复核修正）：animation-timeline 解析失败时会被整条丢弃，
+   只剩 `animation: prog linear both` —— 没有时长 ⇒ 立刻落到 fill 的终态 scaleX(1)，
+   于是进度条被永久钉成满格，而且 CSS 动画的优先级高于内联样式，ScrollProgress 的 JS 兜底也压不过它。
+   包进 @supports 后层次才分明：支持 ⇒ CSS 时间线驱动；不支持 ⇒ 交给 JS 写内联 transform（见 ScrollProgress.tsx）。
+   ★2026-10-09 独立复核抓出的 blocker：详情页那一份各宽度都显示，动画若也只写在 max-width:640px 里，
+     宽屏就既不走 CSS 时间线、JS 兜底又因「支持即让位」直接 return —— 元素停在 scaleX(0)，
+     等于进度条在它被加进来的那块屏幕上根本不存在。故 post 变体的动画落在媒体查询**外**。 */
+@supports (animation-timeline: scroll()) {
+  @media (max-width: 640px) {
+    .scroll-prog {
+      animation: prog linear both;
+      animation-timeline: scroll();
+    }
+  }
+  .scroll-prog-post {
     animation: prog linear both;
     animation-timeline: scroll();
   }
+}
+/* 详情页进度条（2026-10-09）：各宽度都显示——长正文里进度是有效信息。
+   首页那一份维持窄屏专属（落地页 + 宽屏两侧有固定装饰面板与题签）。 */
+.scroll-prog-post {
+  display: block;
 }
 @keyframes prog {
   from {
@@ -44,8 +66,7 @@
     transform: scaleX(1);
   }
 }
-@supports not (animation-timeline: scroll()) {
-  .scroll-prog {
-    display: none;
-  }
-}
+/* 2026-10-09 撤销了 `@supports not (animation-timeline: scroll()) { display: none }`：那条把进度条在这批
+   浏览器上整个藏掉，而 ScrollProgress 的 JS 兜底正是为它们写的——兜底因此从未显示过任何东西。
+   现在两层自洽：支持 ⇒ CSS 滚动时间线；不支持 ⇒ JS 写内联 transform；无 JS 且不支持 ⇒ 停在 scaleX(0) 不可见。
+   进度条的 scaleX 走 transform 通道：它不是进场元素，与 tokens.css 的 translate 通道互不干扰。 */

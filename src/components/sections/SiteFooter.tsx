@@ -4,6 +4,7 @@ import type { CSSProperties, MouseEvent } from 'react'
 import Seal from '../ui/Seal'
 import { pathOf } from '../../lib/nav/nav-sync'
 import { useMotionSafe } from '../../lib/hooks/useMotionSafe'
+import { useReveal } from '../../lib/hooks/useReveal'
 import { sectionById, useSite } from '../../lib/data/site'
 import type { SiteLink, SocialLink } from '../../lib/types/site'
 
@@ -26,6 +27,13 @@ export default function SiteFooter() {
   }
   const sec = sectionById(site, 'footer')
   const f = site.footer
+  // 脚页进场（2026-10-09）：把整个脚页当一个动效对象，隐藏态/补间/阶梯全在 tokens.css 的「脚页进场」段。
+  // rootMargin 下边收 20%：等脚页真探进画面一段再开演，别刚露个边就把底下看不见的那半也演完。
+  // threshold 取 0：脚页比视口还高，比例阈值一大就永远凑不满（同 Section 的那条注记）。
+  // ★为什么不跟技能栏一样要 inViewAtMount:'animate'：实测五条路由挂载时脚页 top 在 1468–5169（视口 900），
+  //   最短的 /blog 也整段在折下 —— 一律走滚动触发，用默认 'stay' 就够，且真遇到"首屏就看得见"的短页时
+  //   它会停在终态不闪（这才是 'stay' 该干的活）。
+  const { ref: footRef, revealed } = useReveal<HTMLElement>({ rootMargin: '0px 0px -20% 0px', threshold: 0 })
   const socialText = (s: SocialLink): string => {
     const v = s.value ?? s.pending
     return v ? `${s.platform} · ${v}` : s.platform
@@ -41,7 +49,7 @@ export default function SiteFooter() {
       }),
   ]
   return (
-    <footer id={sec?.id ?? 'footer'} className={`site-foot${isHomeSection ? ' as-section' : ''}`}>
+    <footer ref={footRef} id={sec?.id ?? 'footer'} data-revealed={revealed ? 'true' : 'false'} className={`site-foot${isHomeSection ? ' as-section' : ''}`}>
       <div className="foot">
         {/* 2026-09-24 用户令：页头两枚按钮（查看详细 → / 联系我 →）整体移除，页头只剩题头 */}
         <header className="foot-head">
@@ -69,10 +77,10 @@ export default function SiteFooter() {
                 <nav key={col.id} className="fcol" aria-label={col.title ?? undefined}>
                   {col.title ? <h3>{col.title}</h3> : null}
                   <ul>
-                    {site.nav.map((n) => {
+                    {site.nav.map((n, i) => {
                       const onThisPage = pathOf(n.route ?? '/') === pathname
                       return (
-                        <li key={n.ink}>
+                        <li key={n.ink} style={{ ['--i']: i } as CSSProperties}>
                           <Link
                             to={n.route ?? '/'}
                             onClick={onThisPage ? scrollTop : undefined}
@@ -91,9 +99,9 @@ export default function SiteFooter() {
                 <div key={col.id} className="fcol">
                   {col.title ? <h3>{col.title}</h3> : null}
                   <ul>
-                    {social.map(({ key, text, url }) => {
+                    {social.map(({ key, text, url }, i) => {
                       return (
-                        <li key={key}>
+                        <li key={key} style={{ ['--i']: i } as CSSProperties}>
                           {url ? (
                             <a href={url} target={url.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer">
                               {text}
@@ -113,16 +121,16 @@ export default function SiteFooter() {
               <nav key={col.id} className="fcol" aria-label={col.title ?? undefined}>
                 {col.title ? <h3>{col.title}</h3> : null}
                 <ul>
-                  {(links ?? []).map((l) => {
+                  {(links ?? []).map((l, i) => {
                     const onThisPage = pathOf(l.to) === pathname
                     return isInternalPath(l.to) ? (
-                      <li key={l.label}>
+                      <li key={l.label} style={{ ['--i']: i } as CSSProperties}>
                         <Link to={l.to} onClick={onThisPage ? scrollTop : undefined}>
                           {l.label}
                         </Link>
                       </li>
                     ) : (
-                      <li key={l.label}>
+                      <li key={l.label} style={{ ['--i']: i } as CSSProperties}>
                         <a href={l.to} target={l.to.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer">
                           {l.label}
                         </a>

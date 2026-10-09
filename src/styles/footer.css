@@ -111,7 +111,19 @@
   transform: rotate(-4deg); /* JS 轻震关键帧写死此角，不得改 */
   cursor: pointer;
 }
+/* 悬停＝揭印（2026-10-09 用户令）：印从纸上轻轻揭起、纸面落一道浅影；按下再压回去（见下面 :active）。
+   ★只走独立的 translate / filter 两条通道：transform 上钉着 rotate(-4deg)（JS 轻震也写这个角），
+     动 transform 会跟那两处打架。取 drop-shadow 而不是 box-shadow：它贴的是形状，
+     崩口那道不规则的边因此也照得出来，不是给印章套个矩形影子。
+   ★只挂真能悬浮的指针：触屏上 :hover 会粘在最后一次点按处，印会一直悬着。 */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .big-seal:hover {
+    translate: 0 -6px;
+    filter: drop-shadow(0 5px 7px color-mix(in srgb, var(--ink) 24%, transparent));
+  }
+}
 .big-seal:active {
+  translate: 0 0;
   transform: rotate(-4deg) scale(0.94);
 }
 .foot-bio {

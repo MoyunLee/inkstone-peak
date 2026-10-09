@@ -23,17 +23,9 @@
 .portfolio .card:nth-child(even) .card-cover {
   aspect-ratio: 4/3;
 }
-/* 列表页进场级联（2026-09-16）：与 /blog、/about 同一条 rise-in；--i 由 ArticleCard 逐项给（封顶 12）。
-   只挂在 .portfolio-list 下——首页观山段用的是同一组件，不该跟着动。 */
-.portfolio-list .card {
-  animation: rise-in 560ms var(--ease) backwards;
-  animation-delay: calc(var(--i, 0) * 50ms);
-}
-@media (prefers-reduced-motion: reduce) {
-  .portfolio-list .card {
-    animation: none;
-  }
-}
+/* 列表页进场（2026-09-16 挂载级联 → 2026-10-09 改为滚动进场）：
+   原 `animation: rise-in … backwards` 已删——理由同 arc.css（挂载即播时用户还没滚到网格）。
+   现行触发权在网格容器（CaseGrid 的 .portfolio）的 data-revealed 上；补间与 --i 阶梯见 tokens.css。 */
 .portfolio-page {
   gap: clamp(20px, 2.6vw, 44px);
 }

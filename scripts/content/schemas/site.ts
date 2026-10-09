@@ -189,6 +189,7 @@ export const siteSchema = z.object({
     columns: z.array(z.object({ id: z.string(), title: urlOrNull.optional(), from: z.string().optional(), links: z.array(linkShape).optional() }).strict()),
     brand_bio: z.string().optional(),   // 2026-09-23 转可选：栏1 只留印章时整键省（缺省即隐藏）
     email_label: z.string().optional(),  // 「联系」栏邮箱行的前缀标签（本站「邮箱」）；缺省＝裸地址
+    tab_label: z.string().optional(),    // 2026-10-09：侧栏题签里那条「直达脚页」的题签名；缺省＝该条不出现
     seal_text: z.string(),
     copyright: z.string(),
     demo_note: z.string().optional(),

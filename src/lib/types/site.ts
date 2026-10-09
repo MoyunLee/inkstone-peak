@@ -155,6 +155,8 @@ export interface SiteData {
     brand_bio?: string
     /** 「联系」栏邮箱行的前缀标签（如「邮箱」）；可省＝裸地址。 */
     email_label?: string
+    /** 侧栏题签里那条「直达脚页」的题签名（如「传音」）；可省（缺省＝该条不出现）。 */
+    tab_label?: string
     seal_text: string
     copyright: string
     demo_note?: string

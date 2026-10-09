@@ -3,6 +3,7 @@ import type { MouseEvent } from 'react'
 import { fill, useHeatmapData } from './useHeatmapData'
 import type { HeatItem } from './useHeatmapData'
 import type { HeatmapLabels } from '../../../lib/types/site'
+import { useReveal } from '../../../lib/hooks/useReveal'
 import { HeatmapGrid } from './HeatmapGrid'
 import { HeatmapTooltip } from './HeatmapTooltip'
 import type { HeatTip } from './HeatmapTooltip'
@@ -14,6 +15,10 @@ export type { HeatItem } from './useHeatmapData'
  *
  * 只读 props：组件不 import content / site 数据，喂 items + labels 即可复用。
  * 悬浮提示只对「年内已过日」出，未来日与跨年留白日不出。
+ *
+ * 生长进画（2026-10-09）：触发权交给站内 useReveal（唯一写入方），属性挂在本段根节点上，
+ * 补间与逐列错开全住 heat.css —— 首屏就在视口内的热力图（/blog 归档页）直接停在终态、不重播不闪。
+ * threshold 给 0 的理由同 Section / ArticleGrid：本段随年份页签与列数增长，比例阈值会被稀释。
  *
  * @param items 原始条目（date 需 YYYY-MM-DD，count 为当日数量）。
  * @param labels 全部可见文案（唯一家 = site.yml 的 heatmap 段）。
@@ -40,8 +45,17 @@ export default function Heatmap({
   const tipRef = useRef<HTMLDivElement | null>(null)
   const [tip, setTip] = useState<HeatTip | null>(null)
   const { years, activeYear, setPicked, model } = useHeatmapData({ items, labels, years: yearsProp, defaultYear })
+  // 生长进画的触发点：整段（题头 + 年份签 + 网格）探进视口才算数；reduced-motion 下 useReveal 恒停终态
+  const { ref: revealRef, revealed } = useReveal<HTMLElement>({ rootMargin: '0px 0px -12% 0px', threshold: 0 })
 
   const onOver = (e: MouseEvent<HTMLDivElement>): void => {
+    // 生长途中（约 1s）一律不出提示：那时格子的 rect 还带着缩小 0.7 / 下移 4px 的变换，
+    // 而提示锚点正是拿 rect 算的（下面的 cell − body），会浮在缩水的格子上；
+    // 且 opacity:0 不挡指针事件，这段窗口里格子照样可悬停 —— 详见 heat.css 第三条铁律的更正。
+    if (!revealed) {
+      if (tip) setTip(null)
+      return
+    }
     const el = (e.target as HTMLElement).closest<HTMLElement>('[data-heat-day]')
     const body = bodyRef.current
     // 只有「年内已过日」出提示：未来日与跨年溢出日一律不出
@@ -67,8 +81,10 @@ export default function Heatmap({
 
   return (
     <section
+      ref={revealRef}
       className={`heat${className !== '' ? ' ' + className : ''}`}
       data-cols={String(model.colsCount)}
+      data-revealed={revealed ? 'true' : 'false'}
       aria-label={labels.region_label}
     >
       <div className="heat-head">

@@ -110,3 +110,46 @@
   margin-top: clamp(56px, 12vh, 140px);
   flex-wrap: wrap;
 }
+/* ── 首页动态（2026-10-09）──
+   ① 云雾视差：时间线取文档滚动的前 100vh，正好是山门出画的那一段；两层雾各滞后不同的量
+      （下层 b 滞后更多＝更像远景）。位移刻意走 **translate** 属性而不是 transform：
+      transform 已被 drift 占用，两个动画同写 transform 只会有一个赢；
+      translate 与 transform 是两条独立通道，可叠加（这是本项能成立的关键）。
+      @supports 之外整段无效——不支持滚动时间线的浏览器照旧只有漂移与呼吸。
+   ② 山门落定：只给位移、**不给透明度**。首屏这一块不做任何隐藏——
+      字从第一帧就画在纸上（LCP 判的是「何时画出来」，用 opacity/clip-path 起手
+      等于把首屏最大的一块推迟到动画结束才算画完）；位移不改可见性，观感是「墨迹落定」。
+      这也是本站的取舍线：折下可以隐藏后展开（useReveal），折上一律只许位移。 */
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .mist.a {
+      animation:
+        drift 64s linear infinite alternate,
+        breathe 8s ease-in-out infinite alternate,
+        mist-lag-a linear both;
+      animation-timeline: auto, auto, scroll();
+      animation-range: normal, normal, 0 100vh;
+    }
+    .mist.b {
+      animation:
+        drift 92s linear infinite alternate-reverse,
+        breathe 8s ease-in-out infinite alternate-reverse,
+        mist-lag-b linear both;
+      animation-timeline: auto, auto, scroll();
+      animation-range: normal, normal, 0 100vh;
+    }
+  }
+}
+@keyframes mist-lag-a {
+  to {
+    translate: 0 16%;
+  }
+}
+@keyframes mist-lag-b {
+  to {
+    translate: 0 30%;
+  }
+}
+/* 2026-10-09 用户令「取消掉首页首屏的文字动态效果」：`.hero-line` 的 hero-settle 与 `.hero-cta` 的
+   hero-cta-settle（含两条 @keyframes）整块删除，首屏文字与按钮保持静止。
+   雾气的滚动视差不受影响——它动的是雾、不是字，规则在上面 @supports 那段里（滚动时间线驱动）。 */

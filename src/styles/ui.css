@@ -229,4 +229,40 @@
   }
 }
 
+/* ── 内容换页入场（2026-10-09 立，同日复核后重做）──
+   ★先说被撤掉的那版，免得后人再走一遍：原先走 View Transitions API（`::view-transition-old/new(root)`
+   ＋各 `<Link viewTransition>`）。复核查明**这条路在本站是死的**：viewTransition 只在数据路由
+   （createBrowserRouter + RouterProvider）里落地，而本站是声明式 <BrowserRouter>（main.tsx）——
+   Link 把选项透传给 useNavigate 后被 history 丢掉，全包内 document.startViewTransition 只出现在
+   RouterProvider 分支。声明的路由表是本站预渲染契约的支点（见 routes.tsx 的 Suspense 注释），
+   不为一次过渡换路由器，故改成下面这条不依赖该 API 的做法。
+
+   做法：进场只挂 <main>。data-nav 由 ScrollReset 在**首次换页**时写到 <html>（只写不撤），
+   于是硬加载永远没有这个属性、首帧永远不播进场，只有 SPA 换页那一次提交才播。
+   顶栏、页脚、题签都在 <main> 之外，保持不动——「内容换、外框不换」正是要的观感。
+   ★播放条件其实是两条（2026-10-09 独立复核）：① <html> 带 data-nav——换页后一直成立；
+     ② <main> 在本次提交里被重建——这才是变量。于是同组件的兄弟详情页互跳（/blog/a → /blog/b，
+     BlogDetail 无 key、React 复用同一 DOM 节点）不会重播；反过来，任何其它原因导致的重挂载都会补播。
+     要「每次换页必定播一次」，得给各页的 <main> 加 key={pathname}（今天没加：那会多一处要维护的一致性）。
+   ★from 的 opacity:0 只落在 SPA 换页这一帧：硬加载与预渲染首帧从不进这段，故 LCP 与
+     「折上只许位移」那条铁律都不受影响；换页时它是刻意的整块淡入，与 reveal 契约的「折上」是两件事。
+   ★fill 用 backwards 而不是 both：both 会把收尾的 `translate: 0 0` 永久钉在 <main> 上，
+     而**任何非 none 的 translate 都会给 position:fixed 后代当包含块**（同 routes.tsx 里
+     顶栏 backdrop-filter 那条注记的坑）。本案 <main> 内当前没有 fixed 后代，但不留这个雷。 */
+@media (prefers-reduced-motion: no-preference) {
+  html[data-nav] main {
+    animation: page-in 300ms var(--ease) backwards;
+  }
+}
+@keyframes page-in {
+  from {
+    opacity: 0;
+    translate: 0 8px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
 

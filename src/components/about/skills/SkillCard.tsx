@@ -3,13 +3,16 @@
    动效引擎 = motion（framer-motion 13 的现行包名）；「何时动」仍由父级 useReveal 的观察器决定。
    为什么不直接用 framer 的 whileInView：本站是预渲染站，静态 HTML 就是交付物本身（无 JS / 爬虫 /
    截图都得看到满条满数真值），而 framer 的 initial 会把「起点」写进静态 HTML。于是分工为：
-   触发留在自己的观察器（可保住预渲染真值 + 绘制前归零），怎么动全部交给 Framer。 */
+   触发留在自己的观察器（可保住预渲染真值 + 绘制前归零），怎么动全部交给 Framer。
+   指针倾斜（2026-10-09 立）：卡面跟着指针轻倒 ±6°，移出由弹簧回正 —— 只在真能悬浮的指针上挂（判据与
+   实现住 useCardTilt.ts），静态 HTML 里既不写角度也不需要 JS 才能读：无 JS 就是一张端正的卡。 */
 import { animate, m, useMotionValue, useTransform } from 'motion/react'
 import { useEffect } from 'react'
 import type { Skill } from '../../../lib/data/about'
 import { useIsoLayoutEffect } from '../../../lib/hooks/useIsoLayoutEffect'
 import { useMotionSafe } from '../../../lib/hooks/useMotionSafe'
 import { skillIcon } from './skillIcon'
+import { useCardTilt } from './useCardTilt'
 
 /** 同组相邻两卡的进场步长（秒）：阶梯只此一处，不再往 CSS 传 --i 变量。 */
 const STAGGER_S = 0.045
@@ -24,6 +27,8 @@ const HIDDEN = { opacity: 0, y: RISE }
 const SHOWN = { opacity: 1, y: 0 }
 /** 悬停上浮位移（px）：原 CSS :hover 已交给 Framer，因为 Framer 写的 inline transform 会压死 CSS hover。 */
 const HOVER_LIFT = -4
+/** 倾斜的透视距离（px，2026-10-09）：近侧放大、远侧缩小的强度由它定；越短越"近"，700 是「轻微」一档。 */
+const PERSPECTIVE = 700
 
 interface SkillCardProps {
   skill: Skill
@@ -44,6 +49,9 @@ export default function SkillCard({ skill, levelName, expMax, index, revealed }:
   const reduce = useMotionSafe()
   // 行首方章的图标：文件式（source/site/skill/ 里的图，mask 取形状、颜色由 CSS 给）或兜底字形
   const icon = skillIcon(skill.icon)
+  // 指针倾斜（2026-10-09）：角度链一律住 useCardTilt —— 真能悬浮的指针且非 reduced-motion 才挂监听。
+  // 键盘用户完全不经过这条链：只多一个 ref 与两个 rotate 值，不动 tab 顺序、不加焦点、不吃按键。
+  const { ref: tiltRef, rotateX, rotateY } = useCardTilt<HTMLLIElement>()
   // 初值＝终值：服务端渲染出的静态 HTML 直接是真数真条（不是 0）
   const exp = useMotionValue(skill.exp)
   // 条宽由 MotionValue 推导，Framer 自己写 inline style，不经 React 每帧重渲染
@@ -74,6 +82,7 @@ export default function SkillCard({ skill, levelName, expMax, index, revealed }:
 
   return (
     <m.li
+      ref={tiltRef}
       className="skill-card"
       data-level={skill.level}
       initial={false}
@@ -85,6 +94,9 @@ export default function SkillCard({ skill, levelName, expMax, index, revealed }:
         y: { duration: revealed ? 0.28 : 0, ease: EASE, delay: revealed ? delay : 0 },
       }}
       whileHover={{ y: HOVER_LIFT, transition: { duration: 0.16, ease: EASE } }}
+      // perspective 必须排在最前（motion 的 transform 次序就是这样），否则近大远小会变成纯水平压扁；
+      // 三点静止时 rotate 皆为 0，motion 会跳过 0 值 —— 预渲染 HTML 里因此只有这层 perspective，没有角度。
+      style={{ rotateX, rotateY, transformPerspective: PERSPECTIVE }}
     >
       <div className="skill-card-head">
         {/* 图标：纯装饰（名字就在右侧），故整块 aria-hidden。文件式用 mask 上墨色（所以丢彩色 Logo 进来也是墨色），

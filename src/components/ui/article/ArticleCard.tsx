@@ -19,7 +19,7 @@ export const COVER_TONES = 5
  *
  * @param entry 文章事实（作品 / 博文同一契约）。
  * @param sizes 封面容器几何口径（CARD_SIZES_2 / CARD_SIZES_3）——卡片几何归容器，故由网格组件给。
- * @param index 列表序号 → 挂成 --i，供列表页进场级联的阶梯延迟；首页各段不挂该 CSS，故无副作用。
+ * @param index 列表序号 → 挂成 --i，供进场级联的阶梯延迟（阶梯表在 tokens.css 的「滚动进场契约」，首页各段同样吃这一条）。
  * @param tone 无封面时的色块档位（0..COVER_TONES-1）。
  * @param tagsMax 标签上限；0 或省略 = 不限。
  * @param workTag 作品的中文标签（唯一家 = site.yml blog.work_tag）；只在归档网格里传。
@@ -38,7 +38,7 @@ export default function ArticleCard({
   entry: ArticleEntry
   /** 封面容器几何口径（CARD_SIZES_2 / CARD_SIZES_3）——卡片几何归容器，故由网格组件给。 */
   sizes: string
-  /** 列表内的序号 → 挂成 --i，供「列表页进场级联」的阶梯延迟（首页各段不挂该 CSS，故无副作用）。 */
+  /** 列表内的序号 → 挂成 --i，供滚动进场的阶梯延迟（阶梯表在 tokens.css；首页各段同样生效）。 */
   index?: number
   /** 无封面时的色块档位（0..4）；由调用方按序轮换。 */
   tone?: number

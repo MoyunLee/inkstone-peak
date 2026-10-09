@@ -18,7 +18,7 @@ const FIELD_CN: Record<string, string> = {
   math: '数学公式（Butterfly math）', code_blocks: '代码框（Butterfly code_blocks）', shrink: '代码框默认折叠',
   contact: '联系方式', email: '邮箱', douyin: '抖音', bilibili: 'B 站', pending: '占位注记', github: 'GitHub 仓库（本站源码仓库）',
   platform: '平台名（/about 便当盒「联系方式」左列）', value: '账号值 / 状态值（url=null 时即 pending 措辞）',
-  footer: '页脚', columns: '页脚栏序列', brand_bio: '个人简介（2026-09-23 起可省：缺省即隐藏，栏1 只留居中印章）',
+  footer: '页脚', columns: '页脚栏序列', brand_bio: '个人简介（2026-09-23 起可省：缺省即隐藏，栏1 只留居中印章）', tab_label: '侧栏题签里那条「直达脚页」的题签名（缺省＝该条不出现）',
   seal_text: '印文', copyright: '版权行（同名两处：site.yml footer.copyright=页脚版权行；front-matter copyright=文章版权模块开关）', demo_note: '演示站小字（删 site.yml 该行即消失）',
   from: '自动来源（nav/contact）', links: '内联链接列表（[{ label, to }]）',
   notfound: '404 段', line: '提示语',

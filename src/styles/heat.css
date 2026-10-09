@@ -155,6 +155,67 @@
   background: transparent; /* 首/末列跨年溢出日：无形 */
   box-shadow: none;
 }
+
+/* ── 生长进画（2026-10-09 立）──
+   触发权 = 站内 useReveal（唯一写入方，写在 .heat 的 data-revealed 上，见 ui/heatmap/index.tsx），
+   这里只管补间。三条铁律照抄 tokens.css 的「滚动进场契约」：
+     ① 隐藏态只写在 [data-revealed='false'] 下 —— SSR / 无 JS 输出的就是 true，
+        爬虫与截图看到的是完整日历，不是一片空白；
+     ② 隐藏态带 transition:none —— 补间属性取自「变化后」的样式，翻 true 才补间、拨回 false 是瞬时的；
+     ③ 只动 opacity/transform，**不碰布局几何**：格子边长与列跨距全由 --heat-cell/--heat-gap 给，
+        缩放只在渲染层发生，本段的行高列宽不受影响。
+        ★但「只在渲染层」不等于「量出来的也一样」：getBoundingClientRect **含**这个 scale 与位移，
+          而 tooltip 锚点正是这么算的（ui/heatmap/index.tsx 取 cell 的 rect 减 body 的 rect）——
+          故生长途中禁出提示，那一手写在 onOver 里（2026-10-09 独立复核指出此处原写「不受影响」是错的）。
+          另：opacity:0 不挡指针事件，隐藏期格子照样可悬停，所以那道闸是必需的而不是保险。
+   ★逐列错开：--heat-i 由 HeatmapGrid 写在列壳上（.heat-col 是 display:contents，不生成盒子，
+     格子仍是 .heat-grid 的直接子项，网格逐像素不变）；行内的 --heat-r 由下面 7 条 :nth-child 给，
+     于是整片日历是从左到右、每列自上而下斜着"长"出来的。 */
+.heat-col {
+  display: contents;
+}
+.heat-grid .heat-col > .heat-cell:nth-child(1) {
+  --heat-r: 0;
+}
+.heat-grid .heat-col > .heat-cell:nth-child(2) {
+  --heat-r: 1;
+}
+.heat-grid .heat-col > .heat-cell:nth-child(3) {
+  --heat-r: 2;
+}
+.heat-grid .heat-col > .heat-cell:nth-child(4) {
+  --heat-r: 3;
+}
+.heat-grid .heat-col > .heat-cell:nth-child(5) {
+  --heat-r: 4;
+}
+.heat-grid .heat-col > .heat-cell:nth-child(6) {
+  --heat-r: 5;
+}
+.heat-grid .heat-col > .heat-cell:nth-child(7) {
+  --heat-r: 6;
+}
+.heat[data-revealed='false'] .heat-grid .heat-cell {
+  opacity: 0;
+  transform: translateY(4px) scale(0.7);
+  transition: none;
+}
+.heat[data-revealed='true'] .heat-grid .heat-cell {
+  transition:
+    opacity 420ms var(--ease),
+    transform 420ms var(--ease);
+  /* 53 列 × 10ms + 6 行 × 8ms ≈ 0.57s 铺满，加补间本体约 1s 收尾 */
+  transition-delay: calc(var(--heat-i, 0) * 10ms + var(--heat-r, 0) * 8ms);
+}
+@media (prefers-reduced-motion: reduce) {
+  /* JS 侧 useReveal 命中 reduced 时本就停在终态；这一段是 CSS 层兜底：
+     样式先到、脚本未跑（或中途开启减少动效）时也不许藏着内容 */
+  .heat[data-revealed] .heat-grid .heat-cell {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
 .heat-tip {
   position: absolute;
   left: 0;

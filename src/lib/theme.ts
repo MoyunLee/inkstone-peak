@@ -150,6 +150,33 @@ export function subscribe(fn: Listener): () => void {
   }
 }
 
+/** 颜色补间窗口时长（ms）：与 tokens.css 里 .theme-anim 的过渡时长同值，改一处要两处一起改。 */
+const COLOR_ANIM_MS = 220
+/** 摘窗比补间略晚（2026-10-09 独立复核）：补间要等类名生效后的下一次样式重算才开始（最多晚一帧），
+    同值收尾会把最后那一两帧 snap 掉。 */
+const COLOR_ANIM_TAIL_MS = 80
+
+/** 补间窗口的收尾计时器（模块级单例：连点只留最后一个）。 */
+let animTimer = 0
+
+/**
+ * 开一个颜色补间窗口：给 <html> 挂 .theme-anim，到点自行摘除。
+ *
+ * 只在 setPref（用户显式点选）里调用，**不放进 apply / publish**：
+ * 挂载期那次 apply 若开窗，首帧会从引导脚本刚铺上的纸底再补间一遍，等于自己制造一次闪烁；
+ * 「跟随系统」的被动变化同理——那是系统事件，没有「此刻开始动」的语义。
+ */
+function armColorAnim(): void {
+  if (typeof document === 'undefined') return
+  // reduced-motion：这一层补间干脆不开窗（tokens.css 的 reduce 段是 CSS 层兜底，
+  // 但 JS 侧不该先把窗口挂上、再指望它抹掉——那会在窗口期内让工具类/自持过渡表短暂易主）
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+  const el = document.documentElement
+  el.classList.add('theme-anim')
+  window.clearTimeout(animTimer)
+  animTimer = window.setTimeout(() => el.classList.remove('theme-anim'), COLOR_ANIM_MS + COLOR_ANIM_TAIL_MS)
+}
+
 /**
  * 写显式选择：先落 localStorage（写不进去也继续，本次仍生效），再生效并通知所有订阅者。
  *
@@ -163,6 +190,8 @@ export function setPref(pref: ThemePref): ThemeName {
     } catch {
       /* 写不进去（隐私模式 / 被禁写）：本次仍按选择生效，只是刷新后回到系统态 */
     }
+    // 先开窗再 publish：补间属性必须出现在「变化后」的样式里，否则这一次切换仍是瞬变
+    armColorAnim()
   }
   return publish(pref)
 }

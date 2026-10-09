@@ -14,6 +14,8 @@ import {
   articlePreBody,
 } from './articleRecipe'
 import { useSite } from '../../../lib/data/site'
+import { useReveal } from '../../../lib/hooks/useReveal'
+import ScrollProgress from '../ScrollProgress'
 
 /** 目录落位：关目录 → null；侧栏开着且非简洁模式 → 侧栏；否则正文内联（关侧栏时目录仍可达）。 */
 function tocPlacement(entry: ArticleEntry): 'aside' | 'inline' | null {
@@ -45,9 +47,16 @@ export default function ArticleDetail({ entry }: { entry: ArticleEntry }) {
   if (entry.background) Object.assign(style, { '--post-bg': entry.background })
   const where = tocPlacement(entry)
   const tocProps = { items: entry.tocItems, number: entry.toc_number, simple: entry.toc_style_simple, label: a.post_toc_label }
+  // 题头进场（2026-10-09）：只观察 .bd-head，**正文 .bd-body 永不隐藏**——它是阅读内容，
+  // 也是 hash 深链的落点，藏了会在跳转后先闪一下空白。
+  // 题头若本就在首屏内则停在终态（useReveal 的既定口径，见该 hook 注释），
+  // 所以这段只在「顶图很高、题头被推到折下」的篇幅上看得见——那不是没生效，是无闪策略的必然结果。
+  const { ref: headRef, revealed: headRevealed } = useReveal<HTMLDivElement>({ rootMargin: '0px 0px -12% 0px', threshold: 0 })
   return (
     <>
       <Header />
+      {/* 阅读进度：作品页与博文页共用这一个外壳，故两条详情路由一起拿到（驱动见组件自身注释） */}
+      <ScrollProgress variant="post" />
       <main
         id="main-content"
         className="page-pad page-main"
@@ -59,7 +68,7 @@ export default function ArticleDetail({ entry }: { entry: ArticleEntry }) {
         {/* DOM 顺序恒为「标题区 → 侧栏 → 正文」：窄屏单列时正是想要的阅读顺序（标题 → 信息卡与目录 → 正文），
             宽屏靠 .bd-layout 的命名栅格区把侧栏整列右移（见 post.css）。 */}
         <article className="bd-layout" data-aside={entry.aside ? 'true' : 'false'}>
-          <div className="bd-head">
+          <div className="bd-head" ref={headRef} data-revealed={headRevealed ? 'true' : 'false'}>
             <h1>{entry.title}</h1>
             {/* 元信息只有侧栏一处（关掉侧栏才回落到标题下）——两处同时出就是重复 */}
             {entry.aside ? null : articleMeta(entry, site)}

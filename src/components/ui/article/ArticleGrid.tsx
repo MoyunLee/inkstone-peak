@@ -1,5 +1,6 @@
 import { compareArticles } from '../../../lib/data/content'
 import { CARD_SIZES_3 } from '../../../lib/data/images'
+import { useReveal } from '../../../lib/hooks/useReveal'
 import type { ArticleEntry } from '../../../lib/types/content'
 import type { BlogCfg } from '../../../lib/types/site'
 import ArticleCard, { COVER_TONES } from './ArticleCard'
@@ -28,10 +29,13 @@ export default function ArticleGrid({
   limit?: number
   workTag?: string
 }) {
+  // 滚动进场总闸（2026-10-09）：/blog 列表页与首页造境段共用本容器。threshold 给 0 的理由同 Section
+  // ——本容器随文章数增长，比例阈值会被稀释到永远凑不满。补间契约见 tokens.css。
+  const { ref, revealed } = useReveal<HTMLDivElement>({ rootMargin: '0px 0px -12% 0px', threshold: 0 })
   const sorted = entries.slice().sort((a, b) => compareArticles(a, b, cfg?.order === 'asc' ? 'asc' : 'desc'))
   const shown = limit !== undefined && limit > 0 ? sorted.slice(0, limit) : sorted
   return (
-    <div className="archive">
+    <div className="archive" ref={ref} data-revealed={revealed ? 'true' : 'false'}>
       <ul className="arc-grid">
         {shown.map((entry, i) => (
           <li key={entry.slug}>

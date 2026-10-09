@@ -207,10 +207,12 @@
 }
 
 /* ── 共用动效原语（2026-09-16 统一渲染层）──
-   区块/卡片进场级联：/about 便当盒与 /blog、/portfolio 列表共用这一条。
-   阶梯延迟由 --i 逐项给（见 arc.css / portfolio.css）。
-   ★列表卡用 backwards 而非 both——both 会把收尾的 transform:translateY(0) 永久钉住，
-     从而压掉 .card:hover 的 translateY(-4px)（便当卡 hover 不动位移，故它用 both 无碍）。 */
+   区块/卡片进场级联：/about 便当盒消费这一条（原 /blog、/portfolio 列表的挂载级联已于 2026-10-09
+   迁往下方「滚动进场契约」，那条按 --i 逐项给阶梯延迟）。
+   ★便当卡用 both 而非 backwards 无碍——它 hover 不动位移，故收尾的 translateY(0) 钉住也压不到谁；
+     列表卡当年正是因此才必须用 backwards（both 会把 translateY(0) 永久钉住、压掉 .card:hover 的上浮）。
+     2026-10-09 复核更正：这两条通道今天的现状是「进场走 translate（见下方滚动进场契约）、
+     悬停上浮走 transform（arc.css 的 .card:hover）」——本节上一句原写「上浮走 translate」，与 arc.css 不符。 */
 @keyframes rise-in {
   from {
     opacity: 0;
@@ -222,12 +224,205 @@
   }
 }
 
+/* ── 滚动进场契约（2026-10-09 立）──
+   观感与上面 rise-in 同源（14px 上浮 + 淡入、--i 阶梯 50ms 封顶 12），
+   但**触发权从「挂载」交给「进视口」**：容器挂 data-revealed（唯一写入方 = lib/hooks/useReveal），
+   CSS 只负责补间。原 `.blog-list/.portfolio-list .card { animation: rise-in … }` 两条挂载级联已删——
+   挂载即播时用户多半还没滚到网格，等于白播（首页造境段当年正是因此被排除在动画之外）。
+   ★三条铁律（前两条是上面 fill-mode 那次事故换来的）：
+     ① 隐藏态只写在 [data-revealed='false'] 下——SSR 与首帧输出的就是 true，
+        无 JS / 爬虫 / 截图看到的永远是终态；
+     ② 隐藏态带 transition:none：补间属性取自「变化后」的样式，于是翻 true 才补间、拨回 false 是瞬时的
+        （预渲染块从画上到 React 提交之间不会先演一遍「显示 → 清空」）；
+     ③ 只动 opacity / translate / scale 这类**不改盒子**的属性，且**不许对 .card 本体用 scale**——
+        瀑布流行轨跨度由 useMasonry 读 getBoundingClientRect（**含 transform**）算出；translate 不改高所以安全，scale 会改。
+     ④ 进场走 translate、悬停上浮（arc.css 的 .card:hover）走 transform：两条**独立位移通道**，互不覆盖。
+        2026-10-09 复核修正：原先两者同写 transform，进场那条高特异性表把悬停表整表压掉（上浮从 160ms 变 560ms、
+        还带上 --i 阶梯延迟，第 12 张要等 600ms；hover 描边补间也一并消失）。
+   分工：段壳 Section 管 .heading/.sec-intro，网格容器 CaseGrid/ArticleGrid 管 .card，
+   详情页 .bd-head 管自己那几行。
+   ★两类挂法**写法不同**（2026-10-09 独立复核抓出）：Section / 网格 / 页脚 / 热力图把属性挂在**容器**上、
+     要藏的是它**后代**，故写 `[data-revealed=…] .目标`；而详情页题头是把属性挂在 **.bd-head 自己**身上
+     （ArticleDetail 的 headRef 就挂在这个 div 上），故必须写 `.bd-head[data-revealed=…] > *`。
+     原先七条一律写成 `[data-revealed=…] .bd-head > *`——要求祖先带属性，而祖先链上没有任何写入方，
+     于是一条都不匹配、题头压根没有进场；探针也照不出（那条检查只验「可见的没被藏住」，
+     规则不匹配时反而全绿）。新加同类块之前先问：属性挂在谁身上、要藏的是谁。
+   ★嵌套（Section → Heatmap/ArticleGrid、Featured → CaseGrid）：**任意** false 祖先都能藏住后代——
+     true 侧只声明过渡、不声明可见值，内层 true 翻不了案（2026-10-09 独立复核指出本节原写
+     「嵌套时以最靠内的那个 false 为准」只说对一半）。今天不出问题是因为外层容器顶边更高、
+     同帧或更早触发；给嵌套容器改 rootMargin 时必须让外层不晚于内层，否则会出现
+     「外层已亮、卡仍全隐」，而 CSS 里找不到任何冲突对象。 */
+[data-revealed='false'] .heading,
+[data-revealed='false'] .sec-intro,
+[data-revealed='false'] .card,
+.bd-head[data-revealed='false'] > * {
+  opacity: 0;
+  translate: 0 14px;
+  transition: none;
+}
+/* 题头下那道发丝线不走位移，走「自左展开」——比整行平移更像落笔（走独立的 scale 通道，同样不碰 transform） */
+.bd-head[data-revealed='false'] > .bd-rule {
+  scale: 0 1;
+  transform-origin: 0 50%;
+}
+[data-revealed='true'] .heading,
+[data-revealed='true'] .sec-intro,
+.bd-head[data-revealed='true'] > * {
+  transition:
+    opacity 560ms var(--ease),
+    translate 560ms var(--ease);
+  transition-delay: calc(var(--i, 0) * 50ms);
+}
+/* 卡片单列一张表（2026-10-09 复核修正）：transition 是**整表覆盖**而不是叠加，
+   而 .card 自己在 arc.css 里还有一条 transform/border-color 的表；两张表不并成一张的话，
+   本片这条 (0,2,0) 会把悬停上浮压成 560ms + --i 阶梯延迟，描边补间也一起消失。
+   故按属性分列：进场两项吃阶梯，悬停两项延迟恒为 0（background-color 也进来，
+   好让主题切换窗口内卡片底色跟着一起补间——本片压过 .card，不写这里就没机会补）。 */
+[data-revealed='true'] .card {
+  transition:
+    opacity 560ms var(--ease),
+    translate 560ms var(--ease),
+    transform var(--t) var(--ease),
+    border-color var(--t) var(--ease),
+    background-color var(--t) var(--ease);
+  transition-delay: calc(var(--i, 0) * 50ms), calc(var(--i, 0) * 50ms), 0s, 0s, 0s;
+}
+/* 详情页题头没有 --i（子元素是固定顺序且可缺项），阶梯改用 nth-child；线最后到 */
+.bd-head[data-revealed='true'] > :nth-child(2) {
+  transition-delay: 60ms;
+}
+.bd-head[data-revealed='true'] > :nth-child(3) {
+  transition-delay: 120ms;
+}
+.bd-head[data-revealed='true'] > .bd-rule {
+  transition:
+    opacity 560ms var(--ease),
+    translate 560ms var(--ease),
+    scale 560ms var(--ease);
+  transition-delay: 180ms;
+}
+@media (prefers-reduced-motion: reduce) {
+  /* JS 侧 useReveal 命中 reduced 时本就停在终态；这一段是 CSS 层兜底：
+     样式先到、脚本未跑（或中途开启减少动效）时也不许藏内容 */
+  [data-revealed] .heading,
+  [data-revealed] .sec-intro,
+  [data-revealed] .card,
+  .bd-head[data-revealed] > * {
+    opacity: 1;
+    translate: none;
+    scale: none;
+    transition: none;
+  }
+}
+
+/* ── 脚页进场（2026-10-09 补，滚动进场契约的第二个消费方）──
+   脚页每页都有，且总在最后一次滚动之后才出现 —— 这一下是「抵达」而不是「路过」，故给足层次：
+   眉标 → 大标 → 栏题 → 栏内逐行涟漪（--i 由 SiteFooter 挂在 <li> 上，站内统一阶梯变量）→ 大印落款 → 底栏。
+   复用现成契约（useReveal + [data-revealed]）而不是另起一套：无 JS / 爬虫 / reduced-motion 的静止终态
+   由契约那三条铁律一次性覆盖；折上若已整段可见（短页），useReveal 又按默认策略停在终态不重播。
+   ★大印只走 scale 通道：它的 transform 上钉着 rotate(-4deg)（footer.css 注明 JS 轻震也写这个角），
+     动 transform 就跟那两处打架；scale / translate 是独立通道，叠加不冲突。 */
+[data-revealed='false'] .foot-head small,
+[data-revealed='false'] .foot-head h2,
+[data-revealed='false'] .fcol > h3,
+[data-revealed='false'] .fcol li,
+[data-revealed='false'] .foot-brand,
+[data-revealed='false'] .foot-bio,
+[data-revealed='false'] .foot-bar {
+  opacity: 0;
+  translate: 0 14px;
+  transition: none;
+}
+[data-revealed='false'] .big-seal {
+  scale: 1.06;
+  transition: none;
+}
+[data-revealed='true'] .foot-head small,
+[data-revealed='true'] .foot-head h2,
+[data-revealed='true'] .fcol > h3,
+[data-revealed='true'] .fcol li,
+[data-revealed='true'] .foot-brand,
+[data-revealed='true'] .foot-bio,
+[data-revealed='true'] .foot-bar {
+  transition:
+    opacity 560ms var(--ease),
+    translate 560ms var(--ease);
+}
+[data-revealed='true'] .foot-head h2 {
+  transition-delay: 60ms;
+}
+[data-revealed='true'] .fcol > h3,
+[data-revealed='true'] .foot-brand {
+  transition-delay: 120ms;
+}
+/* 逐行涟漪：同一列内每行 +45ms；基础延迟 140ms 让「栏题先落、行再跟上」 */
+[data-revealed='true'] .fcol li {
+  transition-delay: calc(140ms + var(--i, 0) * 45ms);
+}
+[data-revealed='true'] .foot-bio {
+  transition-delay: 200ms;
+}
+[data-revealed='true'] .foot-bar {
+  transition-delay: 360ms;
+}
+/* 大印落款：比整块慢一档（700ms），像一枚刚按下去的印。
+   translate/filter 必须在这张表里一并列出：本行是 transition 简写，它会把整张表重置成只列出的属性，
+   悬停揭印那两条（footer.css 的 .big-seal:hover）若不在此列，就会被这张表抹掉。 */
+[data-revealed='true'] .big-seal {
+  transition:
+    scale 700ms var(--ease) 120ms,
+    translate var(--t-seal),
+    filter var(--t-seal);
+}
+@media (prefers-reduced-motion: reduce) {
+  /* 同契约：样式先到、脚本未跑（或中途开启减少动效）时也不许藏内容 */
+  [data-revealed] .foot-head small,
+  [data-revealed] .foot-head h2,
+  [data-revealed] .fcol > h3,
+  [data-revealed] .fcol li,
+  [data-revealed] .foot-brand,
+  [data-revealed] .foot-bio,
+  [data-revealed] .foot-bar,
+  [data-revealed] .big-seal {
+    opacity: 1;
+    translate: none;
+    scale: none;
+    transition: none;
+  }
+}
+
 * {
   box-sizing: border-box;
 }
 html {
   scroll-behavior: smooth;
   background: var(--paper);
+}
+/* 主题切换的颜色补间（2026-10-09）：窗口由 lib/theme.ts 的 setPref 在**用户显式点选**时开，
+   到点自行摘除。首帧加载（theme-init.js 引导）与「跟随系统」的被动变化都不开窗——
+   前者本来就该以纸底出现，后者是系统事件、没有「此刻」可言。
+   ★只列属性白名单，不用 `transition: all`：opacity/transform 刻意不在其中，
+     免得和滚动进场、悬停上浮抢同一段补间。
+   ★后代选择器包在 :where() 里（特异性 0，2026-10-09 复核修正）：本片是**全局**开关，
+     绝不能靠特异性去压别的规则自己的过渡表——那会在窗口内让那些元素的悬停/进场一起失效。
+     于是分工是：没自持过渡表的元素（html/body、标题、链接、边框……）跟着补间；
+     自持过渡表的（.card、.card-tags li）由各自那张表决定，本片不插手。
+   ★本片**不分层**（站点样式整体没进 @layer）：级联里未分层规则优先于任何 @layer，故窗口期内它也会
+     压过 Tailwind v4 `@layer utilities` 里的 transition-*/duration-* 工具类。站内今天没有这类工具类，
+     所以只是埋雷；真要用，得先把本片挪进 @layer base——那会同时改变它与其它站点规则的关系，别顺手改。 */
+.theme-anim,
+:where(.theme-anim *) {
+  transition:
+    background-color 220ms var(--ease),
+    color 220ms var(--ease),
+    border-color 220ms var(--ease);
+}
+@media (prefers-reduced-motion: reduce) {
+  /* JS 侧 armColorAnim 命中 reduced 时本就不开窗；这一段是 CSS 层兜底（窗口可能已经挂着） */
+  .theme-anim,
+  :where(.theme-anim *) {
+    transition: none;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   html {
