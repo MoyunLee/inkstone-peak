@@ -104,3 +104,35 @@ export function postBySlug(slug: string | undefined): PostArticle | undefined {
   const p = posts.find((x) => x.slug === slug)
   return p && p.kind === 'post' ? p : undefined
 }
+
+/**
+ * 详情页「相关阅读」（**运行期**算）：相关度的唯一契约在本函数，组件只落位（见 components/ui/article/RelatedPosts）。
+ *
+ * 口径：
+ *   · 候选池 = 全量 `posts`（含作品与博文，允许跨 kind），**排除自身**（slug 相同）；
+ *   · 主信号 = **tags 交集个数**；交集为 0 的候选不入选（不出空壳，也不做同类兜底）；
+ *   · `entry.relatedWork` 命中某候选 slug → 该候选**置顶，且不受交集为 0 限制**；
+ *     指向不存在的 slug 时静默忽略（悬空只由构建期提醒，组件侧不得抛错）；
+ *   · 其余候选：交集数降序 → 平手用 compareArticles(a, b, 'desc') 定序（复用唯一排序契约，不自创）。
+ *
+ * @param entry 当前页的文章事实。
+ * @param limit 最多几条；默认 3（带注释的版面常量，**不落 site.yml**——不留死配置）。
+ * @returns 已定序、已截断的候选；既无交集又无 relatedWork 命中时返回 `[]`（组件据此整块不出）。
+ * @example
+ * relatedTo(entry).map((e) => e.to)
+ */
+export function relatedTo(entry: ArticleEntry, limit = 3): ArticleEntry[] {
+  const mine = new Set(entry.tags)
+  const pinned = entry.relatedWork
+  const scored = posts
+    .filter((p) => p.slug !== entry.slug)
+    .map((p) => ({ p, hit: p.tags.filter((t) => mine.has(t)).length }))
+    .filter((s) => s.hit > 0 || s.p.slug === pinned)
+  scored.sort((a, b) => {
+    const pa = a.p.slug === pinned ? 1 : 0
+    const pb = b.p.slug === pinned ? 1 : 0
+    if (pa !== pb) return pb - pa
+    return b.hit - a.hit || compareArticles(a.p, b.p, 'desc')
+  })
+  return scored.slice(0, limit).map((s) => s.p)
+}

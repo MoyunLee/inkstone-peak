@@ -1,8 +1,10 @@
 /* /portfolio/:slug 案例页。统一壳子：骨架与内容全交给 ArticleDetail（配方在 articleRecipe），
-   本页只剩两件事——按 slug 取作品（取不到走 404），以及把「上一件 / 下一件」按 works 的下标算好接线进去。
-   作品导航的数据（相邻关系）住这里、不住 ArticleDetail：后者**不认识 kind**（见其文件头注释）。 */
+   本页只剩三件事——按 slug 取作品（取不到走 404）、把「上一件 / 下一件」按 works 的下标算好、
+   再接上正文之后的「相关阅读」。两块导航的数据（相邻关系 / 相关度）都住数据层、不住 ArticleDetail：
+   后者**不认识 kind**（见其文件头注释）。 */
 import { useParams } from 'react-router-dom'
 import ArticleDetail from '../components/ui/article/ArticleDetail'
+import RelatedPosts from '../components/ui/article/RelatedPosts'
 import WorkNav from '../components/ui/article/WorkNav'
 import { workBySlug, works } from '../lib/data/content'
 import NotFound from './NotFound'
@@ -16,5 +18,15 @@ export default function PortfolioDetail() {
   const i = works.indexOf(w)
   const prev = i > 0 ? (works[i - 1] ?? null) : null
   const next = i >= 0 && i < works.length - 1 ? (works[i + 1] ?? null) : null
-  return <ArticleDetail entry={w} afterBody={<WorkNav prev={prev} next={next} />} />
+  return (
+    <ArticleDetail
+      entry={w}
+      afterBody={
+        <>
+          <WorkNav prev={prev} next={next} />
+          <RelatedPosts entry={w} />
+        </>
+      }
+    />
+  )
 }
