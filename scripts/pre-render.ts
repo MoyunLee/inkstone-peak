@@ -72,6 +72,15 @@ interface Page {
 }
 const navBase = (v: string | null | undefined): string => ((v ?? '/').split('#')[0] || '/')
 const dirOf = (urlPath: string): string => urlPath.replace(/^\//, '')
+// 标签清单：口径同 src/lib/data/content.ts 的 tagIndex —— 遍历全部条目的 tags 去重，
+// 顺序为「条目数降序 → 平手按标签字符串的 Unicode 码点升序」（`<` 比较，刻意不用 localeCompare：ICU 差异会让清单不可复现）。
+// 对外 URL 口径同 src/lib/data/content.ts 的 tagPath：'/tags/' + encodeURIComponent(tag)；落盘目录则用**裸中文段**。
+const tagCounts = new Map<string, number>()
+for (const p of posts) for (const t of new Set(p.tags ?? [])) tagCounts.set(t, (tagCounts.get(t) ?? 0) + 1)
+const tags = [...tagCounts]
+  .sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0))
+  .map(([t]) => t)
+const tagPath = (tag: string): string => '/tags/' + encodeURIComponent(tag)
 const pages: Page[] = []
 for (const n of site.nav) {
   // 每个 nav 条目都有它自己的页面（详情条目也有列表页：观山的 route=/portfolio、详情才是 detailPrefix）
@@ -83,6 +92,9 @@ for (const n of site.nav) {
     pages.push({ dir: dirOf(pg.to), urlPath: pg.to })
   }
 }
+// 标签聚合页：/tags 索引页由上面 nav 循环覆盖（site.yml 里 route=/tags 那条，勿重复 push）；
+// 每个标签各一份详情页——落盘目录用**裸中文段**（dist/tags/写作/index.html），urlPath 用对外转义形态（tagPath）。
+for (const t of tags) pages.push({ dir: 'tags/' + t, urlPath: tagPath(t) })
 pages.push({ dir: '', file: '404.html', urlPath: '/404' })
 
 const esc = (s: string): string => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;')
@@ -198,9 +210,10 @@ for (const page of pages) {
 const homePage = pages.find((x) => x.urlPath === '/') ?? { dir: '', urlPath: '/' }
 writeFileSync(shellFile, inject(homePage, await render('/')), 'utf8')
 
-// 路由数按 nav 推导：每个 nav 条目一份页面 + 每篇文章一份详情页 + 404
-const expect = site.nav.length + posts.length + 1
+// 路由数按 nav 推导：每个 nav 条目一份页面 + 每篇文章一份详情页 + 每个标签一份聚合页 + 404
+//（/tags 索引页已含在 nav 条目里，不另计）
+const expect = site.nav.length + posts.length + 1 + tags.length
 if (count !== expect) {
-  console.error(`✗ 预渲染路由数 ${count} ≠ nav 推出的 ${expect}（nav 条目×${site.nav.length} + 文章×${posts.length} + 404）——路由表与清单脱节，停下报告`)
+  console.error(`✗ 预渲染路由数 ${count} ≠ nav 推出的 ${expect}（nav 条目×${site.nav.length} + 文章×${posts.length} + 标签×${tags.length} + 404）——路由表与清单脱节，停下报告`)
   process.exit(1)
 }

@@ -1,0 +1,49 @@
+/* /tags 标签聚合页（索引 + 单标签）。
+   ⚠ 类名一律 .tags-*：styles/ 里没有同名族（`.arc-*` / `.archive*` 属归档与网格容器），故不与之撞车。
+   皮肤只吃既有 token（--hairline 装饰发丝界 / --ink 层级 / --seal 朱框 / --font-mono 数目字），
+   跟随 data-theme 自动翻，不新增配色。单标签页复用 ArticleGrid，故本文件只管索引清单。 */
+.tags-index {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  /* 窄屏单列；640px 起两列（列间靠 gap，行界仍是发丝线） */
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2px;
+}
+.tags-index-item {
+  border-bottom: 1px solid var(--hairline);
+}
+.tags-index-link {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px 20px;
+  padding: 9px 0;
+  color: var(--ink);
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  transition: color var(--t) var(--ease);
+}
+.tags-index-link:hover {
+  color: var(--seal-ink);
+}
+.tags-index-link:focus-visible {
+  outline: 2px solid var(--seal); /* 全站唯一朱框 */
+  outline-offset: 2px;
+}
+.tags-index-count {
+  flex: none;
+  color: var(--ink-3);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+}
+@media (min-width: 640px) {
+  .tags-index {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: clamp(20px, 4vw, 48px);
+  }
+}

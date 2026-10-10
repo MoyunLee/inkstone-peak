@@ -22,6 +22,7 @@ interface PostJson {
   date: string
   updated: string | null
   description: string | null
+  tags?: string[]
 }
 
 const dist = P('dist')
@@ -42,9 +43,16 @@ const esc = (s: string): string =>
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
 
-// sitemap：固定页 + 每篇文章（作品落 /portfolio/<slug>，博文落 /blog/<slug>）
-// 页面清单与 pre-render 同一事实源：site.yml 的 nav（每个条目都有自己那份页面，详情条目另出文章页）
+// sitemap：固定页 + 每篇文章（作品落 /portfolio/<slug>，博文落 /blog/<slug>）+ 每个标签聚合页
+// 页面清单与 pre-render 同一事实源：site.yml 的 nav（每个条目都有自己那份页面，详情条目另出文章页；/tags 索引页在其中）
 const STATIC_PATHS = site.nav.map((n) => ((n.route ?? '/').split('#')[0] || '/'))
+// 标签聚合页：URL 口径同 src/lib/data/content.ts 的 tagPath = '/tags/' + encodeURIComponent(tag)
+//（<loc> 里不得出现裸中文）；清单求法同 tagIndex：全部条目 tags 去重，条目数降序 → 平手按 Unicode 码点升序。
+const tagCounts = new Map<string, number>()
+for (const p of posts) for (const t of new Set(p.tags ?? [])) tagCounts.set(t, (tagCounts.get(t) ?? 0) + 1)
+const TAG_PATHS = [...tagCounts]
+  .sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0))
+  .map(([t]) => '/tags/' + encodeURIComponent(t))
 const lastmod = new Map<string, string>()
 for (const p of posts) {
   const d = p.updated || p.date
@@ -53,7 +61,7 @@ for (const p of posts) {
 const sitemap = [
   '<?xml version="1.0" encoding="UTF-8"?>',
   '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
-  ...[...STATIC_PATHS, ...posts.map((p) => p.to)].map((u) => {
+  ...[...STATIC_PATHS, ...posts.map((p) => p.to), ...TAG_PATHS].map((u) => {
     const lm = lastmod.get(u)
     const loc = `    <loc>${esc(siteUrl + u)}</loc>`
     return lm ? `  <url>\n${loc}\n    <lastmod>${esc(lm)}</lastmod>\n  </url>` : `  <url>\n${loc}\n  </url>`

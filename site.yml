@@ -27,6 +27,7 @@ nav:
   - { ink: 观山, route: /portfolio,      isDetailPage: true,  detailPrefix: /portfolio,       module: portfolio }  # 列表页+/portfolio/:slug 动态详情同前缀固定激活（旧 /work 族已移除）
   - { ink: 造境, route: /blog,           isDetailPage: true,  detailPrefix: /blog,            module: blog }       # 博客随笔页（旧 /pipeline 已移除）。/blog/:slug 详情族按前缀固定激活（观山同权 R2 语义），module=blog 首页段照常参与滚动联动
   - { ink: 归档, route: /archive,       isDetailPage: false, detailPrefix: null,            module: null }       # 年月归档页（/archive：全量文章含作品的年→月时间线）。module 必须为 null——「归档」不对应首页任何一段，而 home.sections 的 id 全站唯一且 blog 已被 /blog 占用
+  - { ink: 标签, route: /tags,          isDetailPage: true,  detailPrefix: /tags,           module: null }       # 标签聚合页（/tags 索引 + /tags/<标签> 单标签聚合，全量含作品）。module 必须为 null——「标签」不对应首页任何一段；isDetailPage+detailPrefix 只为让顶栏在 /tags/<标签> 上保持「标签」激活（同 /portfolio 语义），posts 里没有 /tags/ 落点 ⇒ 不派生额外详情页
   - { ink: 观自, route: /about,          isDetailPage: false, detailPrefix: null,            module: about }      # 观自=整页 /about（旧 hash 锚点关联已移除）
   # **独立传音页整条退役**，不留注释留底——nav 只剩上面四条。
   #   传音**只作为首页第五段存在**（home.sections 的 id=footer + SiteFooter 组件，各页页脚照旧）。
@@ -46,6 +47,7 @@ page_meta:
   about: 观自
   blog: 造境
   archive: 归档
+  tags: 标签                                    # /tags 索引页专名（与 nav 那枚 ink 同词）。缺这一行，索引页标题会回落 site.title 变成「砚山 · 砚山」
 
 # Page Desc（子页 meta 摘要专写：只喂预渲染 <meta name="description">）
 # 键法同 page_meta：键 = 路由 basename，首页用 home。命中即用；未命中回落 page-meta.ts 的 STATIC_DESC

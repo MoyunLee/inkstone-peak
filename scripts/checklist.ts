@@ -20,6 +20,7 @@ interface ArticleJson {
   cover?: string | null
   video?: { src?: string | null } | null
   bodyHtml: string
+  tags?: string[]
 }
 
 const site = readJson<SiteJson>('site.json')
@@ -71,15 +72,24 @@ if (existsSync(path.join(dist, 'index.html'))) {
   const routes = readJson<ArticleJson[]>('posts.json')
   const works = routes.filter((p) => p.kind === 'work')
   const articles = routes.filter((p) => p.kind === 'post')
+  // 标签聚合页：/tags 索引 + 每个标签一份。清单自算（去重 + 条目数降序 → 平手 Unicode 码点升序，口径同 content.ts 的 tagIndex）；
+  // 磁盘目录用**裸中文段**（对外 URL 是转义形态，那是 href/canonical 的事，与落盘目录无关）。
+  const tagCounts = new Map<string, number>()
+  for (const p of routes) for (const t of new Set(p.tags ?? [])) tagCounts.set(t, (tagCounts.get(t) ?? 0) + 1)
+  const tags = [...tagCounts]
+    .sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0))
+    .map(([t]) => t)
   const paths = [
     'index.html',
     path.join('portfolio', 'index.html'),
     path.join('blog', 'index.html'),
     path.join('about', 'index.html'),
     path.join('archive', 'index.html'),
+    path.join('tags', 'index.html'),
     '404.html',
     ...works.map((w) => path.join('portfolio', w.slug, 'index.html')),
     ...articles.map((a) => path.join('blog', a.slug, 'index.html')),
+    ...tags.map((t) => path.join('tags', t, 'index.html')),
   ]
   const missing = paths.filter((p) => !existsSync(path.join(dist, p)))
   if (missing.length > 0) blocking.push(`dist 缺 ${missing.length} 份路由 HTML（首份：${missing[0]}）`)

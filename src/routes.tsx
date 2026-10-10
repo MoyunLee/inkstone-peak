@@ -15,6 +15,8 @@ const About = lazy(() => import('./pages/About'))
 const BlogList = lazy(() => import('./pages/BlogList'))
 const BlogDetail = lazy(() => import('./pages/BlogDetail'))
 const Archive = lazy(() => import('./pages/Archive'))
+const TagIndex = lazy(() => import('./pages/TagIndex'))
+const TagDetail = lazy(() => import('./pages/TagDetail'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 
 /** 换页回顶：仅 path 变化时执行（挂载首跑不碰）、带 hash 跳过、顺带清 navlock 跳页锁。 */
@@ -72,6 +74,9 @@ export default function AppRoutes() {
         <Route path="/blog" element={<BlogList />} />
         <Route path="/blog/:slug" element={<BlogDetail />} />
         <Route path="/archive" element={<Archive />} />
+        <Route path="/tags" element={<TagIndex />} />
+        {/* 标签名是裸中文时 URL 里是转义串（tagPath 生成）；React Router 匹配前解码，故此处照常收 :tag。 */}
+        <Route path="/tags/:tag" element={<TagDetail />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       {/* 三态外观徽章：视口左下角常驻。必须挂在这里（#root 直下）——顶栏有 backdrop-filter，
