@@ -79,8 +79,9 @@ export default function AppRoutes() {
         <Route path="/tags/:tag" element={<TagDetail />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
-      {/* 三态外观徽章：视口左下角常驻。必须挂在这里（#root 直下）——顶栏有 backdrop-filter，
-          会给 position:fixed 的后代当包含块，挂进 <header> 就会被钉在顶栏里。
+      {/* 三态外观徽章：视口左下角常驻。挂在这里（#root 直下）而非 <header> 内：它是视口级控件。
+          原先另有硬理由——顶栏当时带 backdrop-filter、会给 position:fixed 的后代当包含块，挂进
+          <header> 就会被钉在顶栏里；2026-10-11 顶栏把模糊挪到 .topbar::before，该约束已解除。
           也必须留在 Suspense 边界**内**：它一落 DOM，`#root:not(:empty)` 就成立、预渲染块当帧被隐去。 */}
       <ThemeToggle />
     </Suspense>

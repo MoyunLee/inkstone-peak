@@ -95,8 +95,9 @@
    结构住在 src/components/layout/ThemeToggle.tsx；这里只管皮肤。
    形态：视口**左下角**常驻一枚圆形朱印徽章（印面 --seal + 印文色图标 --seal-fg + 内圈，与 Seal 同一支笔，
    不新增任何色），悬浮 / 聚焦 / 点按即在徽章**上方**展开三枚 44×44 圆选项，选完收起回徽章。
-   ★徽章必须挂 #root 直下（src/routes.tsx），不能留在 .topbar 里：顶栏有 backdrop-filter，
-     会给 position:fixed 的后代当包含块，徽章会被"钉"在顶栏里而不是视口左下角。
+   ★徽章挂 #root 直下（src/routes.tsx），不进 .topbar：它是视口级控件。原先另有硬理由——顶栏当时
+     带 backdrop-filter、会给 position:fixed 的后代当包含块，徽章会被"钉"在顶栏里而不是视口左下角；
+     2026-10-11 顶栏把模糊挪到 ::before（见 layout.css 的 .topbar），该约束已解除。
    面板可见性由 data-open + display 控制，**不许**用 hidden 属性：预渲染闸会把正文里的 div[hidden]
    判成迟到 Suspense 标记并中止构建。 */
 .theme-switch {
@@ -247,8 +248,9 @@
    ★from 的 opacity:0 只落在 SPA 换页这一帧：硬加载与预渲染首帧从不进这段，故 LCP 与
      「折上只许位移」那条铁律都不受影响；换页时它是刻意的整块淡入，与 reveal 契约的「折上」是两件事。
    ★fill 用 backwards 而不是 both：both 会把收尾的 `translate: 0 0` 永久钉在 <main> 上，
-     而**任何非 none 的 translate 都会给 position:fixed 后代当包含块**（同 routes.tsx 里
-     顶栏 backdrop-filter 那条注记的坑）。本案 <main> 内当前没有 fixed 后代，但不留这个雷。 */
+     而**任何非 none 的 translate 都会给 position:fixed 后代当包含块**（同一类坑：layout.css 的
+     .topbar 曾因 backdrop-filter 当包含块，2026-10-11 已把模糊挪到 ::before 解除）。
+     本案 <main> 内当前没有 fixed 后代，但不留这个雷。 */
 @media (prefers-reduced-motion: no-preference) {
   html[data-nav] main {
     animation: page-in 300ms var(--ease) backwards;

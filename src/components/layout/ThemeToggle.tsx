@@ -22,8 +22,10 @@ const ICONS = { light: Sun, dark: Moon, system: Monitor } as const
  *   键盘聚焦徽章；点按徽章（同时把焦点送进面板，方向键即可直接换）；Esc 只负责收起。
  * 收起：选完、焦点离开整块、指针移开（且焦点不在块内）、Esc、点块外。
  *
- * ⚠ 必须挂 #root 直下（routes.tsx），**不能**留在 <header> 里：顶栏有 backdrop-filter，
- *   会给 position:fixed 的后代当包含块，徽章会被钉在顶栏内而不是视口左下角。
+ * ⚠ 挂 #root 直下（routes.tsx），**不**留在 <header> 里：它是视口级控件。原先另有硬理由——
+ *   顶栏当时带 backdrop-filter、会给 position:fixed 的后代当包含块，徽章会被钉在顶栏内而不是
+ *   视口左下角；2026-10-11 顶栏把模糊挪到 ::before（见 styles/layout.css 的 .topbar），
+ *   该约束已解除，"视口控件挂视口层"照旧。
  * ⚠ 面板容器**不许**用 hidden 属性：预渲染闸（scripts/pre-render.ts）把正文里的 `<div hidden`
  *   判成迟到 Suspense 标记并中止构建；这里用 data-open + CSS display 控制。
  * ⚠ SSR 期不得碰 matchMedia / localStorage：一律推迟到事件与副作用里。

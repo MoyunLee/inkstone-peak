@@ -45,7 +45,15 @@
   white-space: nowrap;
 }
 
-/* 顶栏 */
+/* 顶栏
+   ★背景与模糊挂在**伪元素**上，不挂 .topbar 自身：`backdrop-filter` 会给 position:fixed 的后代
+     当包含块，并把这棵子树拉进它自己的 backdrop root（真机 GPU 合成对 backdrop root 内 fixed 后代
+     的处理与软件渲染不同）。≤767px 的观山下拉面板正是这样一个 fixed 后代——2026-10-11 用户报
+     「手机端点观山毫无反应」，即面板 `display:flex` 了却整个不出现（安卓 Chrome；同机主题徽章正常，
+     故非 JS/水合）。修法沿用本仓对同一坑的既有判据（见 ui.css 徽章与 routes.tsx 的注记）：
+     模糊挪进铺满顶栏的 ::before ⇒ 顶栏不再是包含块、也不再是 backdrop root，面板的 fixed
+     回到"相对视口"（这正是它要的真·视口居中，几何与修前逐点相同）。
+   ::before 必须自己持 background：纸底若留在 .topbar 上，模糊采样的就是那层平色，等于没模糊。 */
 .topbar {
   position: fixed;
   inset: 0 0 auto 0;
@@ -55,9 +63,17 @@
   align-items: center;
   gap: clamp(20px, 4vw, 56px);
   padding: 0 clamp(16px, 4vw, 48px);
+  border-bottom: 1px solid var(--ink-4);
+}
+/* 铺满顶栏的纸底 + 模糊层。position:absolute 只为脱离 flex 流（否则它会被当成一个 flex 项）；
+   z-index:-1 让它压在顶栏内容之下：本元素自身无背景，故负层仍画在页面之上、顶栏文字之下。 */
+.topbar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
   background: color-mix(in srgb, var(--paper) 86%, transparent);
   backdrop-filter: blur(8px);
-  border-bottom: 1px solid var(--ink-4);
 }
 /* 左侧占位：与右端 `.topbar::after` 等权（同为 flex:1 1 0），
    两臂等宽 ⇒ 中间的 nav 自然落在视口水平中心（padding 左右对称）。 */
@@ -149,9 +165,11 @@
   color: var(--ink-2);
   transform: translateY(-1px);
 }
+/* 待选择（hover）与「就是当前页」同长：都是满行 2px，只差颜色（黑 ↔ 印朱）。
+   2026-10-11 用户令：原先那条只画 60%，读作"半截"；现在满行。 */
 .topbar nav > a:hover::after,
 .topbar nav .nav-trigger:hover::after {
-  width: 60%;
+  width: 100%;
 }
 .topbar nav > a.on,
 .topbar nav .nav-trigger[data-current='true'] {
@@ -317,8 +335,10 @@
 }
 
 /* ≤767px：窄屏下触发器中心 ≠ 视口中心（顶栏两臂不等宽），面板跟着触发器就几乎贴左沿。
-   顶栏带 backdrop-filter ⇒ 它是 fixed 后代的包含块（见 src/routes.tsx:82-84），故这里改用
-   fixed + left:50%，相对整条顶栏（= 视口宽）居中；top = --nav-h + 6px，实测落在顶栏底边之下。
+   故这一档把面板改成 `fixed`：包含块是**视口**（顶栏自 2026-10-11 起把 backdrop-filter 挪到
+   ::before，已不再是 fixed 后代的包含块——缘由见本文件 .topbar 那条），`left:50%` 即视口水平中心；
+   top = --nav-h + 6px，实测落在顶栏底边之下。这一档**必须**是视口居中：拿顶栏当包含块的话，
+   实测在真机（安卓 Chrome）上面板整个不渲染——2026-10-11 用户报的「手机端点观山没反应」即此。
    ≥768px 触发器中心本就≈视口中心，维持 absolute（居中于触发器）。
    ⚠ 这里**不再重复写 transform**：居中用的 translateX(-50%) 由基准态与开态规则分别给出，
      在这一档覆盖会把"收起态"的 -8px/.92 冲掉，退场就只剩淡出（弹不出去了）。 */
