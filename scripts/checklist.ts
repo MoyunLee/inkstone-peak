@@ -175,7 +175,7 @@ if (existsSync(P('.content', 'media-report.json'))) {
 
 // 依赖审计（B8）：.npmrc 的 audit=false 让安装期不再提醒，故上线闸门显式补跑一次。
 // 分账：**产物里会跑的依赖**（`npm audit --omit=dev`）有 high/critical → 硬阻塞；
-// 只在**构建机工具链**上的（sharp 出图、gray-matter 解析 front-matter、js-yaml 等）→ 只播报不阻塞——
+// 只在**构建机工具链**上的（sharp 出图、js-yaml 解析 front-matter 与 site.yml 等）→ 只播报不阻塞——
 // 它们一个字节都不进 dist，拿上线红灯去卡构建工具的 CVE，会让「可上线」长期挂着红（实测正是如此：
 // 2 条 high 全在 dev 链，`--omit=dev` 为 0）。离线 / 非 npm 会话一律降级为提示，不误报成硬阻塞；
 // **分不清 prod 时退回老规矩**（全量 high 即阻塞），免得网断了就悄悄放宽闸门。

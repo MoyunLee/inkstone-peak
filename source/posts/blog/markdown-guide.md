@@ -19,7 +19,7 @@ aside: true
 
 `source/posts/**/*.md` 到页面之间没有魔法，只有五步：
 
-1. `gray-matter` 把文件切成 front-matter 与正文两段——头部走 schema 校验（见另两篇速查），正文进渲染器；
+1. 构建期按行首 `---` 围栏把文件切成 front-matter 与正文两段，头部交给 `js-yaml`——头部走 schema 校验（见另两篇速查），正文进渲染器；
 2. `markdown-it` 按**固定三开关**渲染：`html:false` · `linkify:false` · `typographer:false`；
 3. 同一趟把**标题清单**抽出来（带 id 与层级），喂详情页右侧目录；
 4. 落盘 `.content/posts.json`——正文已经是 HTML 了；

@@ -7,7 +7,7 @@
 
 - 运行层：React 19 · react-router 7 · TypeScript 5
 - 构建：Vite 8（纯静态，无 SSR adapter）· Tailwind CSS v4
-- 内容层：`gray-matter` + `yaml` + `zod` v4 + `markdown-it`（构建期校验并落成品 JSON）
+- 内容层：`js-yaml`（front-matter 切分 + `site.yml`）+ `zod` v4 + `markdown-it`（构建期校验并落成品 JSON）
 - 生成期素材：`sharp`（底图 / 云雾 / 噪点 / favicon）
 
 ## 快速开始

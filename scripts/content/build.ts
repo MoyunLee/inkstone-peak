@@ -5,7 +5,6 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
-import matter from 'gray-matter'
 import yaml from 'js-yaml'
 import type { z } from 'zod'
 import { masterPathFor, P, renderBody, ROOT } from './paths.ts'
@@ -17,7 +16,7 @@ import { siteSchema } from './schemas/site.ts'
 import { beginReport, info, loadedIn } from '../quiet.ts'
 import { sectionImplIds, selfHeadedIds, checkInternalLink } from './checks.ts'
 import type { LinkCtx } from './checks.ts'
-import { markPlaceholders, normalizePlaceholders, readMdDir } from './loaders.ts'
+import { markPlaceholders, normalizePlaceholders, readMdDir, splitFrontMatter, FrontMatterError } from './loaders.ts'
 import { resolvePost } from './post.ts'
 import { writeOutputs } from './writers.ts'
 
@@ -46,8 +45,15 @@ export function build(report = true): boolean {
     else seenSlug.set(f.name, file)
     fileOf.set(f.name, file)
 
-    const parsed = matter(f.raw)
-    const fm = { ...((parsed.data ?? {}) as Record<string, unknown>) }
+    // front-matter 自己切（不再依赖 gray-matter）：围栏坏/缺**报错停这一篇**，不静默吞
+    let parsed: { data: Record<string, unknown>; content: string }
+    try {
+      parsed = splitFrontMatter(f.raw)
+    } catch (err) {
+      issue(file, 'front-matter', err instanceof FrontMatterError ? err.message : String(err))
+      continue
+    }
+    const fm = { ...parsed.data }
 
     const check = articleSchema.safeParse(normalizePlaceholders(fm))
     if (!check.success) {
