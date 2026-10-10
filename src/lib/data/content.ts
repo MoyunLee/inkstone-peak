@@ -86,6 +86,64 @@ export function archiveTree(entries: ArticleEntry[] = articles): { year: string;
 }
 
 /**
+ * 标签聚合页的对外 URL 口径（**站内唯一生成点**）：`/tags/` + 转义后的标签名，例如 `/tags/%E5%86%99%E4%BD%9C`。
+ *
+ * 落盘目录用**裸中文段**（`dist/tags/写作/index.html`），对外 URL 一律转义形态——React Router 匹配路由前会
+ * 解码，故转义的 location 照样能在 `useParams()` 取到 `写作`；而浏览器实际请求的 pathname 就是转义串
+ * （`new URL(...).pathname` 不解码），所以站内 href / canonical / sitemap / JSON-LD 全用这一个形态。
+ * scripts/pre-render.ts 与 scripts/feeds.ts 不能 import src/，各自内联同一表达式（先例：navBase 的三份）。
+ *
+ * @param tag 标签名（原样中文）。
+ * @returns 转义形态的站内绝对路径。
+ * @example
+ * tagPath('写作') // '/tags/%E5%86%99%E4%BD%9C'
+ */
+export function tagPath(tag: string): string {
+  return '/tags/' + encodeURIComponent(tag)
+}
+
+/** 标签页的一个标签桶：`tag` = 标签名，`items` = 该标签下的条目（已按唯一排序契约定序）。 */
+export interface TagBucket {
+  tag: string
+  items: ArticleEntry[]
+}
+
+/**
+ * /tags 索引视图：遍历全量条目的 `tags` 去重成标签清单（`tags` 在构建期已剔掉 `portfolio` 标记，清单里只有真标签）。
+ *
+ * 排序口径：**先把全量按唯一排序契约排一遍（`compareArticles(…, 'desc')`），再顺着这个序列筛出每个标签的条目**
+ * ——桶内顺序直接继承契约本身（与 `archiveTree` 的「先排一遍再分桶」同一写法），不自创第二套排序。
+ * 清单本身的顺序：**条目数降序 → 平手按标签字符串的 Unicode 码点升序**（`<` 这类确定性比较，
+ * 刻意不用 `localeCompare`——ICU 版本差异会让顺序不可复现）。
+ *
+ * @param entries 条目清单；缺省全量 `articles`（含作品，与 /blog 同口径）。
+ * @returns 标签桶数组（条目数降序）= /tags 索引的渲染顺序。
+ * @example
+ * tagIndex().map((b) => `${b.tag}:${b.items.length}`) // ['写作:3', '建站:3', '配置:2', …]
+ */
+export function tagIndex(entries: ArticleEntry[] = articles): TagBucket[] {
+  const ordered = [...entries].sort((a, b) => compareArticles(a, b, 'desc'))
+  const names = [...new Set(entries.flatMap((e) => e.tags))]
+  return names
+    .map((tag) => ({ tag, items: ordered.filter((e) => e.tags.includes(tag)) }))
+    .sort((a, b) => b.items.length - a.items.length || (a.tag < b.tag ? -1 : a.tag > b.tag ? 1 : 0))
+}
+
+/**
+ * 按标签取条目（/tags/:tag 用）——**集合与顺序与 `tagIndex()` 同源**：直接取该标签那个桶，两处不可能分叉。
+ *
+ * @param tag 标签名（路由已解码，原样中文）。
+ * @param entries 条目清单；缺省全量 `articles`。
+ * @returns 该标签的条目（已按唯一排序契约定序）；没有这个标签时返回 `[]`（调用方据此走 404）。
+ * @example
+ * const entries = entriesByTag(tag)
+ * if (entries.length === 0) return <NotFound />
+ */
+export function entriesByTag(tag: string, entries: ArticleEntry[] = articles): ArticleEntry[] {
+  return tagIndex(entries).find((b) => b.tag === tag)?.items ?? []
+}
+
+/**
  * 贡献热力图的喂料（全站文章含作品；**数据口径的唯一真源**）：每篇「发布日 + 更新日各记 1 条」。
  *
  * 两个日子都上历：发布格记「什么时候发的」，更新格记「最后一次动它是什么时候」。

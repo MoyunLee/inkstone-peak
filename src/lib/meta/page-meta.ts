@@ -96,6 +96,21 @@ export function navBase(route: string | null | undefined): string {
   return ((route ?? '/').split('#')[0] || '/')
 }
 
+/**
+ * 标签聚合页的对外 URL 口径：`/tags/` + 转义后的标签名（**口径同 `src/lib/data/content.ts` 的 `tagPath`**）。
+ *
+ * 本文件必须零依赖（构建期 node 与运行期浏览器共用同一份），故不 import 数据模块，此处内联同一表达式；
+ * 两份一旦漂移，站内链接与 canonical 就会与预渲染落盘目录对不上。
+ *
+ * @param tag 标签名（原样中文）。
+ * @returns 转义形态的站内绝对路径。
+ * @example
+ * tagPath('写作') // '/tags/%E5%86%99%E4%BD%9C'
+ */
+export function tagPath(tag: string): string {
+  return '/tags/' + encodeURIComponent(tag)
+}
+
 /** 路由的 basename：'/' → ''，'/portfolio' → 'portfolio'，'/a/b' → 'b'。 */
 function routeKey(path: string): string {
   const p = normalizePath(path)
@@ -107,7 +122,7 @@ function routeKey(path: string): string {
  *
  * 构建期 scripts/pre-render.ts 与运行期 components/layout/RouteMeta 共用这一个函数，
  * 预渲染产物与 SPA 换页的口径因此必然一致（改口径只改这里一处）。
- * 匹配顺序：nav 页面级路由 → 文章落点 to → 兜底 404（noindex）。
+ * 匹配顺序：nav 页面级路由 → 文章落点 to → 标签聚合页（/tags/<标签>）→ 兜底 404（noindex）。
  *
  * @param pathname 当前路径；可含 query/hash，函数内部会归一。
  * @param site 站点数据——构建期传 .content/site.json，运行期传 useSite()。
@@ -167,8 +182,14 @@ export function pageMeta(pathname: string, site: MetaSiteInput, posts: MetaArtic
     return out(title, post.description || info.description, keywords ? { keywords, og } : { og })
   }
 
-  // ③ 其余：404 口径（noindex）。canonical 指站点根而非 /404——/404 线上返回的正是 404，指过去不干净。
+  // ③ 标签聚合页（/tags/<标签>）：路径此刻已是**转义形态**（站内一律由 tagPath 生成），故拿 tagPath(tag) 逐标签
+  //    比对，不手写解码——命中即说明链接、canonical、sitemap 与预渲染落盘目录说的是同一个 URL。
+  //    未知标签（不在清单里）不在此支命中，继续走下面的 404 口径（noindex + canonical 指站根）。
+  const tag = [...new Set(posts.flatMap((x) => x.tags ?? []))].find((t) => tagPath(t) === p)
+  if (tag) return out(`${tag} · ${info.title}`, info.description, { og: ogCard() })
+
+  // ④ 其余：404 口径（noindex）。canonical 指站点根而非 /404——/404 线上返回的正是 404，指过去不干净。
   //    没做「404 不出 canonical」：壳里 canonical 是每页无条件替换的锚点（scripts/pre-render.ts 的 setHref），
-  //    删锚点得动 pre-render 与壳，超出本文件职责；此处只改本支输出，命中 ①/② 的 10 条路由不受影响。
+  //    删锚点得动 pre-render 与壳，超出本文件职责；此处只改本支输出，命中 ①/②/③ 的路由不受影响。
   return out(`${site.notfound.line} · ${info.title}`, site.notfound.line, { noindex: true, canonical: siteUrl + '/' })
 }

@@ -8,7 +8,7 @@
 // 刻意不出的字段：jobTitle（站内没有「职业」这一键，about.tags_left 是标签不是职务 → 不编，等有事实源再补）、
 //   alumniOf（site.yml timeline 写明「在读」——还没毕业，用「校友」语义就是错的）。
 
-import { navBase, normalizePath } from './page-meta.ts'
+import { navBase, normalizePath, tagPath } from './page-meta.ts'
 
 /** nav 条目（只取结构化数据用到的字段；与 .content/site.json 顶层同形）。 */
 interface JsonLdNavInput {
@@ -56,6 +56,7 @@ interface JsonLdGraph {
  *
  * 节点按路由形态派生，不按 slug 写死：首页与「观自」页出 Person；每页出 BreadcrumbList（首页只有一层，不出）；
  * 博文详情出 BlogPosting；作品详情有视频槽出 VideoObject、没有则出 CreativeWork。
+ * 标签聚合页只出 BreadcrumbList（根 → /tags → 标签名），刻意不出 Person / BlogPosting——它不是一条内容，只是一个索引。
  * 日期 / 封面 / 播放器地址 / 技能 / 社交链接全部现读事实，改一篇文章的 front-matter 就自动跟上。
  *
  * @param pathname 当前路径；可含 query/hash，函数内部会归一（与 pageMeta 同一套归一）。
@@ -76,8 +77,10 @@ export function jsonLd(pathname: string, site: JsonLdSiteInput, posts: JsonLdArt
 
   const navHit = site.nav.find((n) => navBase(n.route) === p)
   const post = posts.find((x) => normalizePath(x.to) === p)
-  // 兜底与 page-meta 同一条：未命中任何路由 = 404 口径，不出结构化数据
-  if (!navHit && !post) return null
+  // 标签聚合页：路径是转义形态（tagPath），故同样按 tagPath 比对，不手写解码。标签清单从 posts 现算（与 page-meta 同一份事实）。
+  const tag = [...new Set(posts.flatMap((x) => x.tags ?? []))].find((t) => tagPath(t) === p)
+  // 兜底与 page-meta 同一条：未命中任何路由 = 404 口径（含未知标签），不出结构化数据
+  if (!navHit && !post && !tag) return null
 
   const author = info.author?.trim()
   const personId = siteUrl + '/#person'
@@ -115,6 +118,11 @@ export function jsonLd(pathname: string, site: JsonLdSiteInput, posts: JsonLdArt
     )
     if (parent) crumb(parent.ink, abs(navBase(parent.route)))
     crumb(post.title, abs(p))
+  } else if (tag) {
+    // 标签页：根 → 标签索引页 → 标签名。父列表页 = nav 里 route 是本路径前缀的那条（本站即 /tags；从 nav 现取，不写死路径）。
+    const index = site.nav.find((n) => p.startsWith(navBase(n.route) + '/'))
+    if (index) crumb(index.ink, abs(navBase(index.route)))
+    crumb(tag, abs(p))
   } else if (navHit && !isHome) {
     crumb(navHit.ink, abs(p))
   }
