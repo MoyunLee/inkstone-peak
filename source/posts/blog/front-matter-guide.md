@@ -101,7 +101,7 @@ tags: [标签一]
 | `main_color` | 【可选】文章主色，必须 6 位十六进制**不可缩写**（`#ffffff` 不能写 `#fff`） | 不设 |
 | `swiper_index` | 【可选】一级置顶序号，数字越小越靠前（全站唯一排序契约，见第七节） | 不设 |
 | `top_group_index` | 【可选】次级置顶序号（同上） | 不设 |
-| `relatedWork` | 【可选】关联案例 slug | 仅构建期校验悬空，暂无界面落点 |
+| `relatedWork` | 【可选】关联案例（作品）的 slug | 不设；详情页「相关阅读」把它置顶（悬空只在构建期提醒，不出错） |
 
 > 内容槽与作品字段（`links` / `video` / `embeds` / `embed_hero` / `period` / `carousel`）列在第五节；本表 + 第五节 = `scripts/content/schemas/article.ts` 的全部字段。
 

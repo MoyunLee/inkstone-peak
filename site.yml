@@ -322,6 +322,7 @@ a11y:
   post_copyright_notice: 版权声明                    # 版权模块声明行标签
   post_code_expand: 展开全部                        # 代码框折叠时按钮文字
   post_code_collapse: 收起                          # 代码框展开时按钮文字
+  related_title: 相关阅读                         # 详情页「相关阅读」区块的标题（兼该块可访问名）
   lightbox_label: 查看大图                          # 点图放大层的可访问名（role=dialog）
   lightbox_close: 关闭大图                          # 放大层关闭按钮 aria-label
   embed_play: 点此播放                              # 嵌入海报上播放按钮的 aria-label（触摸设备先出海报）
