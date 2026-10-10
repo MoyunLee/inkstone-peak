@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import type { ArticleEntry } from '../../../lib/types/content'
 import Header from '../../layout/Header'
 import SiteFooter from '../../sections/SiteFooter'
@@ -32,12 +32,14 @@ function tocPlacement(entry: ArticleEntry): 'aside' | 'inline' | null {
  * 目录落位由 tocPlacement() 算：侧栏开着走侧栏，否则内联到正文上方，关目录时为 null。
  *
  * @param entry 文章事实（两型同一契约，含主题色与目录清单）。
+ * @param afterBody 正文之后的收束槽（作品导航等）；省略即不渲染。**落在 .bd-layout 栅格之外**——
+ *   塞进栅格会多出一个网格项、把命名栅格区挤乱。
  * @example
  * const b = postBySlug(slug)
  * if (!b) return <NotFound />
  * return <ArticleDetail entry={b} />
  */
-export default function ArticleDetail({ entry }: { entry: ArticleEntry }) {
+export default function ArticleDetail({ entry, afterBody }: { entry: ArticleEntry; afterBody?: ReactNode }) {
   const site = useSite()
   const a = site.a11y
   const style: CSSProperties = {}
@@ -101,6 +103,7 @@ export default function ArticleDetail({ entry }: { entry: ArticleEntry }) {
             {articlePostBody(entry, site)}
           </div>
         </article>
+        {afterBody}
       </main>
       <SiteFooter />
     </>
