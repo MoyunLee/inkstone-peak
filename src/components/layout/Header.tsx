@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import type { KeyboardEvent as ReactKeyboardEvent } from 'react'
+import type { KeyboardEvent as ReactKeyboardEvent, MouseEvent as ReactMouseEvent } from 'react'
 import { useSite } from '../../lib/data/site'
 import { navBase } from '../../lib/meta/page-meta'
 import { useNavState } from '../../lib/nav/nav-sync'
@@ -14,14 +14,17 @@ import Seal from '../ui/Seal'
  * `active` 是 **site.nav 全数组下标**，故一级项必须「先带原始下标、再过滤 parent === null」——
  * 先 filter 再 map 会把下标错位、高亮全乱。
  *
- * 分组（nav 里 parent === 本项基础路由的条目）收进下拉：一级项本身照旧是 Link，
- * 相邻一枚 caret 按钮开合面板，面板内列「父条目自身 + 各子项」（文字一律取 nav 的 ink）。
+ * 分组（nav 里 parent === 本项基础路由的条目）收进下拉：触发器是**整条可点的一个按钮**
+ * （文字 = 条目 ink，占位与开合两职合一），面板内列「父条目自身 + 各子项」（文字一律取 nav 的 ink）。
+ * 开合只认点击：再点触发器收、Esc 收（焦点送回触发器）、点面板外收；**指针移开一律不收**——
+ * 早先的 hover 展开已整个撤掉（指针从触发器滑向面板要穿过 4px 缝隙，一进缝里就收起，
+ * 面板 display:none 后鼠标再也追不回来，用户报「鼠标离开就没有了」）。勿以任何形式恢复。
  *
  * ⚠ 面板容器**无条件渲染在 DOM 里**（可见性只由 data-open + CSS display 控制）：
  *   预渲染正文必须留着 /archive、/tags 的 <a>，爬虫与无 JS 用户才取得到（可达性回退）。
  *   也不许用 hidden 属性——预渲染闸（scripts/pre-render.ts）把正文里的 `<div hidden` 判成
  *   迟到 Suspense 标记并中止构建（同 ThemeToggle 的处置）。
- * ⚠ SSR 期不得碰 matchMedia：只有 (hover: hover) 的设备才走悬浮展开，判定推迟到事件里。
+ * ⚠ SSR/渲染期不得碰 matchMedia：这里已无 hover 判定，仍别把任何设备能力嗅探放回渲染路径。
  *
  * @example
  * <Header />
@@ -31,18 +34,14 @@ export default function Header() {
   const { active, onClick } = useNavState(site.nav)
   const panelId = useId()
   const [openKey, setOpenKey] = useState<string | null>(null)
-  const openSource = useRef<'pointer' | 'keyboard'>('keyboard') // 本次展开是谁发起的：决定「指针移开要不要收」
-  const openedAt = useRef(0) // 本次展开的时刻：同一次手势尾随的 click 只当「已开」
-  const caretRefs = useRef<Record<string, HTMLButtonElement | null>>({})
+  const triggerRefs = useRef<Record<string, HTMLButtonElement | null>>({})
 
-  /** 真的能悬浮的设备才走 hover 展开：触屏会把 tap 合成 mouseenter/mouseleave。 */
-  const canHover = (): boolean => typeof window !== 'undefined' && window.matchMedia('(hover: hover)').matches
-  const caretLabel = (ink: string): string => (site.a11y.nav_submenu_aria ?? 'nav_submenu_aria').replace('{ink}', ink)
+  const triggerLabel = (ink: string): string => (site.a11y.nav_submenu_aria ?? 'nav_submenu_aria').replace('{ink}', ink)
 
-  const openAt = (key: string, source: 'pointer' | 'keyboard'): void => {
-    openSource.current = source
-    openedAt.current = Date.now()
-    setOpenKey(key)
+  /** 面板内链接：先走与顶栏链接**同一套**命中语义（命中 = 不跳转、回顶），再收起面板。 */
+  const navThenClose = (n: NavLink) => (event: ReactMouseEvent<HTMLAnchorElement>): void => {
+    if (onClick(n)) event.preventDefault()
+    setOpenKey(null)
   }
 
   // 点面板外即收起：判据是「落点不在当前打开的那个 .nav-group 里」。
@@ -105,56 +104,31 @@ export default function Header() {
               data-key={n.ink}
               data-active={holdsActive ? 'true' : undefined}
               data-open={open ? 'true' : 'false'}
-              onMouseEnter={() => {
-                if (canHover() && openKey === null) openAt(n.ink, 'pointer')
-              }}
-              onMouseLeave={() => {
-                // 指针展开的移开即收；键盘展开的不收（那会把用户正在操作的元素藏起来）。
-                if (canHover() && openSource.current === 'pointer' && openKey === n.ink) setOpenKey(null)
-              }}
               onKeyDown={(event: ReactKeyboardEvent<HTMLDivElement>) => {
                 if (event.key !== 'Escape' || !open) return
                 event.preventDefault()
                 setOpenKey(null)
-                caretRefs.current[n.ink]?.focus() // Esc 收起并把焦点送回 caret
+                triggerRefs.current[n.ink]?.focus() // Esc 收起并把焦点送回触发器
               }}
             >
-              {link}
+              {/* 整条「观山」即触发器：占位与开合两职合一（可访问名仍取 a11y 键），视觉与旁边三条平级链接无差别 */}
               <button
                 ref={(el) => {
-                  caretRefs.current[n.ink] = el
+                  triggerRefs.current[n.ink] = el
                 }}
                 type="button"
-                className="nav-caret"
+                className="nav-trigger"
+                data-current={on ? 'true' : undefined}
                 aria-haspopup="true"
                 aria-expanded={open}
                 aria-controls={id}
-                aria-label={caretLabel(n.ink)}
-                title={caretLabel(n.ink)}
-                onClick={(event) => {
-                  if (open) {
-                    // 同一次手势尾随的 click（悬浮/触屏刚展开）不当作「再按一次收起」
-                    if (openSource.current === 'pointer' && Date.now() - openedAt.current <= 350) return
-                    setOpenKey(null)
-                    return
-                  }
-                  openAt(n.ink, event.detail > 0 ? 'pointer' : 'keyboard')
+                aria-label={triggerLabel(n.ink)}
+                title={triggerLabel(n.ink)}
+                onClick={() => {
+                  setOpenKey(open ? null : n.ink)
                 }}
               >
-                <svg
-                  className="nav-caret-icon"
-                  aria-hidden="true"
-                  width="12"
-                  height="12"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.4"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="m6 9 6 6 6-6" />
-                </svg>
+                {n.ink}
               </button>
               {/* 面板恒在 DOM：面板内链接可 Tab 到（display:none 时不可聚焦，故不会「焦点在不可见元素上」） */}
               <div className="nav-panel" id={id}>
@@ -163,9 +137,7 @@ export default function Header() {
                   className={on ? 'on' : undefined}
                   aria-current={on ? 'true' : undefined}
                   to={n.route ?? '/'}
-                  onClick={(e) => {
-                    if (onClick(n)) e.preventDefault()
-                  }}
+                  onClick={navThenClose(n)}
                 >
                   {n.ink}
                 </Link>
@@ -177,9 +149,7 @@ export default function Header() {
                       className={con ? 'on' : undefined}
                       aria-current={con ? 'true' : undefined}
                       to={c.route ?? '/'}
-                      onClick={(e) => {
-                        if (onClick(c)) e.preventDefault()
-                      }}
+                      onClick={navThenClose(c)}
                     >
                       {c.ink}
                     </Link>

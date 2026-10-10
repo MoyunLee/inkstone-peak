@@ -95,7 +95,20 @@
   list-style: none;
   margin-left: auto;
 }
-.topbar nav a {
+/* 顶栏条目：<a>（山门/造境/观自）与 <button>（观山触发器）共用一份声明——
+   镜像写法，免得两份样式日后走样。按钮先抹平 UA 默认（边框/底色/内边距/字体），
+   字体相关属性由后面那条共享块给定，故仍与 <a> 同源。 */
+.topbar nav .nav-trigger {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  appearance: none;
+}
+.topbar nav a,
+.topbar nav .nav-trigger {
   position: relative;
   display: inline-block;
   padding: 8px 2px;
@@ -107,7 +120,8 @@
     color var(--t) var(--ease),
     transform var(--t) var(--ease);
 }
-.topbar nav a::after {
+.topbar nav a::after,
+.topbar nav .nav-trigger::after {
   content: '';
   position: absolute;
   left: 0;
@@ -117,18 +131,22 @@
   background: var(--ink);
   transition: width 200ms var(--ease);
 }
-.topbar nav a:hover {
+.topbar nav a:hover,
+.topbar nav .nav-trigger:hover {
   color: var(--ink-2);
   transform: translateY(-1px);
 }
-.topbar nav a:hover::after {
+.topbar nav a:hover::after,
+.topbar nav .nav-trigger:hover::after {
   width: 60%;
 }
-.topbar nav a.on {
+.topbar nav a.on,
+.topbar nav .nav-trigger[data-current='true'] {
   color: var(--ink);
   font-weight: 700;
 }
-.topbar nav a.on::after {
+.topbar nav a.on::after,
+.topbar nav .nav-trigger[data-current='true']::after {
   left: 0;
   transform: none;
   width: 100%;
@@ -136,9 +154,10 @@
   background: var(--seal);
 }
 /* 「父级含当前页」（当前页在面板里，触发器只是它的入口）：借 .on 的朱点，字提到 --ink-2，
-   既不下划线也不加粗——同族里最弱的一档，与「它就是当前页」区分开。 */
+   既不下划线也不加粗——同族里最弱的一档，与「它就是当前页」（data-current）区分开。 */
 .topbar nav a.on::before,
-.nav-group[data-active='true'] > a::before {
+.topbar nav .nav-trigger[data-current='true']::before,
+.nav-group[data-active='true'] > .nav-trigger::before {
   content: '';
   position: absolute;
   left: 50%;
@@ -149,53 +168,28 @@
   border-radius: 50%;
   background: var(--seal);
 }
-.nav-group[data-active='true'] > a {
+.nav-group[data-active='true'] > .nav-trigger {
   color: var(--ink-2);
 }
-/* 顶栏分组下拉（观山 ▾）：一级项 link + caret 同居一个相对定位容器，面板绝对定位在其下。
+/* 展开态：箭头删掉后，触发器本身要给出"开着"的回执——色档**与 hover 同级**（--ink），
+   不多任何图标/圆点/下划线：旁边的一级链接是没有额外标记的，触发器也照同一副面孔。
+   第二条臂是必要的：点开面板时指针正停在触发器上，共享的 `.topbar nav .nav-trigger:hover`
+   （0,3,1）比本规则（0,3,0）多一个类型选择器——只写一条的话，"开着"当场被 hover 的 --ink-2
+   盖回去（且比"开着"更淡，方向正好反了）。开着就是这一档，hover 不再另起一档。 */
+.nav-group[data-open='true'] .nav-trigger,
+.nav-group[data-open='true'] .nav-trigger:hover {
+  color: var(--ink);
+}
+/* 顶栏分组下拉（整条「观山」可点）：触发器与面板同居一个相对定位容器，面板绝对定位在其下。
    ★面板**恒在 DOM**：预渲染正文必须留住 /archive、/tags 的 <a>（爬虫与无 JS 用户的可达性回退），
      可见性只由 data-open + display 控制；不许用 hidden 属性——预渲染闸会把 `<div hidden`
-     判成迟到 Suspense 标记并中止构建（同 ThemeToggle 的处置）。 */
+     判成迟到 Suspense 标记并中止构建（同 ThemeToggle 的处置）。
+   ★开合只认点击（再点触发器 / Esc / 点面板外），**指针移开不收起**：故 top 上留的那 4px 缝
+     已不再有关闭竞速（旧 hover 展开时指针滑过缝隙就触发 mouseleave，面板一没就追不回来）。 */
 .nav-group {
   position: relative;
   display: flex;
   align-items: center;
-}
-.nav-caret {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px; /* 命中区按触摸口径放大（≥44），靠负外边距让视觉仍贴着「观山」二字 */
-  height: 44px;
-  margin: 0 -13px 0 -11px;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--ink-3);
-  cursor: pointer;
-  border-radius: var(--card-radius);
-}
-.nav-caret:hover {
-  color: var(--ink-2);
-}
-.nav-caret:focus-visible {
-  outline: 2px solid var(--seal);
-  outline-offset: -8px;
-}
-/* caret 翻转：只在允许动效时上过渡（reduced-motion 下瞬时换向，不播动画） */
-@media (prefers-reduced-motion: no-preference) {
-  .nav-caret {
-    transition: color var(--t) var(--ease);
-  }
-  .nav-caret-icon {
-    transition: transform var(--t) var(--ease);
-  }
-}
-.nav-group[data-open='true'] .nav-caret {
-  color: var(--ink);
-}
-.nav-group[data-open='true'] .nav-caret-icon {
-  transform: rotate(180deg);
 }
 .nav-panel {
   position: absolute;
@@ -216,22 +210,25 @@
 .nav-group[data-open='true'] .nav-panel {
   display: flex;
 }
-.nav-panel a {
+/* 面板条目：选择器必须带 `.topbar nav` 前缀——`.nav-panel a`（0,1,1）压不过共享的
+   `.topbar nav a`（0,1,2），否则面板链接会退回一级条目的 `8px 2px` / `--ink-3`
+   （又挤又灰）。面板里的留白是**横排语汇反过来**：一级靠字距分栏、面板靠行内边距分段。 */
+.topbar nav .nav-panel a {
   padding: 9px 20px;
   color: var(--ink-2);
   white-space: nowrap;
 }
-.nav-panel a:hover {
+.topbar nav .nav-panel a:hover {
   color: var(--ink);
   transform: none;
 }
 /* 面板是竖排语汇：横排那条下划线（::after）与顶栏朱点（::before）都不带进来，
    激活项只以满墨 + 加粗标记（--seal 在深色卡底上只有 2.8:1，不能拿来染字）。 */
-.nav-panel a::after,
-.nav-panel a.on::before {
+.topbar nav .nav-panel a::after,
+.topbar nav .nav-panel a.on::before {
   display: none;
 }
-.nav-panel a.on {
+.topbar nav .nav-panel a.on {
   color: var(--ink);
   font-weight: 700;
 }
