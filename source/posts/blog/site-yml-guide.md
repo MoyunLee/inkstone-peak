@@ -38,7 +38,7 @@ toc_number: false     # 本文标题自带编号（## 一、/ ### 3.1），再�
 | `contact` | ❌ 不能 | `email` | 页脚联系方式栏 |
 | `footer` | ❌ 不能 | `columns` `seal_text` `copyright`（`brand_bio` 2026-09-23 起可省） | 页脚 / 首页传音段 / favicon 印文 |
 | `notfound` | ❌ 不能 | `line` `cta` | 404 页 |
-| `a11y` | ✅ 可整节删 | —（40 键全可选） | 全站 aria 与可见小字 |
+| `a11y` | ✅ 可整节删 | —（43 键全可选） | 全站 aria 与可见小字 |
 
 一句话记法：**「骨架进必填，能力进可省」。** 站点身份、页面清单、首页结构、关于页标题、联系方式与页脚、404，这些是骨架；轮播、归档开关、热力图、文章默认值、aria 文案，这些是能力，删了只退场不报错。
 
@@ -314,12 +314,12 @@ columns:
 
 `line`（提示语）+ `cta`（`{ label, to }`）。同一套文案生成 `dist/404.html` 并注入 noindex。
 
-### 3.13 `a11y`（可整节省；40 键全可选）
+### 3.13 `a11y`（可整节省；43 键全可选）
 
-缺键 = 不输出该属性；但键名仍走 strict 白名单，**拼错照样报错**。40 键按用途分六组：
+缺键 = 不输出该属性；但键名仍走 strict 白名单，**拼错照样报错**。43 键按用途分六组：
 
 - 布局：`nav_label` `tabs_label` `brand_label` `seal_top_hint`（页脚大印：回到本页顶部）`skip_link_label`
-- 详情页与按钮：`case_period`（周期题词）`case_embeds`（嵌入分节标题）`detail_cta` `detail_aria`（支持 `{ink}`）`carousel_prev` `carousel_next` `carousel_pause` `carousel_play`（轮播暂停/播放键，WCAG 2.2.2）
+- 详情页与按钮：`case_period`（周期题词）`case_embeds`（嵌入分节标题）`case_nav_label` `case_prev` `case_next`（作品详情页「上一件 / 下一件」导航的可访问名与两枚链接题词）`detail_cta` `detail_aria`（支持 `{ink}`）`carousel_prev` `carousel_next` `carousel_pause` `carousel_play`（轮播暂停/播放键，WCAG 2.2.2）
 - 关于：`about_seal_label` `about_tags_label` `about_timeline_label`
 - 详情页共用：`post_date` `post_updated` `post_categories` `post_toc_label` `post_aside_label`（两型同一枚侧栏可访问名）`post_comments_label` `post_copyright_heading` `post_copyright_author` `post_copyright_link` `post_copyright_notice` `post_code_expand` `post_code_collapse`
 - 内容层：`lightbox_label`（点图放大层）`lightbox_close`（关闭大图）`embed_play` `embed_external` `embed_failed`（嵌入海报三态）`video_retry` `video_open_native`（自托管视频失败态）

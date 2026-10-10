@@ -8,7 +8,7 @@ const linkShape = z.object({ label: z.string(), to: z.string() }).strict()
 /** a11y 话术键白名单：必须与 src/lib/types/site.ts 的 A11yKey 对齐（改键名要两处一起改，否则组件取不到文案）。 */
 const A11Y_KEYS = [
   'nav_label', 'tabs_label', 'seal_top_hint', 'brand_label',
-  'case_period', 'case_embeds',
+  'case_period', 'case_embeds', 'case_nav_label', 'case_prev', 'case_next',
   'detail_cta', 'detail_aria', 'carousel_prev', 'carousel_next', 'carousel_pause', 'carousel_play',
   'about_seal_label', 'about_tags_label', 'about_timeline_label',
   'post_date', 'post_updated', 'post_categories', 'post_toc_label',
