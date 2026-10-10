@@ -59,10 +59,17 @@
   backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--ink-4);
 }
+/* 左侧占位：与右端 `.topbar::after` 等权（同为 flex:1 1 0），
+   两臂等宽 ⇒ 中间的 nav 自然落在视口水平中心（padding 左右对称）。 */
 .topbar .brand-wrap {
   display: flex;
   align-items: center;
   gap: clamp(20px, 4vw, 56px);
+  flex: 1 1 0;
+}
+.topbar::after {
+  content: '';
+  flex: 1 1 0;
 }
 .topbar .brand {
   display: inline-flex;
@@ -89,15 +96,21 @@
   outline-offset: 4px;
   border-radius: 2px;
 }
+/* 条目间距：17px 字号下按实测配平——下限 16px 留给 360px 档（那里 nav≈229px，
+   距品牌右沿仍余 16px 空气、无横滚），上限 40px 让宽屏四项舒展（≈2.35em，与 15px 时代的
+   2.4em 同档；仍沿用旧值 36px 的话比值掉到 2.1em，字大了反而显挤）。 */
 .topbar nav {
   display: flex;
-  gap: clamp(16px, 3vw, 36px);
+  gap: clamp(16px, 3.2vw, 40px);
   list-style: none;
-  margin-left: auto;
 }
 /* 顶栏条目：<a>（山门/造境/观自）与 <button>（观山触发器）共用一份声明——
    镜像写法，免得两份样式日后走样。按钮先抹平 UA 默认（边框/底色/内边距/字体），
-   字体相关属性由后面那条共享块给定，故仍与 <a> 同源。 */
+   字体相关属性由后面那条共享块给定，故仍与 <a> 同源。
+   ★一级条目一律写**直接子选择器**（`nav > a`）：面板里的印章按钮也是 <a>，
+     后代写法会把 `8px 2px` / `--ink-3` / 下划线一起打进面板（上一轮面板"又挤又灰"就是这么来的）。
+     触发器维持后代写法：面板里没有 .nav-trigger，且它的特异性必须留在 (0,2,1)——
+     下方 `[data-active]`/`[data-open]` 两条是 (0,3,0)，抬到 (0,3,1) 会把那两个状态压掉。 */
 .topbar nav .nav-trigger {
   background: none;
   border: 0;
@@ -107,20 +120,20 @@
   cursor: pointer;
   appearance: none;
 }
-.topbar nav a,
+.topbar nav > a,
 .topbar nav .nav-trigger {
   position: relative;
   display: inline-block;
   padding: 8px 2px;
   text-decoration: none;
   color: var(--ink-3);
-  font-size: 15px;
+  font-size: 17px;
   letter-spacing: 0.2em;
   transition:
     color var(--t) var(--ease),
     transform var(--t) var(--ease);
 }
-.topbar nav a::after,
+.topbar nav > a::after,
 .topbar nav .nav-trigger::after {
   content: '';
   position: absolute;
@@ -131,21 +144,21 @@
   background: var(--ink);
   transition: width 200ms var(--ease);
 }
-.topbar nav a:hover,
+.topbar nav > a:hover,
 .topbar nav .nav-trigger:hover {
   color: var(--ink-2);
   transform: translateY(-1px);
 }
-.topbar nav a:hover::after,
+.topbar nav > a:hover::after,
 .topbar nav .nav-trigger:hover::after {
   width: 60%;
 }
-.topbar nav a.on,
+.topbar nav > a.on,
 .topbar nav .nav-trigger[data-current='true'] {
   color: var(--ink);
   font-weight: 700;
 }
-.topbar nav a.on::after,
+.topbar nav > a.on::after,
 .topbar nav .nav-trigger[data-current='true']::after {
   left: 0;
   transform: none;
@@ -155,7 +168,7 @@
 }
 /* 「父级含当前页」（当前页在面板里，触发器只是它的入口）：借 .on 的朱点，字提到 --ink-2，
    既不下划线也不加粗——同族里最弱的一档，与「它就是当前页」（data-current）区分开。 */
-.topbar nav a.on::before,
+.topbar nav > a.on::before,
 .topbar nav .nav-trigger[data-current='true']::before,
 .nav-group[data-active='true'] > .nav-trigger::before {
   content: '';
@@ -184,8 +197,19 @@
    ★面板**恒在 DOM**：预渲染正文必须留住 /archive、/tags 的 <a>（爬虫与无 JS 用户的可达性回退），
      可见性只由 data-open + display 控制；不许用 hidden 属性——预渲染闸会把 `<div hidden`
      判成迟到 Suspense 标记并中止构建（同 ThemeToggle 的处置）。
-   ★开合只认点击（再点触发器 / Esc / 点面板外），**指针移开不收起**：故 top 上留的那 4px 缝
-     已不再有关闭竞速（旧 hover 展开时指针滑过缝隙就触发 mouseleave，面板一没就追不回来）。 */
+   ★开合：悬停（指针进 .nav-group 即开、离开即收，收起留 120ms 宽限）+ 点击切换（触摸端唯一入口，
+     键盘 Enter/Space 同路）。悬停下"从触发器滑进面板不掉"由下方 .nav-group::after 的悬浮桥保证——
+     不靠加宽这道缝（缝一宽，"浮着的一层"就变成"黏在栏底的抽屉"，视觉要动）。
+   ★浮层档（与 ui.css 的 .theme-panel 对齐——站内仅此两处悬浮层，档位必须同一套）：
+     · top +16px：.nav-group 盒底实测 52.6px、顶栏底边 64px，偏移 <12px 必被顶栏压住
+       （旧 +8px ⇒ 面板顶边 60.6px，压在底边里 3.4px）；+16px 让顶边落到 68.6px，
+       在顶栏底边之下留 4.6px 空气，读作"悬着的一层"而不是"黏在栏底的抽屉"。
+     · 阴影 --shadow-pop：与 .theme-panel 同档（--shadow-soft 是卡片的量级，托不住浮层）。
+     · 1px 描边 --line-panel（= ink-4 60%，一线游丝）：它读作"这一层的边"，与面板内印章那
+       1.5px 满墨框（--ink）差着两个色阶，不成"框中框"；半透纸底 + 面板会浮在照片/水墨上，
+       没有这条边轮廓会随底图溶掉。全站另一处浮层 .theme-panel 用的就是同一条。
+     · 圆角 14px：彻底脱离 --card-radius(6px) 的"卡片"读法，落在 .seal-btn 12px 的同族里再软一档。
+     定位仍居中于触发器（left:50% + translateX(-50%)）。 */
 .nav-group {
   position: relative;
   display: flex;
@@ -193,44 +217,122 @@
 }
 .nav-panel {
   position: absolute;
-  top: calc(100% + 4px);
+  top: calc(100% + 16px);
   left: 50%;
-  transform: translateX(-50%);
+  /* 收起态基准值＝入场动画首帧值（-8px/.92/透明）：退场过渡就从这里插值过去。
+     开态在下面 [data-open='true'] 里给出终值，故**同一组数值**同时供"弹入（animation）"与"弹出（transition）"。 */
+  transform: translateX(-50%) translateY(-8px) scale(0.92);
+  transform-origin: 50% 0; /* 顶边中点＝触发器中心：入场 scale 读作"由观山这一处撑开"（见下方 nav-pop） */
+  opacity: 0;
+  /* 退场那 120ms 里面板仍在渲染（display 的 allow-discrete 把 none 推迟到过渡结束），
+     若不做处理，正在消失的三枚印章还能被点到——收起态直接取消命中区，交互语义与"瞬收"时一致。 */
+  pointer-events: none;
   z-index: 1;
   display: none;
-  flex-direction: column;
-  min-width: 132px;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
   max-width: calc(100vw - 24px);
-  padding: 8px 0;
-  background: var(--card);
-  border: 1px solid var(--line-card);
-  border-radius: var(--card-radius);
-  box-shadow: 0 14px 30px color-mix(in srgb, var(--ink) 16%, transparent);
+  padding: 12px 14px;
+  border: 1px solid var(--line-panel);
+  background: color-mix(in srgb, var(--card) 88%, transparent);
+  backdrop-filter: blur(8px);
+  border-radius: 14px;
+  box-shadow: var(--shadow-pop);
 }
 .nav-group[data-open='true'] .nav-panel {
   display: flex;
+  opacity: 1;
+  transform: translateX(-50%);
+  pointer-events: auto;
 }
-/* 面板条目：选择器必须带 `.topbar nav` 前缀——`.nav-panel a`（0,1,1）压不过共享的
-   `.topbar nav a`（0,1,2），否则面板链接会退回一级条目的 `8px 2px` / `--ink-3`
-   （又挤又灰）。面板里的留白是**横排语汇反过来**：一级靠字距分栏、面板靠行内边距分段。 */
-.topbar nav .nav-panel a {
-  padding: 9px 20px;
-  color: var(--ink-2);
-  white-space: nowrap;
+/* 入场 animation / 退场 transition：同一组数值、同一套 --ease。
+   弹入：display none→flex 每次展开都重跑动画，故挂在 [data-open='true'] 上即可，**面板仍恒在 DOM**（不用 hidden）。
+   ⚠ keyframes 里必须带上基准的 translateX(-50%)（面板靠它居中；≤767px 那档 position:fixed 共用同一套
+     transform）——漏掉的话动画首帧整块右移半个自身宽，看上去像"从右上角飞进来"。
+   弹出：靠上面基准态的 opacity/transform + 这条 transition 实现；display 那条 `allow-discrete`
+     让 display 从 flex 翻到 none 的时机**推迟到过渡结束**（面板不在过渡途中被抽走，才有得可动）。
+     transition 整条写在一起：老浏览器解析不了 allow-discrete ⇒ 整条 transition 失效 ⇒ 退场退回瞬收（不会更糟）。
+   reduce 下两者都不套（放进 no-preference 与 ui.css 的 .theme-panel 同一写法），面板直接以终态显隐。 */
+@media (prefers-reduced-motion: no-preference) {
+  .nav-group[data-open='true'] .nav-panel {
+    animation: nav-pop 200ms var(--ease);
+  }
+  .nav-panel {
+    transition:
+      opacity 120ms var(--ease),
+      transform 120ms var(--ease),
+      display 120ms allow-discrete;
+  }
 }
-.topbar nav .nav-panel a:hover {
-  color: var(--ink);
-  transform: none;
+@keyframes nav-pop {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-8px) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
 }
-/* 面板是竖排语汇：横排那条下划线（::after）与顶栏朱点（::before）都不带进来，
-   激活项只以满墨 + 加粗标记（--seal 在深色卡底上只有 2.8:1，不能拿来染字）。 */
-.topbar nav .nav-panel a::after,
-.topbar nav .nav-panel a.on::before {
+/* 悬浮桥（与 ui.css:150-162 的 .theme-panel::after 同一套口径的站内第二处）。
+   触发器盒底（17px 字号下实测 54.38px）到面板顶边（70.38 / 70px）之间那道 ~16px 的缝不属于任何元素——
+   悬停下指针滑过去就被判成"离开 .nav-group"，mouseleave 一到面板 display:none，鼠标再也追不回来。
+   桥必须是**组件自己的**命中区：伪元素即 .nav-group 自己的一部分，指针压在它上面就等于压着 .nav-group。
+   ⚠ 不挂在 .nav-panel 上（ui.css 那处的写法）：.nav-panel 带 z-index:1，自成层叠上下文，
+     它的伪元素必然画在一级链接与触发器**之上**——实测（1440）链接盒底 2px、触发器盒底 3px
+     的 elementFromPoint 都落成 div.nav-panel，正好撞上"不得盖住一级链接命中区"这条硬要求。
+     改挂 .nav-group 并压到 z-index:-1：同在 .nav-group 的命中区里，但绘制/命中次序落在
+     三条链接（position:relative）与触发器之下——链接盒内逐点扫描全部仍落回链接本身，
+     桥只吃下那道本来没主的缝。
+   几何：top:100% = 从触发器盒底起算、高 20px（≥768px 缝恒为 16px，≤767px 面板改 fixed 后实测 15.6px）；
+   宽 = 触发器盒 + 左右各 32px（隙本身就只在触发器这一列，再宽只会多占顶栏空白处的点击）。 */
+.nav-group::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  width: calc(100% + 64px);
+  height: 20px;
+  transform: translateX(-50%);
+  z-index: -1;
   display: none;
 }
-.topbar nav .nav-panel a.on {
-  color: var(--ink);
-  font-weight: 700;
+.nav-group[data-open='true']::after {
+  display: block;
+}
+/* 面板条目：**不再有任何收紧覆盖** —— 三枚印章按 .chip-a/.chip-b 自身档位渲染
+   （padding 9px 20px / font-size 14px / letter-spacing .24em），与首页山门那三枚逐项同值。
+   上一轮那条 `padding: 7px 14px; font-size: 13px; letter-spacing: .18em` 的 (0,3,2) 覆盖已删：
+   本轮诉求就是"放大、松开"，留着它等于继续与首页分叉一处尺寸，日后还要两处一起改。
+   --chip/mask 那套缺口渲染仍一概不碰（族内变体禁复制第二套渲染，见 ui.css 首行）。 */
+
+/* ≤359px 兜底（本轮改视口居中后已非"防溢出"的必需项，按验收要求原样保留）：
+   只收横向空隙（gap 10→8、左右 14→9），**印章尺寸一张不动**——「放大到首页那一档」任何宽度都不打折。 */
+@media (max-width: 359px) {
+  .nav-panel {
+    gap: 8px;
+    padding: 12px 9px;
+  }
+}
+
+/* ≤767px：窄屏下触发器中心 ≠ 视口中心（顶栏两臂不等宽），面板跟着触发器就几乎贴左沿。
+   顶栏带 backdrop-filter ⇒ 它是 fixed 后代的包含块（见 src/routes.tsx:82-84），故这里改用
+   fixed + left:50%，相对整条顶栏（= 视口宽）居中；top = --nav-h + 6px，实测落在顶栏底边之下。
+   ≥768px 触发器中心本就≈视口中心，维持 absolute（居中于触发器）。
+   ⚠ 这里**不再重复写 transform**：居中用的 translateX(-50%) 由基准态与开态规则分别给出，
+     在这一档覆盖会把"收起态"的 -8px/.92 冲掉，退场就只剩淡出（弹不出去了）。 */
+@media (max-width: 767px) {
+  .nav-panel {
+    position: fixed;
+    top: calc(var(--nav-h) + 6px);
+    left: 50%;
+  }
+}
+/* 当前页那一条：朱红描边（与顶栏「当前项出朱点」同族；朱红是全站唯一彩色）。非当前项保持素框。
+   aria-current 只能落在包裹的 <span> 上（SealButton 的公共 API 不透传该属性），故由它选按钮。 */
+.topbar nav .nav-panel .seal-item[aria-current='true'] > .seal-btn {
+  border-color: var(--seal);
 }
 
 /* 右侧题签（首页专属：只在 '/' 挂载，子页 DOM 无 .side-tabs） */
