@@ -159,6 +159,21 @@ export function build(report = true): boolean {
         if (seenModule.has(n.module)) issue('site.yml', `nav.${i}.module`, `段锚点「${n.module}」被两条 nav 占用（module 全站唯一，nav-sync resolve ① 依赖）`)
         seenModule.add(n.module)
       }
+      // parent 交叉校验：parent 只决定顶栏分组归属，写错的条目会从顶栏**静默消失**
+      //（既不是一级项、也没有任何父面板收纳它）→ 必须硬拦，不能让它悄悄不见。
+      if (n.parent !== null) {
+        const pbase = navBase(n.parent)
+        if (pbase === rbase) {
+          issue('site.yml', `nav.${i}.parent`, `parent 指向自身的基础路由「${pbase}」（「${n.ink}」自指）：顶栏会既不当它是一级项、也没有父面板收纳它`)
+        } else {
+          const host = s.nav.find((m) => navBase(m.route) === pbase)
+          if (host === undefined) {
+            issue('site.yml', `nav.${i}.parent`, `parent「${pbase}」不是任何一条 nav 的基础路由（须命中另一条的 route）：该条会从顶栏静默消失——既不是一级项、也没有父面板收纳它`)
+          } else if (host.parent !== null) {
+            issue('site.yml', `nav.${i}.parent`, `parent「${pbase}」指向的「${host.ink}」自身也是子项（parent=${host.parent}）：只允许一层分组，父条目自身必须 parent=null`)
+          }
+        }
+      }
     }
     // 锚点段事实源（整键可省）：给了就必须含 about + footer 双锚点
     for (const need of ['about', 'footer']) {

@@ -3,7 +3,7 @@
 const FIELD_CN: Record<string, string> = {
   site: '站点元信息段', title: '标题', author: '作者', lang: '语言', description: '定位句（只进 meta/OG，不上首页）',
   url: 'URL（site.url=预渲染 canonical 唯一来源；links/embeds 的 url=外部地址）', tagline: '副题（备用字段）',
-  nav: '双导航配置数组（2026 配置驱动：顶栏/题签/页脚栏2 唯一事实源）', ink: '导航显示名（山门/观山/造境/观自/传音）', route: '页面基础路由（null=山门首页根）', isDetailPage: '独立/动态详情页开关（true=按 detailPrefix 前缀固定高亮、滚动免疫、点击命中回顶）', detailPrefix: '详情页路由前缀（仅 isDetailPage=true，激活匹配用，可含 #锚点）', module: '长滚动共享页段锚点 id（全站唯一；滚动联动高亮与题签落点）',
+  nav: '双导航配置数组（2026 配置驱动：顶栏/题签/页脚栏2 唯一事实源）', ink: '导航显示名（山门/观山/造境/观自/传音）', route: '页面基础路由（null=山门首页根）', isDetailPage: '独立/动态详情页开关（true=按 detailPrefix 前缀固定高亮、滚动免疫、点击命中回顶）', detailPrefix: '详情页路由前缀（仅 isDetailPage=true，激活匹配用，可含 #锚点）', module: '长滚动共享页段锚点 id（全站唯一；滚动联动高亮与题签落点）', parent: '顶栏分组归属（值=父条目的基础路由，同 route 口径：去 #锚、空值回落 /；null=顶栏一级项）',
   home: '首页配置', sections: '段落序列（顺序权威）', id: 'id', heading: '段标题',
   heading_lines: '段标题·横排断句两行（09-05 七轮终版）', en: '英文副题', intro: '段引言',
   cta_detail: '标题行「查看详细」按钮开关（缺省开）',

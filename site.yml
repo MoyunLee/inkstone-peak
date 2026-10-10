@@ -20,18 +20,19 @@ site:
   url: https://moyunlee.cn             # 站点绝对 URL：预渲染逐路由 canonical 的唯一来源（绑域名只改这一行）
 
 # Navigation（双导航唯一事实源）
-# 每行五字段：ink=显示名 / route=页面基础路由 / isDetailPage / detailPrefix / module=长滚动共享页段锚点 id
+# 每行六字段：ink=显示名 / route=页面基础路由 / isDetailPage / detailPrefix / module=长滚动共享页段锚点 id
+#   / parent=顶栏分组归属（值=父条目的基础路由，同 route 口径：去 #锚、空值回落 /；null=顶栏一级项）
 # 新增页面=在此加一行（如属首页模块另在 sections.ts 注册），双导航 UI/高亮/交互自动生效，组件零改动。
 nav:
-  - { ink: 山门, route: /,               isDetailPage: false, detailPrefix: null,             module: home }
-  - { ink: 观山, route: /portfolio,      isDetailPage: true,  detailPrefix: /portfolio,       module: portfolio }  # 列表页+/portfolio/:slug 动态详情同前缀固定激活（旧 /work 族已移除）
-  - { ink: 造境, route: /blog,           isDetailPage: true,  detailPrefix: /blog,            module: blog }       # 博客随笔页（旧 /pipeline 已移除）。/blog/:slug 详情族按前缀固定激活（观山同权 R2 语义），module=blog 首页段照常参与滚动联动
-  - { ink: 归档, route: /archive,       isDetailPage: false, detailPrefix: null,            module: null }       # 年月归档页（/archive：全量文章含作品的年→月时间线）。module 必须为 null——「归档」不对应首页任何一段，而 home.sections 的 id 全站唯一且 blog 已被 /blog 占用
-  - { ink: 标签, route: /tags,          isDetailPage: true,  detailPrefix: /tags,           module: null }       # 标签聚合页（/tags 索引 + /tags/<标签> 单标签聚合，全量含作品）。module 必须为 null——「标签」不对应首页任何一段；isDetailPage+detailPrefix 只为让顶栏在 /tags/<标签> 上保持「标签」激活（同 /portfolio 语义），posts 里没有 /tags/ 落点 ⇒ 不派生额外详情页
-  - { ink: 观自, route: /about,          isDetailPage: false, detailPrefix: null,            module: about }      # 观自=整页 /about（旧 hash 锚点关联已移除）
+  - { ink: 山门, route: /,               isDetailPage: false, detailPrefix: null,             module: home,      parent: null }
+  - { ink: 观山, route: /portfolio,      isDetailPage: true,  detailPrefix: /portfolio,       module: portfolio, parent: null }  # 列表页+/portfolio/:slug 动态详情同前缀固定激活（旧 /work 族已移除）
+  - { ink: 造境, route: /blog,           isDetailPage: true,  detailPrefix: /blog,            module: blog,      parent: null }       # 博客随笔页（旧 /pipeline 已移除）。/blog/:slug 详情族按前缀固定激活（观山同权 R2 语义），module=blog 首页段照常参与滚动联动
+  - { ink: 归档, route: /archive,       isDetailPage: false, detailPrefix: null,            module: null,      parent: /portfolio }       # 年月归档页（/archive：全量文章含作品的年→月时间线）。module 必须为 null——「归档」不对应首页任何一段，而 home.sections 的 id 全站唯一且 blog 已被 /blog 占用
+  - { ink: 标签, route: /tags,          isDetailPage: true,  detailPrefix: /tags,           module: null,      parent: /portfolio }       # 标签聚合页（/tags 索引 + /tags/<标签> 单标签聚合，全量含作品）。module 必须为 null——「标签」不对应首页任何一段；isDetailPage+detailPrefix 只为让顶栏在 /tags/<标签> 上保持「标签」激活（同 /portfolio 语义），posts 里没有 /tags/ 落点 ⇒ 不派生额外详情页
+  - { ink: 观自, route: /about,          isDetailPage: false, detailPrefix: null,            module: about,     parent: null }      # 观自=整页 /about（旧 hash 锚点关联已移除）
   # **独立传音页整条退役**，不留注释留底——nav 只剩上面四条。
   #   传音**只作为首页第五段存在**（home.sections 的 id=footer + SiteFooter 组件，各页页脚照旧）。
-  #   要恢复：在本行位置按上面同格式补一条 nav（五字段）+ 在 src/routes.tsx 加回路由与页面组件；
+  #   要恢复：在本行位置按上面同格式补一条 nav（六字段）+ 在 src/routes.tsx 加回路由与页面组件；
   #   经过与缘由见 Dev_Docs 80、90 §3。
 
 # 子页 meta 专名：只喂预渲染 <title>，不进页面可见层
@@ -296,6 +297,7 @@ notfound:
 # aria/title 文案的唯一家（中文闸无例外通道）；节内的 post_* 同时充当详情页可见小字。
 a11y:
   nav_label: 主导航
+  nav_submenu_aria: 展开「{ink}」                # 顶栏分组 caret 按钮的 aria-label/title 模板（{ink} 运行时替换为父条目的显示名）；口径同 detail_aria: 查看「{ink}」详情页
   tabs_label: 章节题签
   skip_link_label: 跳到正文                     # 键盘用户第一个焦点位（指向 <main id="main-content">）
   seal_top_hint: 回到本页顶部                    # 页脚大印 title/aria-label（点击平滑回顶；reduced-motion 下瞬时）

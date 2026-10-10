@@ -7,7 +7,7 @@ const linkShape = z.object({ label: z.string(), to: z.string() }).strict()
 // a11y 话术键全集：界面可见中文的唯一家；全部可选但仍是白名单（拼错键会被构建拦下）
 /** a11y 话术键白名单：必须与 src/lib/types/site.ts 的 A11yKey 对齐（改键名要两处一起改，否则组件取不到文案）。 */
 const A11Y_KEYS = [
-  'nav_label', 'tabs_label', 'seal_top_hint', 'brand_label',
+  'nav_label', 'nav_submenu_aria', 'tabs_label', 'seal_top_hint', 'brand_label',
   'case_period', 'case_embeds', 'case_nav_label', 'case_prev', 'case_next',
   'detail_cta', 'detail_aria', 'carousel_prev', 'carousel_next', 'carousel_pause', 'carousel_play',
   'about_seal_label', 'about_tags_label', 'about_timeline_label',
@@ -37,11 +37,16 @@ export const siteSchema = z.object({
     isDetailPage: z.boolean(),
     detailPrefix: urlOrNull,
     module: urlOrNull,
+    // 顶栏分组归属：值 = 父条目的基础路由（同 navBase 口径：去 #锚、空值回落 /）；null = 顶栏一级项
+    parent: urlOrNull,
   }).strict().superRefine((n, ctx) => {
     if (n.isDetailPage && (typeof n.detailPrefix !== 'string' || !n.detailPrefix.startsWith('/')))
       ctx.addIssue({ code: 'custom', path: ['detailPrefix'], message: `isDetailPage=true 的条目（「${n.ink}」）必须提供以 / 开头的 detailPrefix（可含 #锚点，2026 双导航配置契约）` })
     if (!n.isDetailPage && n.detailPrefix !== null)
       ctx.addIssue({ code: 'custom', path: ['detailPrefix'], message: `detailPrefix 仅在 isDetailPage=true 时填写（「${n.ink}」应置 null）` })
+    // 自指：parent 等于自身基础路由 ⇒ 顶栏既不是一级项、也没有父面板收纳它（条目静默消失）
+    if (n.parent !== null && n.parent === ((n.route ?? '/').split('#')[0] || '/'))
+      ctx.addIssue({ code: 'custom', path: ['parent'], message: `parent 不能指向自身的基础路由（「${n.ink}」的 parent=${n.parent}）：那是自指，顶栏会既不当它是一级项、也没有父面板收纳它` })
   })),
   // 子页 meta 专名：键名自由（缺哪把用 site.title 回落）
   page_meta: z.record(z.string(), z.string()).optional(),

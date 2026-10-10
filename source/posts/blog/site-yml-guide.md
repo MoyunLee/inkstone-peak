@@ -26,7 +26,7 @@ toc_number: false     # 本文标题自带编号（## 一、/ ### 3.1），再�
 | 顶层节 | 整节可省？ | 节内必填 | 管什么 |
 |---|---|---|---|
 | `site` | ❌ 不能 | `title` `author` `lang` `description` `url` | 站点元信息 / canonical / sitemap / rss |
-| `nav` | ❌ 不能 | 每条 5 个字段全给 | 双导航 / 路由白名单 / 预渲染页面清单 |
+| `nav` | ❌ 不能 | 每条 6 个字段全给 | 双导航 / 路由白名单 / 预渲染页面清单 |
 | `page_meta` | ✅ 可整节删 | — | 子页 `<title>` 专名（首页用 `home` 键给整条标题） |
 | `page_desc` | ✅ 可整节删 | — | 静态页 `<meta description>` 专写（键法同 `page_meta`；未写回落策略小表） |
 | `home` | ❌ 不能 | `sections` ≥1 段；每段 `id` + （`heading` 或 `heading_lines` ≤2 行） | 首页五段 |
@@ -38,7 +38,7 @@ toc_number: false     # 本文标题自带编号（## 一、/ ### 3.1），再�
 | `contact` | ❌ 不能 | `email` | 页脚联系方式栏 |
 | `footer` | ❌ 不能 | `columns` `seal_text` `copyright`（`brand_bio` 2026-09-23 起可省） | 页脚 / 首页传音段 / favicon 印文 |
 | `notfound` | ❌ 不能 | `line` `cta` | 404 页 |
-| `a11y` | ✅ 可整节删 | —（44 键全可选） | 全站 aria 与可见小字 |
+| `a11y` | ✅ 可整节删 | —（45 键全可选） | 全站 aria 与可见小字 |
 
 一句话记法：**「骨架进必填，能力进可省」。** 站点身份、页面清单、首页结构、关于页标题、联系方式与页脚、404，这些是骨架；轮播、归档开关、热力图、文章默认值、aria 文案，这些是能力，删了只退场不报错。
 
@@ -57,7 +57,7 @@ toc_number: false     # 本文标题自带编号（## 一、/ ### 3.1），再�
 
 ### 3.2 `nav`（必填节，双导航共用）
 
-每条五字段，全部必填：
+每条六字段，全部必填：
 
 | 字段 | 取值 | 约束 |
 |---|---|---|
@@ -66,14 +66,16 @@ toc_number: false     # 本文标题自带编号（## 一、/ ### 3.1），再�
 | `isDetailPage` | `true` / `false` | 该条目是否带动态详情页 |
 | `detailPrefix` | 以 `/` 开头的路径，可含 `#锚点` | `isDetailPage: true` 时**必填**；`false` 时**必须为 `null`** |
 | `module` | 首页段 id，可 `null` | 非 null 时必须命中 `home.sections` 的 id，且全站唯一 |
+| `parent` | 父条目的**基础路由**，可 `null` | 顶栏分组归属（口径同 `route`：去 `#锚`、空值回落 `/`）。`null` = 顶栏一级项；非 null 时必须**命中另一条 nav 的 `route` 基础路径**、不得自指、且**父条目自身必须是 `null`**（只允许一层）。写错的条目会从顶栏静默消失，故构建期硬拦 |
 
 ```yaml
 nav:
-  - { ink: 山门, route: /,          isDetailPage: false, detailPrefix: null,       module: home }
-  - { ink: 观山, route: /portfolio, isDetailPage: true,  detailPrefix: /portfolio, module: portfolio }
+  - { ink: 山门, route: /,          isDetailPage: false, detailPrefix: null,       module: home,      parent: null }
+  - { ink: 观山, route: /portfolio, isDetailPage: true,  detailPrefix: /portfolio, module: portfolio, parent: null }
+  - { ink: 归档, route: /archive,   isDetailPage: false, detailPrefix: null,       module: null,      parent: /portfolio }
 ```
 
-构建期还会逐条查：`ink` 重复、`route` 基路径撞车、`detailPrefix` 撞车、`module` 不在 `home.sections` 或重复。**内链白名单也从这张表派生**——加页面 = 加一行。
+构建期还会逐条查：`ink` 重复、`route` 基路径撞车、`detailPrefix` 撞车、`module` 不在 `home.sections` 或重复、`parent` 悬空/自指/父条目自身带 `parent`。**内链白名单也从这张表派生**——加页面 = 加一行。
 
 ### 3.3 `page_meta` / `page_desc`（meta 两节，均可整节省）
 
@@ -287,7 +289,7 @@ contact:
 |---|---|---|
 | `columns` | ✅ | 栏目数组（见下） |
 | `email_label` | 可选 | 「联系」栏邮箱行的前缀标签（本站 `邮箱`，渲染成「邮箱 · 2106996916@qq.com」）；删键＝裸地址。界面中文的家仍是 `site.yml`，组件不写死 |
-| `tab_label` | 可选 | 侧栏题签里那条「直达脚页」的题签名（本站 `传音`）；落点由题签按 `home.sections` 的 `footer` 段推导，**不写进 `nav`**（`nav` 每行只有那五个字段）；删键＝右侧题签不出现这一条 |
+| `tab_label` | 可选 | 侧栏题签里那条「直达脚页」的题签名（本站 `传音`）；落点由题签按 `home.sections` 的 `footer` 段推导，**不写进 `nav`**（`nav` 每行六个字段）；删键＝右侧题签不出现这一条 |
 | `brand_bio` | 可选 | 栏1 印章下方的简介段；**曾承载求职意向/地域口径的全站唯一落点**。删键＝整段不渲染、印章照常居中（本站 2026-09-23 已删，原句以注释留底在 `site.yml`） |
 | `seal_text` | ✅ | 印文；页脚大印与**构建期生成**的 favicon / apple-touch-icon 都用它 |
 | `copyright` | ✅ | 版权行 |
@@ -314,11 +316,11 @@ columns:
 
 `line`（提示语）+ `cta`（`{ label, to }`）。同一套文案生成 `dist/404.html` 并注入 noindex。
 
-### 3.13 `a11y`（可整节省；44 键全可选）
+### 3.13 `a11y`（可整节省；45 键全可选）
 
-缺键 = 不输出该属性；但键名仍走 strict 白名单，**拼错照样报错**。44 键按用途分六组：
+缺键 = 不输出该属性；但键名仍走 strict 白名单，**拼错照样报错**。45 键按用途分六组：
 
-- 布局：`nav_label` `tabs_label` `brand_label` `seal_top_hint`（页脚大印：回到本页顶部）`skip_link_label`
+- 布局：`nav_label` `nav_submenu_aria`（顶栏分组 caret 按钮的可访问名模板，支持 `{ink}`）`tabs_label` `brand_label` `seal_top_hint`（页脚大印：回到本页顶部）`skip_link_label`
 - 详情页与按钮：`case_period`（周期题词）`case_embeds`（嵌入分节标题）`case_nav_label` `case_prev` `case_next`（作品详情页「上一件 / 下一件」导航的可访问名与两枚链接题词）`detail_cta` `detail_aria`（支持 `{ink}`）`carousel_prev` `carousel_next` `carousel_pause` `carousel_play`（轮播暂停/播放键，WCAG 2.2.2）
 - 关于：`about_seal_label` `about_tags_label` `about_timeline_label`
 - 详情页共用：`post_date` `post_updated` `post_categories` `post_toc_label` `post_aside_label`（两型同一枚侧栏可访问名）`post_comments_label` `post_copyright_heading` `post_copyright_author` `post_copyright_link` `post_copyright_notice` `post_code_expand` `post_code_collapse` `related_title`（详情页「相关阅读」区块标题，兼该块可访问名）

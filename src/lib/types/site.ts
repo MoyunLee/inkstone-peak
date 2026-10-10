@@ -100,7 +100,7 @@ interface AboutCfg {
 
 /** a11y 话术键全集：必须与 scripts/content/schemas/site.ts 的 A11Y_KEYS 对齐。 */
 export type A11yKey =
-  | 'nav_label' | 'tabs_label' | 'seal_top_hint' | 'brand_label'
+  | 'nav_label' | 'nav_submenu_aria' | 'tabs_label' | 'seal_top_hint' | 'brand_label'
   | 'case_period' | 'case_embeds' | 'case_nav_label' | 'case_prev' | 'case_next'
   | 'detail_cta' | 'detail_aria' | 'carousel_prev' | 'carousel_next' | 'carousel_pause' | 'carousel_play'
   | 'about_seal_label' | 'about_tags_label' | 'about_timeline_label'

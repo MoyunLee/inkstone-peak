@@ -1,4 +1,4 @@
-// 双导航配置契约（对应 site.yml nav[] 的五个字段）。
+// 双导航配置契约（对应 site.yml nav[] 的六个字段）。
 export interface NavLink {
   ink: string
   route: string | null
@@ -6,6 +6,8 @@ export interface NavLink {
   isDetailPage: boolean
   detailPrefix: string | null
   module: string | null
+  /** 顶栏分组归属：值 = 父条目的基础路由（同 navBase 口径：去 #锚、空值回落 /）；null = 顶栏一级项。 */
+  parent: string | null
 }
 
 export interface PresentSets {
