@@ -28,7 +28,7 @@ export default function SideTabs() {
   const footSec = sectionById(site, 'footer')
   const footTab: NavLink | null =
     footSec && site.footer.tab_label
-      ? { ink: site.footer.tab_label, route: `/#${footSec.id}`, isDetailPage: false, detailPrefix: null, module: footSec.id }
+      ? { ink: site.footer.tab_label, route: `/#${footSec.id}`, isDetailPage: false, detailPrefix: null, module: footSec.id, parent: null }
       : null
   // 传音的点亮（滑到最低部时必须点亮：有朱标、也加粗）：
   // 判据取两条、取或 ——
@@ -106,23 +106,29 @@ export default function SideTabs() {
   return (
     <nav className="side-tabs" ref={wrapRef} aria-label={site.a11y.tabs_label}>
       <i className="dot" style={dotTop !== null ? { top: dotTop } : { top: -99 }} aria-hidden="true" />
-      {site.nav.map((n, i) => {
-        const on = !atFoot && i === active
-        return (
-          <Link
-            key={n.ink}
-            data-nav={i}
-            className={on ? 'on' : undefined}
-            aria-current={on ? 'true' : undefined}
-            to={n.route ?? '/'}
-            onClick={(e) => {
-              if (onTabClick(n)) e.preventDefault()
-            }}
-          >
-            {n.ink}
-          </Link>
-        )
-      })}
+      {/* 题签是首页滚动联动的段导航：只留挂了 module 的条目（parent 组里的 归档/标签 不在此列）。
+          先带原始下标、再过滤 module：data-nav 与 active 都必须是 site.nav 的**全数组下标**，
+          先 filter 再 map 会让两者脱节、dotTop 落 -999。 */}
+      {site.nav
+        .map((n, i) => ({ n, i }))
+        .filter(({ n }) => n.module !== null)
+        .map(({ n, i }) => {
+          const on = !atFoot && i === active
+          return (
+            <Link
+              key={n.ink}
+              data-nav={i}
+              className={on ? 'on' : undefined}
+              aria-current={on ? 'true' : undefined}
+              to={n.route ?? '/'}
+              onClick={(e) => {
+                if (onTabClick(n)) e.preventDefault()
+              }}
+            >
+              {n.ink}
+            </Link>
+          )
+        })}
       {footTab !== null ? (
         <Link
           to={footTab.route ?? '/'}

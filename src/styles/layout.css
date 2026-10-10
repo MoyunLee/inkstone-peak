@@ -135,7 +135,10 @@
   height: 2px;
   background: var(--seal);
 }
-.topbar nav a.on::before {
+/* 「父级含当前页」（当前页在面板里，触发器只是它的入口）：借 .on 的朱点，字提到 --ink-2，
+   既不下划线也不加粗——同族里最弱的一档，与「它就是当前页」区分开。 */
+.topbar nav a.on::before,
+.nav-group[data-active='true'] > a::before {
   content: '';
   position: absolute;
   left: 50%;
@@ -145,6 +148,92 @@
   height: 5px;
   border-radius: 50%;
   background: var(--seal);
+}
+.nav-group[data-active='true'] > a {
+  color: var(--ink-2);
+}
+/* 顶栏分组下拉（观山 ▾）：一级项 link + caret 同居一个相对定位容器，面板绝对定位在其下。
+   ★面板**恒在 DOM**：预渲染正文必须留住 /archive、/tags 的 <a>（爬虫与无 JS 用户的可达性回退），
+     可见性只由 data-open + display 控制；不许用 hidden 属性——预渲染闸会把 `<div hidden`
+     判成迟到 Suspense 标记并中止构建（同 ThemeToggle 的处置）。 */
+.nav-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.nav-caret {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px; /* 命中区按触摸口径放大（≥44），靠负外边距让视觉仍贴着「观山」二字 */
+  height: 44px;
+  margin: 0 -13px 0 -11px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink-3);
+  cursor: pointer;
+  border-radius: var(--card-radius);
+}
+.nav-caret:hover {
+  color: var(--ink-2);
+}
+.nav-caret:focus-visible {
+  outline: 2px solid var(--seal);
+  outline-offset: -8px;
+}
+/* caret 翻转：只在允许动效时上过渡（reduced-motion 下瞬时换向，不播动画） */
+@media (prefers-reduced-motion: no-preference) {
+  .nav-caret {
+    transition: color var(--t) var(--ease);
+  }
+  .nav-caret-icon {
+    transition: transform var(--t) var(--ease);
+  }
+}
+.nav-group[data-open='true'] .nav-caret {
+  color: var(--ink);
+}
+.nav-group[data-open='true'] .nav-caret-icon {
+  transform: rotate(180deg);
+}
+.nav-panel {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+  display: none;
+  flex-direction: column;
+  min-width: 132px;
+  max-width: calc(100vw - 24px);
+  padding: 8px 0;
+  background: var(--card);
+  border: 1px solid var(--line-card);
+  border-radius: var(--card-radius);
+  box-shadow: 0 14px 30px color-mix(in srgb, var(--ink) 16%, transparent);
+}
+.nav-group[data-open='true'] .nav-panel {
+  display: flex;
+}
+.nav-panel a {
+  padding: 9px 20px;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+.nav-panel a:hover {
+  color: var(--ink);
+  transform: none;
+}
+/* 面板是竖排语汇：横排那条下划线（::after）与顶栏朱点（::before）都不带进来，
+   激活项只以满墨 + 加粗标记（--seal 在深色卡底上只有 2.8:1，不能拿来染字）。 */
+.nav-panel a::after,
+.nav-panel a.on::before {
+  display: none;
+}
+.nav-panel a.on {
+  color: var(--ink);
+  font-weight: 700;
 }
 
 /* 右侧题签（首页专属：只在 '/' 挂载，子页 DOM 无 .side-tabs） */
