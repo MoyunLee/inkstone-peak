@@ -51,6 +51,40 @@ export const works = posts.filter((p): p is WorkArticle => p.kind === 'work').so
 /** /blog 视图：**全量**（含作品）——/blog 是中心库，作品只是带标记的一类。 */
 export const articles: ArticleEntry[] = posts
 
+/** 归档页的一个月桶：`key` = `YYYY-MM`，`items` = 该月条目（已按唯一排序契约定序）。 */
+export interface ArchiveMonth {
+  key: string
+  items: ArticleEntry[]
+}
+
+/**
+ * /archive 视图：全量条目按 `date` 分「年 → 月」两级（分组键取 ISO 字符串直切，**不经 Date**）。
+ *
+ * 排序口径：**先把全量按唯一排序契约排一遍（`compareArticles(…, 'desc')`），再顺着这个序列分桶**——
+ * 桶的先后与桶内先后都直接继承契约本身（置顶组 → 组内索引 → 日期倒序），不自创第二套排序；
+ * 相邻两条的 `date` 前缀一变就开新桶，故**页面渲染顺序 = 全量契约顺序**，逐项一致。
+ *
+ * @param entries 条目清单；缺省全量 `articles`（含作品，与 /blog 同口径）。
+ * @returns 年桶数组（年倒序），每年 `months` 月桶数组（月倒序）。
+ * @example
+ * const tree = archiveTree(articles)
+ * // [{ year: '2026', months: [{ key: '2026-09', items: [...] }, { key: '2026-03', items: [...] }] }]
+ */
+export function archiveTree(entries: ArticleEntry[] = articles): { year: string; months: ArchiveMonth[] }[] {
+  const tree: { year: string; months: ArchiveMonth[] }[] = []
+  for (const e of [...entries].sort((a, b) => compareArticles(a, b, 'desc'))) {
+    const year = e.date.slice(0, 4)
+    const key = e.date.slice(0, 7)
+    const last = tree[tree.length - 1]
+    const y = last && last.year === year ? last : { year, months: [] }
+    if (y !== last) tree.push(y)
+    const m = y.months[y.months.length - 1]
+    if (m && m.key === key) m.items.push(e)
+    else y.months.push({ key, items: [e] })
+  }
+  return tree
+}
+
 /**
  * 贡献热力图的喂料（全站文章含作品；**数据口径的唯一真源**）：每篇「发布日 + 更新日各记 1 条」。
  *

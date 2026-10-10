@@ -76,6 +76,7 @@ if (existsSync(path.join(dist, 'index.html'))) {
     path.join('portfolio', 'index.html'),
     path.join('blog', 'index.html'),
     path.join('about', 'index.html'),
+    path.join('archive', 'index.html'),
     '404.html',
     ...works.map((w) => path.join('portfolio', w.slug, 'index.html')),
     ...articles.map((a) => path.join('blog', a.slug, 'index.html')),

@@ -1,0 +1,94 @@
+/* /archive 归档页（年 → 月时间线）。
+   ⚠ 类名一律 .archive-* / .archive-page：`arc.css` 里已有一个 `.archive`（ArticleGrid 的网格容器），
+   本页**刻意不叫 `.archive`**，免得吃它那份 max-width / --arc-gap。
+   皮肤只吃既有 token（--hairline 装饰发丝界 / --ink 层级 / --seal 朱框 / --ink-3 淡墨），不新增配色。 */
+.archive-timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: clamp(28px, 4vh, 52px);
+}
+.archive-year {
+  display: grid;
+  gap: clamp(10px, 1.6vh, 20px);
+}
+/* 年题：数字大字（与 page_meta.archive 的「归档」分工——中文名只活在 title/h1 里） */
+.archive-year-num {
+  margin: 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--hairline);
+  color: var(--ink);
+  font-family: var(--font-song);
+  font-size: clamp(26px, 3vw, 40px);
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+}
+/* 月行：宽屏「月号列 + 条目列」两栏；窄屏单列（月号压在条目上方） */
+.archive-month {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 4px 12px;
+}
+.archive-month-num {
+  margin: 0;
+  color: var(--ink-3);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  font-variant-numeric: tabular-nums;
+}
+.archive-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 2px;
+}
+.archive-item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px 20px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--hairline);
+}
+.archive-link {
+  color: var(--ink);
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  transition: color var(--t) var(--ease);
+}
+.archive-link:hover {
+  color: var(--seal-ink);
+}
+.archive-link:focus-visible {
+  outline: 2px solid var(--seal); /* 全站唯一朱框 */
+  outline-offset: 2px;
+}
+.archive-date {
+  flex: none;
+  color: var(--ink-3);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+}
+@media (min-width: 768px) {
+  .archive-month {
+    grid-template-columns: 3rem minmax(0, 1fr);
+  }
+  .archive-month-num {
+    padding-top: 9px; /* 与 .archive-item 首行基线对齐 */
+  }
+}
+@media (max-width: 480px) {
+  /* 窄屏单列：日期换到题下一行，长标题不被挤成一字一行 */
+  .archive-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+}

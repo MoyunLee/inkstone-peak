@@ -26,6 +26,7 @@ nav:
   - { ink: 山门, route: /,               isDetailPage: false, detailPrefix: null,             module: home }
   - { ink: 观山, route: /portfolio,      isDetailPage: true,  detailPrefix: /portfolio,       module: portfolio }  # 列表页+/portfolio/:slug 动态详情同前缀固定激活（旧 /work 族已移除）
   - { ink: 造境, route: /blog,           isDetailPage: true,  detailPrefix: /blog,            module: blog }       # 博客随笔页（旧 /pipeline 已移除）。/blog/:slug 详情族按前缀固定激活（观山同权 R2 语义），module=blog 首页段照常参与滚动联动
+  - { ink: 归档, route: /archive,       isDetailPage: false, detailPrefix: null,            module: null }       # 年月归档页（/archive：全量文章含作品的年→月时间线）。module 必须为 null——「归档」不对应首页任何一段，而 home.sections 的 id 全站唯一且 blog 已被 /blog 占用
   - { ink: 观自, route: /about,          isDetailPage: false, detailPrefix: null,            module: about }      # 观自=整页 /about（旧 hash 锚点关联已移除）
   # **独立传音页整条退役**，不留注释留底——nav 只剩上面四条。
   #   传音**只作为首页第五段存在**（home.sections 的 id=footer + SiteFooter 组件，各页页脚照旧）。
@@ -44,16 +45,18 @@ page_meta:
   portfolio: 观山
   about: 观自
   blog: 造境
+  archive: 归档
 
 # Page Desc（子页 meta 摘要专写：只喂预渲染 <meta name="description">）
 # 键法同 page_meta：键 = 路由 basename，首页用 home。命中即用；未命中回落 page-meta.ts 的 STATIC_DESC
-# 策略小表——所以新页面零配置也有摘要（默认 site.description），写这四条只为让 / 与三个列表页两两不同。
-# 本站四条都只写一句短语（与页面专名同构）：摘要是 title 的补充说明，不靠它堆词；要长要短全看这一行。
+# 策略小表——所以新页面零配置也有摘要（默认 site.description），写这几条只为让 / 与各列表页两两不同。
+# 本站每条都只写一句短语（与页面专名同构）：摘要是 title 的补充说明，不靠它堆词；要长要短全看这一行。
 page_desc:
   home: 杜康 · MoyunLee
   portfolio: 观山 · 作品全览
   blog: 造境 · 笔墨札记
   about: 观自：关于杜康
+  archive: 归档 · 年月时间线
 
 # Index（首页五段：顺序权威）
 # 加一段 = 这里加一段 + src/site/sections.ts 注册一行 + nav 里挂 module 一行（题签/页脚栏2 自动生效）
