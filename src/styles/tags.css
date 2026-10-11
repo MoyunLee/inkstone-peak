@@ -106,10 +106,8 @@
 .tags-chip-mark,
 .tags-chip-count {
   color: var(--ink-3);
-  font: inherit;
-}
-.tags-chip-count {
-  font-variant-numeric: tabular-nums;
+  font: inherit; /* 字体 / 字号 / 字重一律随本枚标签（契约见 tokens.css 的 --ui-btn-*） */
+  font-variant-numeric: tabular-nums; /* 只有计数用得上，记号是 `#`，留着无碍 */
 }
 /* 悬停：框内轻轻铺一层淡墨（框线不动——参考图那只框没有"悬停态"，故只给最轻的一层）+
    那枚 `#` 蘸一点印朱（全站唯一彩色只吃一个字身，面积仍守住 <2%）。
