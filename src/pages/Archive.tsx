@@ -9,17 +9,7 @@ import Seal from '../components/ui/Seal'
 import { COVER_TONES } from '../components/ui/article/ArticleCard'
 import { archiveTree, articles, heatItems } from '../lib/data/content'
 import { THUMB_SIZES } from '../lib/data/images'
-import { useSite } from '../lib/data/site'
-
-/**
- * nav 基路径口径：去 `#锚`、空值回落 `/`——与 scripts/pre-render.ts 和 lib/meta/page-meta.ts 的 navBase 同义。
- *
- * @param route nav 条目的 route。
- * @returns 用于比对的基础路由。
- */
-function navBase(route: string | null | undefined): string {
-  return (route ?? '/').split('#')[0] || '/'
-}
+import { navRouteInk, useSite } from '../lib/data/site'
 
 /**
  * 某一天在年表里对应哪些条目（slug 清单）——口径与 `heatItems` **同源**：
@@ -42,7 +32,7 @@ export default function Archive() {
   // 本页 h1（2026-10-11 起**可见**）：文案 = 该页在导航里的名字（site.yml nav ink）。
   // 按 route 取词而**不用 navInk**：navInk 是按 nav 条目的 module 匹配的，而本页条目不能挂 module
   //（「归档」不对应首页任何一段，且 module 全站唯一、blog 已被 /blog 占用）——用 navInk 永远取不到这枚词。
-  const heading = site.nav.find((n) => navBase(n.route) === '/archive')?.ink
+  const heading = navRouteInk(site, '/archive')
   // 热力图点中的那一天（YYYY-MM-DD）。**筛**而不是**滚**（用户令 2026-10-11）：
   // 那天更新了 3 条，就该只看见那 3 条——「滑到它的位置」在一屏放不下时等于什么都没说。
   // 「多少条」不另出裸数字：热力图题头（`{year} 年共更新 {n} 条`）本来就在说它。
@@ -68,8 +58,8 @@ export default function Archive() {
       <Header />
       <main id="main-content" className="page-pad page-main archive-page">
         {heading ? (
-          <header className="archive-head">
-            <h1 className="archive-head-title">{heading}</h1>
+          <header className="page-head">
+            <h1 className="page-head-title">{heading}</h1>
           </header>
         ) : null}
         {/* 热力图与 /blog 同源同组件（同一份 heatItems、同一套 site.yml 文案），只多一层可选交互：

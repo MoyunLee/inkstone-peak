@@ -130,20 +130,6 @@ export function tagIndex(entries: ArticleEntry[] = articles): TagBucket[] {
 }
 
 /**
- * 按标签取条目（/tags/:tag 用）——**集合与顺序与 `tagIndex()` 同源**：直接取该标签那个桶，两处不可能分叉。
- *
- * @param tag 标签名（路由已解码，原样中文）。
- * @param entries 条目清单；缺省全量 `articles`。
- * @returns 该标签的条目（已按唯一排序契约定序）；没有这个标签时返回 `[]`（调用方据此走 404）。
- * @example
- * const entries = entriesByTag(tag)
- * if (entries.length === 0) return <NotFound />
- */
-export function entriesByTag(tag: string, entries: ArticleEntry[] = articles): ArticleEntry[] {
-  return tagIndex(entries).find((b) => b.tag === tag)?.items ?? []
-}
-
-/**
  * 贡献热力图的喂料（全站文章含作品；**数据口径的唯一真源**）：每篇「发布日 + 更新日各记 1 条」。
  *
  * 两个日子都上历：发布格记「什么时候发的」，更新格记「最后一次动它是什么时候」。

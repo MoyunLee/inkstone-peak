@@ -1,49 +1,136 @@
-/* /tags 标签聚合页（索引 + 单标签）。
+/* /tags 标签页（索引：一堵标签墙；单标签：一条筛选带 + ArticleGrid 条目网格）。
    ⚠ 类名一律 .tags-*：styles/ 里没有同名族（`.arc-*` / `.archive*` 属归档与网格容器），故不与之撞车。
-   皮肤只吃既有 token（--hairline 装饰发丝界 / --ink 层级 / --seal 朱框 / --font-mono 数目字），
-   跟随 data-theme 自动翻，不新增配色。单标签页复用 ArticleGrid，故本文件只管索引清单。 */
-.tags-index {
+   皮肤只吃既有 token（--ink 浓墨括线 / --seal 当「面」+ --seal-fg 印面字 / --font-mono 数目字），
+   跟随 data-theme 自动翻，不新增配色。页名那一层住 case.css 的 .page-head（与 /archive 共用一份皮肤）；
+   单标签页的条目网格复用 ArticleGrid（arc.css），故本文件只管「墙」与「带」——两者是同一枚 .tags-chip。 */
+
+/* ── 容器：墙与带都是「一格格等大的标签」 ──
+   ★2026-10-11 用户令「大小统一」：原先按条目数分三档墨阶（20 / 16 / 14px + 三档内距），今起**一枚尺寸**——
+   等宽格子由这里给（`minmax(min(140px,100%), 1fr)`：列数与列宽都随可用宽取整分，窄屏一列最少 140px、
+   桌面按 140px 一档铺满整行），框自己只管铺满格子（`.tags-chip` 的 `flex:1`）。
+   左起铺、按行换行（参考站是居中排布，这里与全站左起排版同一条基线）。 */
+.tags-wall,
+.tags-rail {
   list-style: none;
   margin: 0;
   padding: 0;
-  /* 窄屏单列；640px 起两列（列间靠 gap，行界仍是发丝线） */
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 2px;
+  grid-template-columns: repeat(auto-fill, minmax(min(140px, 100%), 1fr));
+  gap: 12px;
 }
-.tags-index-item {
-  border-bottom: 1px solid var(--hairline);
+.tags-wall > li,
+.tags-rail > li {
+  display: flex; /* 让框铺满整格（同 .arc-grid > li 的处置） */
 }
-.tags-index-link {
+/* 筛选带与下方网格之间留一口气（墙在页末，不需要） */
+.tags-rail {
+  margin-bottom: clamp(22px, 3vh, 38px);
+}
+
+/* ── 一枚标签（全站唯一一枚，TagChip 组件）──
+   框 = **四角括线**（2026-10-11 用户令，参考图那种）：四条边各留中段空档，只画四只带外圆角的角。
+   与卡片那种「发丝界描边」是两回事——这里线取**浓墨 `--ink`**、线宽 1.5px（同印章按钮那一档），
+   臂长按参考图量得 ≈ 各边的三分之一（`--tag-arm-x/y` 用比例，框随格子宽窄自己伸缩）。
+   ★不做 999px 圆胶囊、也不铺底色：参考图就是"纸上一只空框"，底色只在悬停与当前项上出现。 */
+.tags-chip {
+  /* 四角的几何与线色：唯一落点，当前项只覆写 --tag-frame 一个值（见下） */
+  --tag-arm-x: 36%; /* 横向臂长（框宽的百分比，参考图 ≈1/3：中段空档同宽） */
+  --tag-arm-y: 34%; /* 纵向臂长（框高的百分比） */
+  --tag-line: 1.5px;
+  --tag-corner: 4px; /* 四角外圆角（参考图那种圆转的角，不是直角） */
+  --tag-frame: var(--ink);
+  position: relative;
+  flex: 1;
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px 20px;
-  padding: 9px 0;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 10px 12px;
   color: var(--ink);
-  font-size: 15px;
-  letter-spacing: 0.04em;
+  background: transparent;
+  font-family: var(--font-kai);
+  font-size: 16px;
+  line-height: 1.5;
+  letter-spacing: 0.06em;
   text-decoration: none;
-  transition: color var(--t) var(--ease);
+  transition: background-color var(--t) var(--ease);
 }
-.tags-index-link:hover {
-  color: var(--seal-ink);
+/* 四只角：一枚元素只有 ::before / ::after 两个伪元素槽，故左上 / 右上挂在本体上、
+   左下 / 右下挂在组件里那枚空壳 `.tags-chip-frame` 上（见 TagChip.tsx）。 */
+.tags-chip::before,
+.tags-chip::after,
+.tags-chip-frame::before,
+.tags-chip-frame::after {
+  content: '';
+  position: absolute;
+  width: var(--tag-arm-x);
+  height: var(--tag-arm-y);
+  border: 0 solid var(--tag-frame);
+  pointer-events: none;
 }
-.tags-index-link:focus-visible {
-  outline: 2px solid var(--seal); /* 全站唯一朱框 */
-  outline-offset: 2px;
+.tags-chip::before {
+  top: 0;
+  left: 0;
+  border-top-width: var(--tag-line);
+  border-left-width: var(--tag-line);
+  border-top-left-radius: var(--tag-corner);
 }
-.tags-index-count {
-  flex: none;
+.tags-chip::after {
+  top: 0;
+  right: 0;
+  border-top-width: var(--tag-line);
+  border-right-width: var(--tag-line);
+  border-top-right-radius: var(--tag-corner);
+}
+.tags-chip-frame::before {
+  bottom: 0;
+  left: 0;
+  border-bottom-width: var(--tag-line);
+  border-left-width: var(--tag-line);
+  border-bottom-left-radius: var(--tag-corner);
+}
+.tags-chip-frame::after {
+  bottom: 0;
+  right: 0;
+  border-bottom-width: var(--tag-line);
+  border-right-width: var(--tag-line);
+  border-bottom-right-radius: var(--tag-corner);
+}
+/* 记号与计数：都走等宽（全站数目字同一档）。
+   `#` 取**淡墨**（--ink-3）而不是清墨（--ink-4）：后者按全站契约「只作发丝界、不承载文字」（20 §8），
+   这枚字形虽已 aria-hidden，在屏上仍是文字。墨色梯子只有两级：标签名 --ink › 计数与记号 --ink-3。 */
+.tags-chip-mark {
+  color: var(--ink-3);
+  font-family: var(--font-mono);
+  font-size: 0.78em;
+}
+.tags-chip-count {
   color: var(--ink-3);
   font-family: var(--font-mono);
   font-size: 12px;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   font-variant-numeric: tabular-nums;
 }
-@media (min-width: 640px) {
-  .tags-index {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    column-gap: clamp(20px, 4vw, 48px);
-  }
+/* 悬停：框内轻轻铺一层淡墨（框线不动——参考图那只框没有"悬停态"，故只给最轻的一层）+
+   那枚 `#` 蘸一点印朱（全站唯一彩色只吃一个字身，面积仍守住 <2%）。
+   ★只给非当前项（`aria-current` 那枚是"你就在这里"，不承诺还能跳）。 */
+.tags-chip:not([aria-current]):hover {
+  background: color-mix(in srgb, var(--ink) 6%, transparent);
+}
+.tags-chip:not([aria-current]):hover .tags-chip-mark {
+  color: var(--seal-ink);
+}
+.tags-chip:focus-visible {
+  outline: 2px solid var(--seal); /* 全站唯一朱框 */
+  outline-offset: 2px;
+}
+
+/* ── 当前这一枚 = 外框转印朱（只在筛选带上出现）──
+   ★2026-10-11 用户令（图二）：选中**不再实心铺底**，改成「同一只空框，外框变色」——框线转印朱、字仍浓墨。
+   框线是**前景**（不是"面"），故取 --seal-ink（浅色下与 --seal 同值，深色下自动提亮，压得住深纸）。
+   另给一条**形状通道**：线加粗到 2px（对照未选中那档 1.5px）——颜色之外再有一处不同，
+   读屏另有 `aria-current="page"`（§8「颜色不是唯一信息通道」）。 */
+.tags-chip[aria-current='page'] {
+  --tag-frame: var(--seal-ink);
+  --tag-line: 2px;
 }

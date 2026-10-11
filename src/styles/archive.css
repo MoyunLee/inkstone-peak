@@ -6,25 +6,9 @@
    皮肤只吃既有 token（--hairline 装饰发丝界 / --ink 层级 / --seal 年表节点 / --font-mono 数目字），不新增配色。 */
 
 /* ── 页首 ──
-   取的是参考站（blog.anheyu.com/archives）「页名 + 数量」那一层结构，落到自家的纸墨上：
-   楷体大字页名 + 一道收头发丝线，不抄它的彩色徽章与卡片投影。
-   「多少条」**不在这行出裸数字**（一枚无题的 6 谁也读不懂，2026-10-11 撤掉）——
-   交给下面那幅热力图的题头：`{year} 年共更新 {n} 条` 本来就是句人话，
-   顺手还把「什么时候写的」一并画了出来（那张图可点，见 Archive.tsx 与 heat.css）。 */
-.archive-head {
-  margin-bottom: clamp(24px, 3.4vh, 44px);
-  padding-bottom: clamp(12px, 1.6vh, 20px);
-  border-bottom: 1px solid var(--hairline);
-}
-.archive-head-title {
-  margin: 0;
-  color: var(--ink);
-  font-family: var(--font-kai);
-  font-size: clamp(28px, 3.4vw, 44px);
-  font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: 0.16em;
-}
+   页名那层皮肤（`.archive-head` / `.archive-head-title`，2026-10-11 本页首用）已在 /tags 要用第二遍时
+   搬去 `case.css` 的 `.page-head` / `.page-head-title`（子页公共，一份皮肤）——本页只留这行指针，
+   别再在这里造第二份。Archive.tsx 上挂的就是 `.page-head`。 */
 
 /* ── 时间线骨架：年 → 月 → 目 ── */
 .archive-timeline {

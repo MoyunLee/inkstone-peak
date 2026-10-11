@@ -3,6 +3,27 @@
   padding-top: calc(var(--nav-h) + 8vh);
   padding-bottom: 8vh;
 }
+/* 子页页名（**唯一一份皮肤**）：`/archive` 与 `/tags`（索引 + 单标签）三处的可见 h1 共用——
+   楷体大字 + 一道收头发丝线。取的是参考站（blog.anheyu.com）「页名 + 计数」那一层结构，落到自家的纸墨上：
+   不抄它的居中大标题、彩色徽章与卡片投影。
+   ★原先这十几行住在 `archive.css`（2026-10-11 `/archive` 首用）；`/tags` 要用第二遍才搬来这里，
+     免得两页各抄一份、日后调字号只改了一半。
+   ★计数**不进这行**（一枚无题的 6 谁也读不懂，2026-10-11 撤掉）：`/archive` 交给热力图题头
+     （`{年} 年共更新 {n} 条`），`/tags` 交给每枚标签自己的数字——两处都是句人话。 */
+.page-head {
+  margin-bottom: clamp(24px, 3.4vh, 44px);
+  padding-bottom: clamp(12px, 1.6vh, 20px);
+  border-bottom: 1px solid var(--hairline);
+}
+.page-head-title {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-kai);
+  font-size: clamp(28px, 3.4vw, 44px);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.16em;
+}
 .prose {
   max-width: var(--prose-max);
   line-height: 2; /* 对齐 Butterfly 的 $text-line-height = 2 */

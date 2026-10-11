@@ -53,3 +53,20 @@ export function navInk(s: SiteData, module: string): string | undefined {
   return s.nav.find((n) => n.module === module)?.ink
 }
 
+/**
+ * 按**路由**取该页在导航里的名字（`ink`）——给「没有 `module` 的子页」用（/archive、/tags）。
+ *
+ * 存在的理由：`navInk` 按 `module` 匹配，而这两页的条目 `module` 必须为 null（它们不对应首页任何一段，
+ * 且 home.sections 的 id 全站唯一、blog 已被 /blog 占用），故 `navInk` 在这两页永远取不到词。
+ * 比对口径 = `navBase`（去 `#锚`、空值回落 `/`），与顶栏激活、page-meta 的 navBase 同义。
+ *
+ * @param s useSite() 返回的站点数据。
+ * @param route 目标页的基础路由（如 `/tags`）。
+ * @returns 命中的 `ink`；没有对应 nav 条目时返回 undefined（调用方据此不渲染 h1）。
+ * @example
+ * const ink = navRouteInk(site, '/tags')   // '标签'
+ */
+export function navRouteInk(s: SiteData, route: string): string | undefined {
+  return s.nav.find((n) => ((n.route ?? '/').split('#')[0] || '/') === route)?.ink
+}
+
