@@ -38,10 +38,11 @@
   gap: 6px;
 }
 .heat-year {
-  font-family: var(--font-mono);
-  font-size: 13px;
+  font-family: var(--ui-btn-font);
+  font-size: var(--ui-btn-size);
+  font-weight: var(--ui-btn-weight);
   line-height: 1.6;
-  letter-spacing: 0.06em;
+  letter-spacing: var(--ui-btn-track);
   color: var(--ink);
   background: transparent;
   border: 1px solid transparent;

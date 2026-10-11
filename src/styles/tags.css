@@ -48,10 +48,13 @@
   padding: 10px 12px;
   color: var(--ink);
   background: transparent;
-  font-family: var(--font-kai);
-  font-size: 16px;
+  /* 字面一律吃 tokens.css 的小按钮契约（2026-10-11 用户令）：宋体族一体承担中英数字，
+     故"英文比中文粗"不再出现；框内三件同一字号，级别差异交给墨色（见下）。 */
+  font-family: var(--ui-btn-font);
+  font-size: var(--ui-btn-size);
+  font-weight: var(--ui-btn-weight);
   line-height: 1.5;
-  letter-spacing: 0.06em;
+  letter-spacing: var(--ui-btn-track);
   text-decoration: none;
   transition: background-color var(--t) var(--ease);
 }
@@ -96,19 +99,16 @@
   border-right-width: var(--tag-line);
   border-bottom-right-radius: var(--tag-corner);
 }
-/* 记号与计数：都走等宽（全站数目字同一档）。
-   `#` 取**淡墨**（--ink-3）而不是清墨（--ink-4）：后者按全站契约「只作发丝界、不承载文字」（20 §8），
-   这枚字形虽已 aria-hidden，在屏上仍是文字。墨色梯子只有两级：标签名 --ink › 计数与记号 --ink-3。 */
-.tags-chip-mark {
-  color: var(--ink-3);
-  font-family: var(--font-mono);
-  font-size: 0.78em;
-}
+/* 记号与计数：**与标签名同一字体、同一字号**（2026-10-11 用户令「统一字体大小」）——
+   原先记号与计数走等宽族 + 12px，既比名字小一档，Latin 又比汉字重；现在只靠墨色分级
+   （名字 --ink › 记号与计数 --ink-3）。计数仍留 tabular-nums：数字等宽对齐，不靠等宽字体。
+   `#` 取**淡墨**（--ink-3）而不是清墨（--ink-4）：后者按全站契约「只作发丝界、不承载文字」（20 §8）。 */
+.tags-chip-mark,
 .tags-chip-count {
   color: var(--ink-3);
-  font-family: var(--font-mono);
-  font-size: 12px;
-  letter-spacing: 0.06em;
+  font: inherit;
+}
+.tags-chip-count {
   font-variant-numeric: tabular-nums;
 }
 /* 悬停：框内轻轻铺一层淡墨（框线不动——参考图那只框没有"悬停态"，故只给最轻的一层）+

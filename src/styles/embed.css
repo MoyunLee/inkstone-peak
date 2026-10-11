@@ -83,8 +83,10 @@
 .vh-act {
   display: inline-block;
   padding: 5px 11px;
-  font-size: 12.5px;
-  letter-spacing: 0.08em;
+  font-family: var(--ui-btn-font);
+  font-size: var(--ui-btn-size);
+  font-weight: var(--ui-btn-weight);
+  letter-spacing: var(--ui-btn-track);
   color: var(--on-media);
   text-decoration: none;
   border: 1px solid color-mix(in srgb, var(--on-media) 45%, transparent);

@@ -151,7 +151,7 @@
 .prose > .cs-wrap > pre { margin: 0; } /* 折叠壳持距，pre 自身归零，免得双份 */
 .cs-wrap { position: relative; }
 .prose[data-shrink='true'] .cs-wrap:not(.cs-open) pre { max-height: 20rem; overflow: hidden; }
-.cs-btn { position: absolute; right: 10px; bottom: 10px; font: inherit; font-size: 12px; letter-spacing: 0.08em; color: var(--code-btn-fg); background: var(--code-btn-bg); border: 1px solid var(--code-btn-line); border-radius: 999px; padding: 3px 12px; cursor: pointer; }
+.cs-btn { position: absolute; right: 10px; bottom: 10px; font-family: var(--ui-btn-font); font-size: var(--ui-btn-size); font-weight: var(--ui-btn-weight); letter-spacing: var(--ui-btn-track); color: var(--code-btn-fg); background: var(--code-btn-bg); border: 1px solid var(--code-btn-line); border-radius: 999px; padding: 3px 12px; cursor: pointer; }
 .cs-btn:hover { background: var(--code-btn-bg-hover); }
 
 /* 侧栏（aside）：信息卡 + 卡外目录
@@ -173,7 +173,7 @@
 .pa-rows li { display: flex; gap: 10px; color: var(--ink-2); }
 .pa-rows b { flex: none; font-weight: 400; color: var(--ink-3); letter-spacing: 0.1em; }
 .pa-tags { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 0; padding: 0; }
-.pa-tags li { font-size: 12px; color: var(--ink-2); background: color-mix(in srgb, var(--ink-4) 45%, var(--paper)); border: 1px solid color-mix(in srgb, var(--ink-4) 70%, transparent); border-radius: 2px; padding: 1px 9px; }
+.pa-tags li { font-family: var(--ui-btn-font); font-size: var(--ui-btn-size); font-weight: var(--ui-btn-weight); letter-spacing: var(--ui-btn-track); color: var(--ink-2); background: color-mix(in srgb, var(--ink-4) 45%, var(--paper)); border: 1px solid color-mix(in srgb, var(--ink-4) 70%, transparent); border-radius: 2px; padding: 1px 9px; }
 /* ≥1024 侧栏吸顶：限高到视口内，内容超出时**目录自身**滚动。
    原先只有 `position: sticky`：aside 高过视口时它是「整体钉住」的，
    露不出来的末尾条目永远够不着（文章标题一多，目录下半截就消失）。

@@ -95,8 +95,23 @@
   --t-seal: 260ms ease-out;
 
   --font-kai: 'LXGW WenKai', '霞鹜文楷', KaiTi, '楷体', serif;
-  --font-song: 'Source Han Serif SC', '思源宋体', 'Noto Serif SC', SimSun, serif;
+  --font-song: 'Source Han Serif SC', '思源宋体', 'Noto Serif SC', 'Songti SC', 'STSong', SimSun, '宋体', serif;
   --font-mono: 'LXGW WenKai Mono', '霞鹜文楷等宽', ui-monospace, monospace;
+
+  /* ── 小按钮 / 胶囊的字面契约（**唯一真源**，2026-10-11 用户令：站内所有小按钮/胶囊统一成同一字号与字重）──
+     一个字体、一个字号、一个字重，外加一条字距：**中英数字同出一体**（宋体族：思源宋体 → 宋体，
+     Latin 与汉字本是同一套设计），故不再出现「英文比中文粗一档」那种回退字体打架的现象
+     （起因：标签框走楷体族 + 数字走等宽族，两族的 Latin 都比它们的汉字重）。
+     级别差异改由**墨色**承担（如标签框里：名字 --ink、记号与计数 --ink-3），不再靠字号。
+     消费者（**不许再各自写死 font-family / font-size / font-weight**）：
+       .tags-chip（含其内 mark / name / count）· .card-tags li · .pa-tags li · .heat-year ·
+       .archive-clear · .bento-tag · .cs-btn · .vh-act
+     ★不在列：.theme-choice / .theme-badge（无字面，只有图标）· .seal-btn（站内唯一「大」按钮族，
+       自带 14px + .2em 印章字距，是另一档，不混进小按钮里）。 */
+  --ui-btn-font: var(--font-song);
+  --ui-btn-size: 14px;
+  --ui-btn-weight: 400;
+  --ui-btn-track: 0.06em;
 }
 
 /* 深色（三态之一 light|dark）

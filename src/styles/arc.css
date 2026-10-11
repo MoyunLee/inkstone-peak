@@ -170,8 +170,11 @@
   padding: 0;
 }
 .card-tags li {
-  font-size: 12px;
-  letter-spacing: 0.1em;
+  /* 字面吃 tokens.css 的小按钮契约（一处改、全站小胶囊一起走） */
+  font-family: var(--ui-btn-font);
+  font-size: var(--ui-btn-size);
+  font-weight: var(--ui-btn-weight);
+  letter-spacing: var(--ui-btn-track);
   color: var(--ink-2);
   background: color-mix(in srgb, var(--ink-4) 45%, var(--paper));
   border: 1px solid color-mix(in srgb, var(--ink-4) 70%, transparent);
