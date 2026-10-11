@@ -1,7 +1,32 @@
-/* /archive 归档页（年 → 月时间线）。
+/* /archive 归档页（年 → 月 → 目 三级册页）。
    ⚠ 类名一律 .archive-* / .archive-page：`arc.css` 里已有一个 `.archive`（ArticleGrid 的网格容器），
    本页**刻意不叫 `.archive`**，免得吃它那份 max-width / --arc-gap。
-   皮肤只吃既有 token（--hairline 装饰发丝界 / --ink 层级 / --seal 朱框 / --ink-3 淡墨），不新增配色。 */
+   条目卡＝全站唯一的 `.card`（arc.css）**横排**：皮肤（底 / 发丝界 / 圆角 / 标签胶囊 / 等宽日期）零新增，
+   本片只覆写几何（纵横两轴调换、封面槽由整幅改左竖条）与四块版面（页首 / 年题 / 月柱 / 筛选条）。
+   皮肤只吃既有 token（--hairline 装饰发丝界 / --ink 层级 / --seal 年表节点 / --font-mono 数目字），不新增配色。 */
+
+/* ── 页首 ──
+   取的是参考站（blog.anheyu.com/archives）「页名 + 数量」那一层结构，落到自家的纸墨上：
+   楷体大字页名 + 一道收头发丝线，不抄它的彩色徽章与卡片投影。
+   「多少条」**不在这行出裸数字**（一枚无题的 6 谁也读不懂，2026-10-11 撤掉）——
+   交给下面那幅热力图的题头：`{year} 年共更新 {n} 条` 本来就是句人话，
+   顺手还把「什么时候写的」一并画了出来（那张图可点，见 Archive.tsx 与 heat.css）。 */
+.archive-head {
+  margin-bottom: clamp(24px, 3.4vh, 44px);
+  padding-bottom: clamp(12px, 1.6vh, 20px);
+  border-bottom: 1px solid var(--hairline);
+}
+.archive-head-title {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-kai);
+  font-size: clamp(28px, 3.4vw, 44px);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.16em;
+}
+
+/* ── 时间线骨架：年 → 月 → 目 ── */
 .archive-timeline {
   list-style: none;
   margin: 0;
@@ -13,31 +38,47 @@
   display: grid;
   gap: clamp(10px, 1.6vh, 20px);
 }
-/* 年题：数字大字（与 page_meta.archive 的「归档」分工——中文名只活在 title/h1 里） */
+/* 年题：数字大字 + 左侧那枚朱色节点。节点是「年表刻度」，与 /about 生涯时间轴的节点同一语言
+   （印朱当「面」取 --seal，面积按 3px 宽算，仍是全站 <2% 那一档）。
+   中文名只活在 title/h1 里，这行画面只有数字（与 page_meta.archive 的「归档」分工）。 */
 .archive-year-num {
   margin: 0;
   padding-bottom: 10px;
   border-bottom: 1px solid var(--hairline);
   color: var(--ink);
   font-family: var(--font-song);
-  font-size: clamp(26px, 3vw, 40px);
+  font-size: clamp(20px, 2.2vw, 30px);
   font-weight: 400;
   letter-spacing: 0.08em;
   font-variant-numeric: tabular-nums;
+}
+.archive-year-num::before {
+  content: '';
+  display: inline-block;
+  width: 3px;
+  height: 0.72em;
+  margin-right: 0.46em;
+  border-radius: 1px;
+  background: var(--seal);
+  vertical-align: -0.02em;
 }
 /* 月行：宽屏「月号列 + 条目列」两栏；窄屏单列（月号压在条目上方） */
 .archive-month {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 4px 12px;
+  gap: 8px 12px;
 }
 .archive-month-num {
   margin: 0;
-  color: var(--ink-3);
+  /* 2026-10-11 用户令：先「优化侧边文字大小」（13 → 15 → **20px**），再「月号改为次墨档」（--ink-3 → **--ink-2**）。
+     它在卡堆左边自成一列，是「年 → 月 → 目」里承上启下的那一级，尺寸与墨色都该够得上第二眼
+     （页名 28–44 / 年 20–30 / 月 20 / 卡题 15–19；墨色档：年 = --ink，月 = --ink-2，卡上的日期 = --ink-3）。
+     字距随字号收紧：.18em 在大字下会把两位数字拉散。 */
+  color: var(--ink-2);
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 20px;
   font-weight: 400;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.12em;
   font-variant-numeric: tabular-nums;
 }
 .archive-list {
@@ -45,50 +86,138 @@
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 2px;
+  gap: clamp(10px, 1.4vh, 16px);
 }
 .archive-item {
+  display: flex; /* 让卡铺满整格（.card 的 flex:1 据此生效） */
+}
+
+/* ── 筛选条（点热力图某天后才出）──
+   「那天」用纯数字（与年 / 月 / 日期同一口径，页面零中文字面量），左边那枚朱刻度与年题同一语言；
+   右侧「显示全部」是撤销口：文案住 site.yml 的 a11y.archive_clear（界面中文的唯一家）。
+   按钮口径照抄同页的年份页签（.heat-year：等宽小字 + 细边 + hover 铺卡底），
+   差别只有「它自带一条可见的细边」——页签是成组的，它孤零零一枚，得自己给出可点的样子。 */
+.archive-filter {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 12px 20px;
-  padding: 7px 0;
-  border-bottom: 1px solid var(--hairline);
+  flex-wrap: wrap;
+  gap: 10px clamp(16px, 3vw, 32px);
+  margin-bottom: clamp(18px, 2.4vh, 28px);
 }
-.archive-link {
+.archive-filter-day {
+  margin: 0;
   color: var(--ink);
+  font-family: var(--font-mono);
   font-size: 15px;
-  letter-spacing: 0.04em;
-  text-decoration: none;
-  transition: color var(--t) var(--ease);
-}
-.archive-link:hover {
-  color: var(--seal-ink);
-}
-.archive-link:focus-visible {
-  outline: 2px solid var(--seal); /* 全站唯一朱框 */
-  outline-offset: 2px;
-}
-.archive-date {
-  flex: none;
-  color: var(--ink-3);
-  font-size: 12px;
   letter-spacing: 0.08em;
   font-variant-numeric: tabular-nums;
 }
+.archive-filter-day::before {
+  content: '';
+  display: inline-block;
+  width: 3px;
+  height: 0.72em;
+  margin-right: 0.5em;
+  border-radius: 1px;
+  background: var(--seal);
+  vertical-align: -0.02em;
+}
+.archive-clear {
+  flex: none;
+  padding: 1px 9px;
+  border: 1px solid var(--line-card);
+  border-radius: 4px;
+  color: var(--ink);
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.6;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition:
+    color var(--t) var(--ease),
+    background-color var(--t) var(--ease),
+    border-color var(--t) var(--ease);
+}
+.archive-clear:hover {
+  background: var(--card);
+  border-color: color-mix(in srgb, var(--ink-4) 70%, transparent);
+}
+.archive-clear:focus-visible {
+  outline: 2px solid var(--seal); /* 全站唯一朱框 */
+  outline-offset: 2px;
+}
+/* 撤筛选后焦点落回年表（Archive.tsx 的 clearDay）：程序化聚焦不是 :focus-visible，故不描框——
+   但真用键盘 Tab 进来时要看得见落点，所以补的是 :focus-visible 而不是 .card:focus 那套。 */
+.archive-timeline:focus {
+  outline: none;
+}
+.archive-timeline:focus-visible {
+  outline: 2px solid var(--seal);
+  outline-offset: 6px;
+}
+
+/* ── 条目卡：同一张 .card，翻成横排 ──
+   皮肤一律取用 arc.css（底 / 发丝界 / 圆角 / 悬停上浮 / 朱框 / 标签胶囊 / 等宽日期），
+   本段只在**几何**上做两件事：
+     ① 主轴由纵改横（封面槽从左上来到了左边）；
+     ② 封面槽由「整幅 16:9」改成「左侧一竖条」——宽度归本页给，高度随卡（stretch），
+        分界线从底边改右边（与格子卡同一条发丝语言，只是换了条边）。
+   min-height 保证「题短、无标签」的那几张也是一块能看的版面（否则封面条会缩成一条横带）。 */
+.archive-card {
+  flex-direction: row;
+  align-items: stretch;
+  min-height: clamp(96px, 8vw, 120px);
+}
+.archive-card .card-cover {
+  width: clamp(112px, 15vw, 216px);
+  border-bottom: 0;
+  border-right: 1px solid var(--hairline);
+}
+/* 卡文槽：题独占第一行，标签与日期共占第二行（日期贴右）。
+   ★用「整行基 + 自动外边距」而不是 grid：标签 0～3 枚都能自然落位——
+     没标签时日期自己靠右收在第二行，标签多到换行时日期顺次落到第三行（窄屏尤其常见）。 */
+.archive-card .card-body {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  align-content: center;
+  column-gap: clamp(12px, 2vw, 28px);
+  row-gap: 6px;
+}
+.archive-card .card-title {
+  flex: 1 0 100%;
+}
+.archive-card .card-date {
+  margin-top: 0; /* 格子卡是「日期沉底」（margin-top:auto），横排里改由外边距把日期推到行尾 */
+  margin-left: auto;
+  flex: none;
+}
+
 @media (min-width: 768px) {
   .archive-month {
     grid-template-columns: 3rem minmax(0, 1fr);
   }
+  /* 月号与首张卡的**题行**齐平（不是与卡顶齐平）：卡上还有 var(--card-pad) 内距 + 题行行高的一半，
+     月号自己那行也占 1.75 倍行高。★这一档是**量出来的**，不是拍的：`.shots/_arc-month-align.js`
+     逐档试 padding-top 并报「月号字行中心 − 题行中心」，20px 字号下 `card-pad + 14px` 时两桶各差 ±1px
+     （此前 +4px 那档实测 −17 / −19px，读作"月号浮在卡上方"）。改月号字号必须重跑这支探针。 */
   .archive-month-num {
-    padding-top: 9px; /* 与 .archive-item 首行基线对齐 */
+    padding-top: calc(var(--card-pad) + 14px);
   }
 }
-@media (max-width: 480px) {
-  /* 窄屏单列：日期换到题下一行，长标题不被挤成一字一行 */
-  .archive-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 2px;
+@media (max-width: 639px) {
+  /* 窄屏：封面槽收到一掌宽；日期不再往右贴（那一行挤不下就换行，左对齐跟着题走）；
+     题放到三行——行式卡的题只占住竖条右边那一栏，两行截断会把长题吃掉半句（手机是最常读的一档） */
+  .archive-card .card-cover {
+    width: clamp(76px, 22vw, 104px);
+  }
+  .archive-card .card-date {
+    margin-left: 0;
+  }
+  .archive-card .card-title {
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
   }
 }

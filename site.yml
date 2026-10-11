@@ -27,8 +27,8 @@ nav:
   - { ink: 山门, route: /,               isDetailPage: false, detailPrefix: null,             module: home,      parent: null }
   - { ink: 观山, route: /portfolio,      isDetailPage: true,  detailPrefix: /portfolio,       module: portfolio, parent: null }  # 列表页+/portfolio/:slug 动态详情同前缀固定激活（旧 /work 族已移除）
   - { ink: 造境, route: /blog,           isDetailPage: true,  detailPrefix: /blog,            module: blog,      parent: null }       # 博客随笔页（旧 /pipeline 已移除）。/blog/:slug 详情族按前缀固定激活（观山同权 R2 语义），module=blog 首页段照常参与滚动联动
-  - { ink: 归档, route: /archive,       isDetailPage: false, detailPrefix: null,            module: null,      parent: /portfolio }       # 年月归档页（/archive：全量文章含作品的年→月时间线）。module 必须为 null——「归档」不对应首页任何一段，而 home.sections 的 id 全站唯一且 blog 已被 /blog 占用
-  - { ink: 标签, route: /tags,          isDetailPage: true,  detailPrefix: /tags,           module: null,      parent: /portfolio }       # 标签聚合页（/tags 索引 + /tags/<标签> 单标签聚合，全量含作品）。module 必须为 null——「标签」不对应首页任何一段；isDetailPage+detailPrefix 只为让顶栏在 /tags/<标签> 上保持「标签」激活（同 /portfolio 语义），posts 里没有 /tags/ 落点 ⇒ 不派生额外详情页
+  - { ink: 归档, route: /archive,       isDetailPage: false, detailPrefix: null,            module: null,      parent: /blog }       # 年月归档页（/archive：全量文章含作品的年→月时间线）。归入「造境」面板——归档与标签都是同一个文章中心库的另两种视图（2026-10-11 用户令：原先错挂在观山下，已纠正）。module 必须为 null——「归档」不对应首页任何一段，而 home.sections 的 id 全站唯一且 blog 已被 /blog 占用
+  - { ink: 标签, route: /tags,          isDetailPage: true,  detailPrefix: /tags,           module: null,      parent: /blog }       # 标签聚合页（/tags 索引 + /tags/<标签> 单标签聚合，全量含作品）。归入「造境」面板（同上）。module 必须为 null——「标签」不对应首页任何一段；isDetailPage+detailPrefix 只为让顶栏在 /tags/<标签> 上保持「标签」激活（同 /portfolio 语义），posts 里没有 /tags/ 落点 ⇒ 不派生额外详情页
   - { ink: 观自, route: /about,          isDetailPage: false, detailPrefix: null,            module: about,     parent: null }      # 观自=整页 /about（旧 hash 锚点关联已移除）
   # **独立传音页整条退役**，不留注释留底——nav 只剩上面四条。
   #   传音**只作为首页第五段存在**（home.sections 的 id=footer + SiteFooter 组件，各页页脚照旧）。
@@ -330,6 +330,7 @@ a11y:
   post_code_expand: 展开全部                        # 代码框折叠时按钮文字
   post_code_collapse: 收起                          # 代码框展开时按钮文字
   related_title: 相关阅读                         # 详情页「相关阅读」区块的标题（兼该块可访问名）
+  archive_clear: 显示全部                         # /archive 筛选条上的「回到全目」按钮（2026-10-11 加：点热力图某天后才出那一条）
   lightbox_label: 查看大图                          # 点图放大层的可访问名（role=dialog）
   lightbox_close: 关闭大图                          # 放大层关闭按钮 aria-label
   embed_play: 点此播放                              # 嵌入海报上播放按钮的 aria-label（触摸设备先出海报）

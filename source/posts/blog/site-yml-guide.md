@@ -38,7 +38,7 @@ toc_number: false     # 本文标题自带编号（## 一、/ ### 3.1），再�
 | `contact` | ❌ 不能 | `email` | 页脚联系方式栏 |
 | `footer` | ❌ 不能 | `columns` `seal_text` `copyright`（`brand_bio` 2026-09-23 起可省） | 页脚 / 首页传音段 / favicon 印文 |
 | `notfound` | ❌ 不能 | `line` `cta` | 404 页 |
-| `a11y` | ✅ 可整节删 | —（45 键全可选） | 全站 aria 与可见小字 |
+| `a11y` | ✅ 可整节删 | —（46 键全可选） | 全站 aria 与可见小字 |
 
 一句话记法：**「骨架进必填，能力进可省」。** 站点身份、页面清单、首页结构、关于页标题、联系方式与页脚、404，这些是骨架；轮播、归档开关、热力图、文章默认值、aria 文案，这些是能力，删了只退场不报错。
 
@@ -72,7 +72,8 @@ toc_number: false     # 本文标题自带编号（## 一、/ ### 3.1），再�
 nav:
   - { ink: 山门, route: /,          isDetailPage: false, detailPrefix: null,       module: home,      parent: null }
   - { ink: 观山, route: /portfolio, isDetailPage: true,  detailPrefix: /portfolio, module: portfolio, parent: null }
-  - { ink: 归档, route: /archive,   isDetailPage: false, detailPrefix: null,       module: null,      parent: /portfolio }
+  - { ink: 造境, route: /blog,      isDetailPage: true,  detailPrefix: /blog,      module: blog,      parent: null }
+  - { ink: 归档, route: /archive,   isDetailPage: false, detailPrefix: null,       module: null,      parent: /blog }   # 收进「造境」的下拉面板
 ```
 
 构建期还会逐条查：`ink` 重复、`route` 基路径撞车、`detailPrefix` 撞车、`module` 不在 `home.sections` 或重复、`parent` 悬空/自指/父条目自身带 `parent`。**内链白名单也从这张表派生**——加页面 = 加一行。
@@ -316,9 +317,9 @@ columns:
 
 `line`（提示语）+ `cta`（`{ label, to }`）。同一套文案生成 `dist/404.html` 并注入 noindex。
 
-### 3.13 `a11y`（可整节省；45 键全可选）
+### 3.13 `a11y`（可整节省；46 键全可选）
 
-缺键 = 不输出该属性；但键名仍走 strict 白名单，**拼错照样报错**。45 键按用途分六组：
+缺键 = 不输出该属性；但键名仍走 strict 白名单，**拼错照样报错**。46 键按用途分七组：
 
 - 布局：`nav_label` `nav_submenu_aria`（顶栏分组 caret 按钮的可访问名模板，支持 `{ink}`）`tabs_label` `brand_label` `seal_top_hint`（页脚大印：回到本页顶部）`skip_link_label`
 - 详情页与按钮：`case_period`（周期题词）`case_embeds`（嵌入分节标题）`case_nav_label` `case_prev` `case_next`（作品详情页「上一件 / 下一件」导航的可访问名与两枚链接题词）`detail_cta` `detail_aria`（支持 `{ink}`）`carousel_prev` `carousel_next` `carousel_pause` `carousel_play`（轮播暂停/播放键，WCAG 2.2.2）
@@ -326,6 +327,7 @@ columns:
 - 详情页共用：`post_date` `post_updated` `post_categories` `post_toc_label` `post_aside_label`（两型同一枚侧栏可访问名）`post_comments_label` `post_copyright_heading` `post_copyright_author` `post_copyright_link` `post_copyright_notice` `post_code_expand` `post_code_collapse` `related_title`（详情页「相关阅读」区块标题，兼该块可访问名）
 - 内容层：`lightbox_label`（点图放大层）`lightbox_close`（关闭大图）`embed_play` `embed_external` `embed_failed`（嵌入海报三态）`video_retry` `video_open_native`（自托管视频失败态）
 - 外观：`theme_label`（三态切换组的 aria-label）`theme_light` `theme_dark` `theme_system`（三个选项文案，默认态＝跟随系统）`theme_switch_hint`（窄屏收起按钮的 title/aria-label 兜底）
+- 列表页：`archive_clear`（`/archive` 筛选条上的撤销按钮：点了热力图某一天之后，把年表还原成全目）
 
 ## 四、删了会怎样（速查）
 

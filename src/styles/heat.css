@@ -156,6 +156,27 @@
   box-shadow: none;
 }
 
+/* 点格子选那天（可选交互，2026-10-11 起 /archive 消费：点一下＝年表只留那天动过的条目）
+   整图仍是 `aria-hidden` 的视觉编码（读屏不逐格朗读），可点只是给指针用户的**近路**：
+   同一份事实在下方年表里逐条可读、可 Tab ⇒ 这不是唯一通道，故方块不加角色、不进 Tab 序。
+   可点的只有「年内已过日 + 当日有条目」那几格（属性由 HeatmapGrid 写，空白格不写＝光标不骗人）；
+   回执一律走**内阴影**（不走出框的 outline/外阴影）：.heat-scroll 是 overflow 容器，
+   首行格子那圈外框会被裁掉半根，而内阴影永远落在格子里、也压不过 `data-level` 的色。
+   朱框＝「这就是当前」——与顶栏激活下划线、详情页目录当前项同一句语言。 */
+.heat-cell[data-pick='true'] {
+  cursor: pointer;
+}
+.heat-cell[data-pick='true']:hover {
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--ink) 55%, transparent);
+}
+/* 选中那格压在悬停之上：两条都是内阴影，不改选择器顺序与特异性的话，
+   指针停在刚点过的那一格上（正常操作就是如此）看到的会是墨框而不是朱框。
+   故选中那条**带上 :hover 变体**并写在后面——同权同序，选中恒胜。 */
+.heat-cell[data-picked='true'],
+.heat-cell[data-picked='true']:hover {
+  box-shadow: inset 0 0 0 2px var(--seal);
+}
+
 /* 生长进画
    触发权 = 站内 useReveal（唯一写入方，写在 .heat 的 data-revealed 上，见 ui/heatmap/index.tsx），
    这里只管补间。三条铁律照抄 tokens.css 的「滚动进场契约」：

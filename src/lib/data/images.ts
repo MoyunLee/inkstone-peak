@@ -35,3 +35,9 @@ export const HERO_SIZES = '(min-width: 2095px) 1700px, (min-width: 1801px) calc(
 export const CARD_SIZES_3 = '(min-width: 1024px) 27vw, (min-width: 640px) 40vw, calc(88vw - 40px)'
 /** 观山瀑布流卡（.portfolio：1 / 2 列；≥1024 时每格 ≈ 版心/2，用 40vw）。 */
 export const CARD_SIZES_2 = '(min-width: 1024px) 40vw, calc(88vw - 40px)'
+/**
+ * 归档页行式卡的左竖条封面（.archive-card .card-cover：`clamp(112px,15vw,216px)`，≤639 收到 `clamp(76px,22vw,104px)`）。
+ * 这一槽与版心无关（是卡片内部的一条固定窄边），故口径直接照抄那两个 clamp 的**上界那一侧**：
+ * sizes 只是候选提示，多要一档只多几 KB，少要一档就是糊。
+ */
+export const THUMB_SIZES = '(min-width: 640px) 15vw, 22vw'
